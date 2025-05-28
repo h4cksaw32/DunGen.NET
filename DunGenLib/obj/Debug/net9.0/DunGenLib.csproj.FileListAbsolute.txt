@@ -1,0 +1,12 @@
+C:\Users\yansh\Documents\code\c#\DunGen.NET\DunGenLib\bin\Debug\net9.0\DunGenLib.deps.json
+C:\Users\yansh\Documents\code\c#\DunGen.NET\DunGenLib\bin\Debug\net9.0\DunGenLib.dll
+C:\Users\yansh\Documents\code\c#\DunGen.NET\DunGenLib\bin\Debug\net9.0\DunGenLib.pdb
+C:\Users\yansh\Documents\code\c#\DunGen.NET\DunGenLib\obj\Debug\net9.0\DunGenLib.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\yansh\Documents\code\c#\DunGen.NET\DunGenLib\obj\Debug\net9.0\DunGenLib.AssemblyInfoInputs.cache
+C:\Users\yansh\Documents\code\c#\DunGen.NET\DunGenLib\obj\Debug\net9.0\DunGenLib.AssemblyInfo.cs
+C:\Users\yansh\Documents\code\c#\DunGen.NET\DunGenLib\obj\Debug\net9.0\DunGenLib.csproj.CoreCompileInputs.cache
+C:\Users\yansh\Documents\code\c#\DunGen.NET\DunGenLib\obj\Debug\net9.0\DunGenLib.sourcelink.json
+C:\Users\yansh\Documents\code\c#\DunGen.NET\DunGenLib\obj\Debug\net9.0\DunGenLib.dll
+C:\Users\yansh\Documents\code\c#\DunGen.NET\DunGenLib\obj\Debug\net9.0\refint\DunGenLib.dll
+C:\Users\yansh\Documents\code\c#\DunGen.NET\DunGenLib\obj\Debug\net9.0\DunGenLib.pdb
+C:\Users\yansh\Documents\code\c#\DunGen.NET\DunGenLib\obj\Debug\net9.0\ref\DunGenLib.dll

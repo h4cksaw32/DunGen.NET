@@ -1,0 +1,78 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\yansh\\Documents\\code\\c#\\DunGen.NET\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{98E66870-3354-4D19-8763-E37190BF620F}|DunGenLib\\DunGenLib.csproj|c:\\users\\yansh\\documents\\code\\c#\\dungen.net\\dungenlib\\generator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{98E66870-3354-4D19-8763-E37190BF620F}|DunGenLib\\DunGenLib.csproj|solutionrelative:dungenlib\\generator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BBE1D737-1992-4937-9C4F-F2A544272DF6}|..\\DunGenTest\\DunGenTest.csproj|c:\\users\\yansh\\documents\\code\\c#\\dungentest\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{98E66870-3354-4D19-8763-E37190BF620F}|DunGenLib\\DunGenLib.csproj|c:\\users\\yansh\\documents\\code\\c#\\dungen.net\\dungenlib\\grid.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{98E66870-3354-4D19-8763-E37190BF620F}|DunGenLib\\DunGenLib.csproj|solutionrelative:dungenlib\\grid.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 3,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Grid.cs",
+              "DocumentMoniker": "C:\\Users\\yansh\\Documents\\code\\c#\\DunGen.NET\\DunGenLib\\Grid.cs",
+              "RelativeDocumentMoniker": "DunGenLib\\Grid.cs",
+              "ToolTip": "C:\\Users\\yansh\\Documents\\code\\c#\\DunGen.NET\\DunGenLib\\Grid.cs",
+              "RelativeToolTip": "DunGenLib\\Grid.cs",
+              "ViewState": "AgIAABMAAAAAAAAAAAAuwB4AAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-27T04:58:25.467Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Generator.cs",
+              "DocumentMoniker": "C:\\Users\\yansh\\Documents\\code\\c#\\DunGen.NET\\DunGenLib\\Generator.cs",
+              "RelativeDocumentMoniker": "DunGenLib\\Generator.cs",
+              "ToolTip": "C:\\Users\\yansh\\Documents\\code\\c#\\DunGen.NET\\DunGenLib\\Generator.cs",
+              "RelativeToolTip": "DunGenLib\\Generator.cs",
+              "ViewState": "AgIAAF4AAAAAAAAAAAAAwGAAAABEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-27T04:59:42.817Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\yansh\\Documents\\code\\c#\\DunGenTest\\Program.cs",
+              "RelativeDocumentMoniker": "..\\DunGenTest\\Program.cs",
+              "ToolTip": "C:\\Users\\yansh\\Documents\\code\\c#\\DunGenTest\\Program.cs",
+              "RelativeToolTip": "..\\DunGenTest\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-27T04:33:17.505Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
