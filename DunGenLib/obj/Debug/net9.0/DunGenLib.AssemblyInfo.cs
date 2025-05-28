@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DunGenLib")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+82fc47e1525558986b6a1eb1e54afff1d9d7cf21")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a1e865d89ae6a53a874d875dc707ba0fd66b91b0")]
 [assembly: System.Reflection.AssemblyProductAttribute("DunGenLib")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DunGenLib")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

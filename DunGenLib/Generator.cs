@@ -49,10 +49,22 @@ namespace DunGen.NET
             }
             return false;
         }
+
+        private List<RoomData> rooms = new();
         public void GenerateMap()
         {
             grid.FillMap(WallID);
             GenerateRooms();
+        }
+        public byte NeighbourGround(byte x, byte y, bool corners = true)
+        {
+            byte result = 0;
+            foreach (byte? i in grid.GetArea(x, y, corners))
+            {
+                if (i == null) continue;
+                if (InGroundIDs(i ?? WallID)) result++;
+            }
+            return result;
         }
         protected void CarveRoom(Value2D<byte> pos, Value2D<byte> size)
         {
@@ -85,6 +97,7 @@ namespace DunGen.NET
                             size.y = (byte)rng.Next(MinRoomSize.y, MaxRoomSize.y);
                         } while (!MergeRooms && CheckRoom(pos, size));
                         CarveRoom(pos, size);
+                        rooms.Add(new() { pos = pos, size = size });
                     }
                 }
             }
@@ -130,6 +143,11 @@ namespace DunGen.NET
         public float spawnRate;
         public bool patched;
         public Value2D<byte> MaxPatchSize;
+    }
+    public struct RoomData
+    {
+        public Value2D<byte> pos;
+        public Value2D<byte> size;
     }
     public struct Value2D<T>
     {
