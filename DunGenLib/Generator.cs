@@ -11,13 +11,13 @@ namespace DunGen.NET
     {
         public required Grid grid;
         private readonly Random rng = new();
-        public Value2D<byte> MapChunks = new() { x = 5, y = 5 };
+        public Value2D<ushort> MapChunks = new() { x = 5, y = 5 };
 
-        public Value2D<byte> MinRoomSize = new() { x = 3, y = 3 };
-        public Value2D<byte> MaxRoomSize = new() { x = 16, y = 16 };
+        public Value2D<ushort> MinRoomSize = new() { x = 3, y = 3 };
+        public Value2D<ushort> MaxRoomSize = new() { x = 16, y = 16 };
         public bool MergeRooms = false;
         public bool TouchRooms = false;
-        public byte RoomsPerChunk = 1;
+        public ushort RoomsPerChunk = 1;
         public byte MinRoomExits = 1;
         public byte MaxRoomExits = 4;
 
@@ -50,13 +50,14 @@ namespace DunGen.NET
             return false;
         }
 
-        private List<RoomData> rooms = new();
+        private List<RoomData> rooms = [];
         public void GenerateMap()
         {
             grid.FillMap(WallID);
             GenerateRooms();
+            GeneratePaths();
         }
-        public byte NeighbourGround(byte x, byte y, bool corners = true)
+        public byte NeighbourGround(ushort x, ushort y, bool corners = true)
         {
             byte result = 0;
             foreach (byte? i in grid.GetArea(x, y, corners))
@@ -66,12 +67,12 @@ namespace DunGen.NET
             }
             return result;
         }
-        protected void CarveRoom(Value2D<byte> pos, Value2D<byte> size)
+        protected void CarveRoom(Value2D<ushort> pos, Value2D<ushort> size)
         {
-            for (byte y = pos.y; y < pos.y + size.y; y++)
+            for (ushort y = pos.y; y < pos.y + size.y; y++)
             {
                 if (y >= grid.height) break;
-                for (byte x = pos.x; x < pos.x + size.x; x++)
+                for (ushort x = pos.x; x < pos.x + size.x; x++)
                 {
                     if (x >= grid.width) break;
                     grid.PlaceTile(x, y, GroundIDs[0].id);
@@ -80,21 +81,21 @@ namespace DunGen.NET
         }
         protected void GenerateRooms()
         {
-            Value2D<byte> chunkSize = new() { x = (byte)(grid.width/MapChunks.x), y = (byte)(grid.height/MapChunks.y) };
-            Value2D<byte> pos;
-            Value2D<byte> size;
-            for (byte v = 0; v < MapChunks.y; v++)
+            Value2D<ushort> chunkSize = new() { x = (ushort)(grid.width/MapChunks.x), y = (ushort)(grid.height/MapChunks.y) };
+            Value2D<ushort> pos;
+            Value2D<ushort> size;
+            for (ushort v = 0; v < MapChunks.y; v++)
             {
-                for (byte h = 0; h < MapChunks.x; h++)
+                for (ushort h = 0; h < MapChunks.x; h++)
                 {
-                    for (byte i = 0; i < RoomsPerChunk; i++)
+                    for (ushort i = 0; i < RoomsPerChunk; i++)
                     {
                         do
                         {
-                            pos.x = (byte)rng.Next(chunkSize.x * h, chunkSize.x * (h + 1) - (byte)Math.Ceiling((double)chunkSize.x / 2));
-                            pos.y = (byte)rng.Next(chunkSize.y * v, chunkSize.y * (v + 1) - (byte)Math.Ceiling((double)chunkSize.y / 2));
-                            size.x = (byte)rng.Next(MinRoomSize.x, MaxRoomSize.x);
-                            size.y = (byte)rng.Next(MinRoomSize.y, MaxRoomSize.y);
+                            pos.x = (ushort)rng.Next(chunkSize.x * h, chunkSize.x * (h + 1) - (ushort)Math.Ceiling((double)chunkSize.x / 2));
+                            pos.y = (ushort)rng.Next(chunkSize.y * v, chunkSize.y * (v + 1) - (ushort)Math.Ceiling((double)chunkSize.y / 2));
+                            size.x = (ushort)rng.Next(MinRoomSize.x, MaxRoomSize.x);
+                            size.y = (ushort)rng.Next(MinRoomSize.y, MaxRoomSize.y);
                         } while (!MergeRooms && CheckRoom(pos, size));
                         CarveRoom(pos, size);
                         rooms.Add(new() { pos = pos, size = size });
@@ -102,11 +103,11 @@ namespace DunGen.NET
                 }
             }
         }
-        protected bool CheckRoom(Value2D<byte> pos, Value2D<byte> size)
+        protected bool CheckRoom(Value2D<ushort> pos, Value2D<ushort> size)
         {
-            byte x, y;
-            Value2D<byte> minBounds = new() { x = !TouchRooms && pos.x > 0 ? (byte)(pos.x - 1) : pos.x, y = !TouchRooms && pos.y > 0 ? (byte)(pos.y - 1) : pos.y };
-            Value2D<byte> maxBounds = new() { x = (byte)(TouchRooms ? pos.x + size.x : pos.x + size.x + 1), y = (byte)(TouchRooms ? pos.y + size.y : pos.y + size.y + 1) };
+            ushort x, y;
+            Value2D<ushort> minBounds = new() { x = !TouchRooms && pos.x > 0 ? (ushort)(pos.x - 1) : pos.x, y = !TouchRooms && pos.y > 0 ? (ushort)(pos.y - 1) : pos.y };
+            Value2D<ushort> maxBounds = new() { x = (ushort)(TouchRooms ? pos.x + size.x : pos.x + size.x + 1), y = (ushort)(TouchRooms ? pos.y + size.y : pos.y + size.y + 1) };
             for (y = minBounds.y; y < maxBounds.y && y < grid.height; y++)
             {
                 if (TouchRooms && (y == pos.y || y == pos.y + size.y - 1))
@@ -131,6 +132,19 @@ namespace DunGen.NET
             }
             return false;
         }
+        protected void CarvePath(Value2D<ushort> startPos, Direction startDir)
+        {
+
+        }
+        protected void GeneratePaths()
+        {
+
+        }
+    }
+    public struct Value2D<T>
+    {
+        public T x;
+        public T y;
     }
     public struct PoolOptions
     {
@@ -146,12 +160,14 @@ namespace DunGen.NET
     }
     public struct RoomData
     {
-        public Value2D<byte> pos;
-        public Value2D<byte> size;
+        public Value2D<ushort> pos;
+        public Value2D<ushort> size;
     }
-    public struct Value2D<T>
+    public enum Direction : short
     {
-        public T x;
-        public T y;
+        Up = 0,
+        Right = 90,
+        Down = 180,
+        Left = 270,
     }
 }
