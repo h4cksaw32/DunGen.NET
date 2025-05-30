@@ -69,7 +69,7 @@ namespace DunGen.NET
             }
             return result;
         }
-        protected void CarveRoom(Value2D<ushort> pos, Value2D<ushort> size)
+        protected void CarveRect(Value2D<ushort> pos, Value2D<ushort> size, byte id)
         {
             for (ushort y = pos.y; y < pos.y + size.y; y++)
             {
@@ -77,7 +77,7 @@ namespace DunGen.NET
                 for (ushort x = pos.x; x < pos.x + size.x; x++)
                 {
                     if (x >= grid.width) break;
-                    grid.PlaceTile(x, y, GroundIDs[0].id);
+                    grid.PlaceTile(x, y, id);
                 }
             }
         }
@@ -99,7 +99,7 @@ namespace DunGen.NET
                             size.x = (ushort)rng.Next(MinRoomSize.x, MaxRoomSize.x);
                             size.y = (ushort)rng.Next(MinRoomSize.y, MaxRoomSize.y);
                         } while (!MergeRooms && CheckRoom(pos, size));
-                        CarveRoom(pos, size);
+                        CarveRect(pos, size, GroundIDs[0].id);
                         rooms.Add(new() { pos = pos, size = size });
                     }
                 }
@@ -132,17 +132,33 @@ namespace DunGen.NET
                 else
                 {
                     if (InGroundIDs(grid.GetTile(minBounds.x, y))) return true;
-                    else if (InGroundIDs(grid.GetTile(maxBounds.x < grid.width ? maxBounds.x : grid.width, y))) return true;
+                    else if (InGroundIDs(grid.GetTile(maxBounds.x < grid.width ? maxBounds.x : (ushort)(grid.width - 1), y))) return true;
                 }
             }
             return false;
         }
         protected void CarvePath(Value2D<ushort> pos, Direction dir)
         {
+            List<GroundOptions> ids = [];
+            foreach (GroundOptions item in GroundIDs)
+            {
+                if (item.inPaths) ids.Add(item);
+            }
+            List<float> prob = [];
+            float denom = 0F;
+            foreach (GroundOptions item in ids)
+            {
+                denom += item.spawnRate;
+                prob.Add(denom);
+            }
             if ((pos.x == 0 && dir == Direction.Left) || (pos.y == 0 && dir == Direction.Up) || (pos.x >= grid.width - 1 && dir == Direction.Right) || (pos.y >= grid.height - 1 && dir == Direction.Down)) return;
             pos.x = (ushort)(pos.x + DirToVec(dir).x);
             pos.y = (ushort)(pos.y + DirToVec(dir).y);
             grid.PlaceTile(pos.x, pos.y, GroundIDs[0].id);
+            byte id = ids[0].id;
+            ushort segLength = 0;
+            ushort segLimit = 0;
+            float rand;
             while (true)
             {
                 if (rng.NextSingle() < PathBend)
@@ -165,7 +181,41 @@ namespace DunGen.NET
                 {
                     if (InGroundIDs(grid.GetTile(pos.x, pos.y))) return;
                 }
-                grid.PlaceTile(pos.x, pos.y, GroundIDs[0].id);
+                if (ids.Count == 0)
+                {
+                    grid.PlaceTile(pos.x, pos.y, GroundIDs[0].id);
+                }
+                else if (ids.Count == 1)
+                {
+                    grid.PlaceTile(pos.x, pos.y, ids[0].id);
+                }
+                else
+                {
+                    if (segLength == 0)
+                    {
+                        rand = rng.NextSingle() * denom;
+                        int index;
+                        for (index = 0; index < prob.Count; index++)
+                        {
+                            if (rand < prob[index])
+                            {
+                                id = ids[index].id;
+                                break;
+                            }
+                        }
+                        if (ids[index].segments) 
+                        {
+                            segLimit = (ushort)rng.Next(ids[index].minSegmentLength, ids[index].maxSegmentLength + 1);
+                            segLength = 1;
+                        }
+                        grid.PlaceTile(pos.x, pos.y, id);
+                    }
+                    else
+                    {
+                        grid.PlaceTile(pos.x, pos.y, id);
+                        segLength = (ushort)(segLength + 1 == segLimit ? 0 : segLength + 1);
+                    }
+                }
                 if (rng.NextSingle() < PathTerminate) return;
             }
         }
@@ -234,8 +284,12 @@ namespace DunGen.NET
     {
         public byte id;
         public float spawnRate;
-        public bool patched;
-        public Value2D<byte> MaxPatchSize;
+        public bool patches;
+        public Value2D<byte> maxPatchSize;
+        public bool inPaths;
+        public bool segments;
+        public ushort minSegmentLength;
+        public ushort maxSegmentLength;
     }
     public struct RoomData
     {
