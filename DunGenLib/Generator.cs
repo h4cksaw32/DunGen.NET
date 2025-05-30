@@ -18,15 +18,15 @@ namespace DunGen.NET
         public bool MergeRooms = false;
         public bool TouchRooms = false;
         public ushort RoomsPerChunk = 1;
-        public byte MinRoomExits = 1;
-        public byte MaxRoomExits = 4;
+        public byte MinRoomExits = 3;
+        public byte MaxRoomExits = 6;
 
         public float PoolJaggedness = 0.5F;
         public bool MergePools = false;
         public byte PoolsPerChunk = 1;
 
         public float PathBend = 0.15F;
-        public float PathTerminate = 0.05F;
+        public float PathTerminate = 0.01F;
         public bool Crossroads = true;
         public bool EndAtBoundary = true;
 
@@ -110,10 +110,12 @@ namespace DunGen.NET
             Value2D<ushort> maxBounds = new() { x = (ushort)(TouchRooms ? pos.x + size.x : pos.x + size.x + 1), y = (ushort)(TouchRooms ? pos.y + size.y : pos.y + size.y + 1) };
             for (y = minBounds.y; y < maxBounds.y && y < grid.height; y++)
             {
+                if (y >= grid.height) break;
                 if (TouchRooms && (y == pos.y || y == pos.y + size.y - 1))
                 {
                     for (x = minBounds.x; x < maxBounds.x && x < grid.width; x++)
                     {
+                        if (x >= grid.width) break;
                         if (InGroundIDs(grid.GetTile(x, y))) return true;
                     }
                 }
@@ -121,24 +123,99 @@ namespace DunGen.NET
                 {
                     for (x = pos.x; x < pos.x + size.x && x < grid.width; x++)
                     {
+                        if (x >= grid.width) break;
                         if (InGroundIDs(grid.GetTile(x, y))) return true;
                     }
                 }
                 else
                 {
                     if (InGroundIDs(grid.GetTile(minBounds.x, y))) return true;
-                    else if (InGroundIDs(grid.GetTile(maxBounds.x, y))) return true;
+                    else if (InGroundIDs(grid.GetTile(maxBounds.x < grid.width ? maxBounds.x : grid.width, y))) return true;
                 }
             }
             return false;
         }
-        protected void CarvePath(Value2D<ushort> startPos, Direction startDir)
+        protected void CarvePath(Value2D<ushort> pos, Direction dir)
         {
-
+            if ((pos.x == 0 && dir == Direction.Left) || (pos.y == 0 && dir == Direction.Up) || (pos.x >= grid.width - 1 && dir == Direction.Right) || (pos.y >= grid.height - 1 && dir == Direction.Down)) return;
+            pos.x = (ushort)(pos.x + DirToVec(dir).x);
+            pos.y = (ushort)(pos.y + DirToVec(dir).y);
+            grid.PlaceTile(pos.x, pos.y, GroundIDs[0].id);
+            while (true)
+            {
+                if (rng.NextSingle() < PathBend)
+                {
+                    if (rng.Next(2) == 0) dir = (Direction)((short)dir - 90 % 360);
+                    else dir = (Direction)((short)dir + 90 % 360);
+                }
+                if ((pos.x == 0 && dir == Direction.Left) || (pos.y == 0 && dir == Direction.Up) || (pos.x >= grid.width - 1 && dir == Direction.Right) || (pos.y >= grid.height - 1 && dir == Direction.Down))
+                {
+                    if (EndAtBoundary) return;
+                    else continue;
+                }
+                pos.x = (ushort)(pos.x + DirToVec(dir).x);
+                pos.y = (ushort)(pos.y + DirToVec(dir).y);
+                if (Crossroads)
+                {
+                    if (TileInRoom(pos.x, pos.y)) return;
+                }
+                else
+                {
+                    if (InGroundIDs(grid.GetTile(pos.x, pos.y))) return;
+                }
+                grid.PlaceTile(pos.x, pos.y, GroundIDs[0].id);
+                if (rng.NextSingle() < PathTerminate) return;
+            }
+        }
+        protected static Value2D<sbyte> DirToVec(Direction dir)
+        {
+            return dir switch
+            {
+                Direction.Up => new() { x = 0, y = -1 },
+                Direction.Down => new() { x = 0, y = 1 },
+                Direction.Left => new() { x = -1, y = 0 },
+                Direction.Right => new() { x = 1, y = 0 },
+                _ => new() { x = 0, y = 0 },
+            };
+        }
+        protected bool TileInRoom(ushort x, ushort y)
+        {
+            byte?[,] area = grid.GetArea(x, y);
+            return (InGroundIDs(area[0, 0] ?? WallID) && InGroundIDs(area[0, 1] ?? WallID) && InGroundIDs(area[1, 0] ?? WallID))
+                || (InGroundIDs(area[0, 1] ?? WallID) && InGroundIDs(area[0, 2] ?? WallID) && InGroundIDs(area[1, 2] ?? WallID))
+                || (InGroundIDs(area[1, 2] ?? WallID) && InGroundIDs(area[2, 1] ?? WallID) && InGroundIDs(area[2, 2] ?? WallID))
+                || (InGroundIDs(area[1, 0] ?? WallID) && InGroundIDs(area[2, 0] ?? WallID) && InGroundIDs(area[2, 1] ?? WallID));
         }
         protected void GeneratePaths()
         {
-
+            byte exits;
+            foreach (RoomData r in rooms)
+            {
+                exits = (byte)rng.Next(MinRoomExits, MaxRoomExits + 1);
+                Direction dir = 0;
+                for (int i = 0; i < exits; i++)
+                {
+                    while ((r.pos.x == 0 && dir == Direction.Left) || (r.pos.y == 0 && dir == Direction.Up) || (r.pos.x + r.size.x >= grid.width - 1 && dir == Direction.Right) || (r.pos.y + r.size.y >= grid.height - 1 && dir == Direction.Down))
+                    {
+                        dir = (Direction)(rng.Next(4) * 90);
+                    }
+                    switch (dir)
+                    {
+                        case Direction.Up:
+                            CarvePath(new() { x = (ushort)(r.pos.x + rng.Next(r.size.x)), y = r.pos.y}, dir);
+                            break;
+                        case Direction.Down:
+                            CarvePath(new() { x = (ushort)(r.pos.x + rng.Next(r.size.x)), y = (ushort)(r.pos.y + r.size.y) }, dir);
+                            break;
+                        case Direction.Left:
+                            CarvePath(new() { x = r.pos.x, y = (ushort)(r.pos.y + rng.Next(r.size.y)) }, dir);
+                            break;
+                        case Direction.Right:
+                            CarvePath(new() { x = (ushort)(r.pos.x + r.size.y), y = (ushort)(r.pos.y + rng.Next(r.size.y)) }, dir);
+                            break;
+                    }
+                }
+            }
         }
     }
     public struct Value2D<T>
