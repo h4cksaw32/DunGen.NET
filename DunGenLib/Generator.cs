@@ -53,6 +53,8 @@ namespace DunGen.NET
         private List<RoomData> rooms = [];
         public void GenerateMap()
         {
+            foreach(GroundOptions item in GroundIDs) grid.GroundIDs.Add(item.id);
+            foreach (PoolOptions item in PoolIDs) grid.PoolIDs.Add(item.id);
             grid.FillMap(WallID);
             GenerateRooms();
             GeneratePaths();

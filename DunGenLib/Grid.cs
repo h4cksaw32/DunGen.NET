@@ -11,6 +11,9 @@ namespace DunGen.NET
         private byte[] tiles;
         public readonly ushort width;
         public readonly ushort height;
+        public byte WallID;
+        public List<byte> GroundIDs = [];
+        public List<byte> PoolIDs = [];
         public Grid(ushort w, ushort h, byte defValue = 0)
         {
             width = w;
