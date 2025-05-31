@@ -17,7 +17,7 @@ namespace DunGen.NET
         public Value2D<ushort> MaxRoomSize = new() { x = 16, y = 16 };
         public bool MergeRooms = false;
         public bool TouchRooms = false;
-        public ushort RoomsPerChunk = 1;
+        public float RoomsPerChunk = 1;
         public byte MinRoomExits = 3;
         public byte MaxRoomExits = 6;
 
@@ -53,7 +53,7 @@ namespace DunGen.NET
         private List<RoomData> rooms = [];
         public void GenerateMap()
         {
-            foreach(GroundOptions item in GroundIDs) grid.GroundIDs.Add(item.id);
+            foreach (GroundOptions item in GroundIDs) grid.GroundIDs.Add(item.id);
             foreach (PoolOptions item in PoolIDs) grid.PoolIDs.Add(item.id);
             grid.FillMap(WallID);
             GenerateRooms();
@@ -81,26 +81,105 @@ namespace DunGen.NET
                 }
             }
         }
+        protected void CarveRoom(Value2D<ushort> pos, Value2D<ushort> size)
+        {
+            List<GroundOptions> ids = [];
+            List<float> prob = [];
+            float denom = 0;
+            foreach (GroundOptions item in GroundIDs)
+            {
+                if (item.inRooms && !item.patches) ids.Add(item);
+            }
+            foreach (GroundOptions item in ids)
+            {
+                denom += item.spawnRate;
+                prob.Add(denom);
+            }
+            byte id = ids.Count == 0 ? GroundIDs[0].id : ids[0].id;
+            float rand;
+            for (ushort y = pos.y; y < pos.y + size.y; y++)
+            {
+                if (y >= grid.height) break;
+                for (ushort x = pos.x; x < pos.x + size.x; x++)
+                {
+                    if (x >= grid.width) break;
+                    if (ids.Count == 0)
+                    {
+                        grid.PlaceTile(x, y, GroundIDs[0].id);
+                    }
+                    else if (ids.Count == 1)
+                    {
+                        grid.PlaceTile(x, y, ids[0].id);
+                    }
+                    else
+                    {
+                        rand = rng.NextSingle() * denom;
+                        for (int index = 0; index < prob.Count; index++)
+                        {
+                            if (rand < prob[index])
+                            {
+                                id = ids[index].id;
+                                break;
+                            }
+                        }
+                        grid.PlaceTile(x, y, id);
+                    }
+                }
+            }
+            ids = [];
+            foreach (GroundOptions item in GroundIDs)
+            {
+                if (item.inRooms && item.patches) ids.Add(item);
+            }
+            float f;
+            Value2D<ushort> patchPos = new();
+            Value2D<ushort> patchSize = new();
+            foreach (GroundOptions item in GroundIDs)
+            {
+                f = item.patchesPerRoom;
+                while (f > 0)
+                {
+                    if (f >= 1 || f < rng.NextSingle())
+                    {
+                        do
+                        {
+                            patchPos.x = (ushort)rng.Next(pos.x, pos.x + size.x);
+                            patchPos.y = (ushort)rng.Next(pos.y, pos.y + size.y);
+                            patchSize.x = (ushort)rng.Next(item.minPatchSize.x, item.maxPatchSize.x);
+                            patchSize.y = (ushort)rng.Next(item.minPatchSize.y, item.maxPatchSize.y);
+                        } while (patchPos.x + patchSize.x >= pos.x + size.x && patchPos.y + patchSize.y >= pos.y + size.y);
+                        CarveRect(patchPos, patchSize, item.id);
+                    }
+                    f -= 1;
+                }
+            }
+        }
         protected void GenerateRooms()
         {
             Value2D<ushort> chunkSize = new() { x = (ushort)(grid.width/MapChunks.x), y = (ushort)(grid.height/MapChunks.y) };
             Value2D<ushort> pos;
             Value2D<ushort> size;
+            float f;
             for (ushort v = 0; v < MapChunks.y; v++)
             {
                 for (ushort h = 0; h < MapChunks.x; h++)
                 {
-                    for (ushort i = 0; i < RoomsPerChunk; i++)
+                    f = RoomsPerChunk;
+                    while (f > 0)
                     {
-                        do
+                        if (f >= 1 || f < rng.NextSingle())
                         {
-                            pos.x = (ushort)rng.Next(chunkSize.x * h, chunkSize.x * (h + 1) - (ushort)Math.Ceiling((double)chunkSize.x / 2));
-                            pos.y = (ushort)rng.Next(chunkSize.y * v, chunkSize.y * (v + 1) - (ushort)Math.Ceiling((double)chunkSize.y / 2));
-                            size.x = (ushort)rng.Next(MinRoomSize.x, MaxRoomSize.x);
-                            size.y = (ushort)rng.Next(MinRoomSize.y, MaxRoomSize.y);
-                        } while (!MergeRooms && CheckRoom(pos, size));
-                        CarveRect(pos, size, GroundIDs[0].id);
-                        rooms.Add(new() { pos = pos, size = size });
+                            do
+                            {
+                                pos.x = (ushort)rng.Next(chunkSize.x * h, chunkSize.x * (h + 1) - (ushort)Math.Ceiling((double)chunkSize.x / 2));
+                                pos.y = (ushort)rng.Next(chunkSize.y * v, chunkSize.y * (v + 1) - (ushort)Math.Ceiling((double)chunkSize.y / 2));
+                                size.x = (ushort)rng.Next(MinRoomSize.x, MaxRoomSize.x);
+                                size.y = (ushort)rng.Next(MinRoomSize.y, MaxRoomSize.y);
+                            } while (!MergeRooms && CheckRoom(pos, size));
+                            CarveRoom(pos, size);
+                            rooms.Add(new() { pos = pos, size = size });
+                        }
+                        f -= 1;
                     }
                 }
             }
@@ -155,7 +234,7 @@ namespace DunGen.NET
             pos.x = (ushort)(pos.x + DirToVec(dir).x);
             pos.y = (ushort)(pos.y + DirToVec(dir).y);
             grid.PlaceTile(pos.x, pos.y, GroundIDs[0].id);
-            byte id = ids[0].id;
+            byte id = ids.Count == 0 ? GroundIDs[0].id : ids[0].id;
             ushort segLength = 0;
             ushort segLimit = 0;
             float rand;
@@ -279,13 +358,17 @@ namespace DunGen.NET
     {
         public byte id; 
         public float spawnRate;
+        public string tag;
     }
     public struct GroundOptions
     {
         public byte id;
         public float spawnRate;
+        public bool inRooms;
         public bool patches;
-        public Value2D<byte> maxPatchSize;
+        public float patchesPerRoom;
+        public Value2D<ushort> minPatchSize;
+        public Value2D<ushort> maxPatchSize;
         public bool inPaths;
         public bool segments;
         public ushort minSegmentLength;
