@@ -134,7 +134,7 @@ namespace DunGen.NET
             float f;
             Value2D<ushort> patchPos = new();
             Value2D<ushort> patchSize = new();
-            foreach (GroundOptions item in GroundIDs)
+            foreach (GroundOptions item in ids)
             {
                 f = item.patchesPerRoom;
                 while (f > 0)
@@ -147,7 +147,7 @@ namespace DunGen.NET
                             patchPos.y = (ushort)rng.Next(pos.y, pos.y + size.y);
                             patchSize.x = (ushort)rng.Next(item.minPatchSize.x, item.maxPatchSize.x);
                             patchSize.y = (ushort)rng.Next(item.minPatchSize.y, item.maxPatchSize.y);
-                        } while (patchPos.x + patchSize.x >= pos.x + size.x && patchPos.y + patchSize.y >= pos.y + size.y);
+                        } while (patchPos.x + patchSize.x >= pos.x + size.x || patchPos.y + patchSize.y >= pos.y + size.y);
                         CarveRect(patchPos, patchSize, item.id);
                     }
                     f -= 1;

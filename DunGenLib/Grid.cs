@@ -32,11 +32,11 @@ namespace DunGen.NET
             }
         }
         public byte GetTile(ushort x, ushort y) => tiles[y * width + x];
-        public void PlaceTile(ushort x, ushort y, byte value = 0)
+        public void PlaceTile(ushort x, ushort y, byte value)
         {
             tiles[y * width + x] = value;
         }
-        public void InsertTile(ushort x, ushort y, byte value = 0)
+        public void InsertTile(ushort x, ushort y, byte value)
         {
             for (ushort c = (ushort)(width - 1); c > x; c--)
             {
