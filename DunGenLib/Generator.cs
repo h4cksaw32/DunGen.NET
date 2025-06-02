@@ -9,7 +9,7 @@ namespace DunGen.NET
 {
     public class Generator
     {
-        public required Grid grid;
+        public required Map map;
         private readonly Random rng = new();
         public Value2D<ushort> MapChunks = new() { x = 5, y = 5 };
 
@@ -21,9 +21,7 @@ namespace DunGen.NET
         public byte MinRoomExits = 3;
         public byte MaxRoomExits = 6;
 
-        public float PoolJaggedness = 0.5F;
-        public bool MergePools = false;
-        public byte PoolsPerChunk = 1;
+        public float PoolsPerChunk = 1;
 
         public float PathBend = 0.15F;
         public float PathTerminate = 0.01F;
@@ -53,16 +51,17 @@ namespace DunGen.NET
         private List<RoomData> rooms = [];
         public void GenerateMap()
         {
-            foreach (GroundOptions item in GroundIDs) grid.GroundIDs.Add(item.id);
-            foreach (PoolOptions item in PoolIDs) grid.PoolIDs.Add(item.id);
-            grid.FillMap(WallID);
+            foreach (GroundOptions item in GroundIDs) map.GroundIDs.Add(item.id);
+            foreach (PoolOptions item in PoolIDs) map.PoolIDs.Add(item.id);
+            map.FillMap(WallID);
             GenerateRooms();
             GeneratePaths();
+            GeneratePools();
         }
         public byte NeighbourGround(ushort x, ushort y, bool corners = true)
         {
             byte result = 0;
-            foreach (byte? i in grid.GetArea(x, y, corners))
+            foreach (byte? i in map.GetArea(x, y, corners))
             {
                 if (i == null) continue;
                 if (InGroundIDs(i ?? WallID)) result++;
@@ -73,11 +72,11 @@ namespace DunGen.NET
         {
             for (ushort y = pos.y; y < pos.y + size.y; y++)
             {
-                if (y >= grid.height) break;
+                if (y >= map.height) break;
                 for (ushort x = pos.x; x < pos.x + size.x; x++)
                 {
-                    if (x >= grid.width) break;
-                    grid.PlaceTile(x, y, id);
+                    if (x >= map.width) break;
+                    map.PlaceTile(x, y, id);
                 }
             }
         }
@@ -99,17 +98,17 @@ namespace DunGen.NET
             float rand;
             for (ushort y = pos.y; y < pos.y + size.y; y++)
             {
-                if (y >= grid.height) break;
+                if (y >= map.height) break;
                 for (ushort x = pos.x; x < pos.x + size.x; x++)
                 {
-                    if (x >= grid.width) break;
+                    if (x >= map.width) break;
                     if (ids.Count == 0)
                     {
-                        grid.PlaceTile(x, y, GroundIDs[0].id);
+                        map.PlaceTile(x, y, GroundIDs[0].id);
                     }
                     else if (ids.Count == 1)
                     {
-                        grid.PlaceTile(x, y, ids[0].id);
+                        map.PlaceTile(x, y, ids[0].id);
                     }
                     else
                     {
@@ -122,7 +121,7 @@ namespace DunGen.NET
                                 break;
                             }
                         }
-                        grid.PlaceTile(x, y, id);
+                        map.PlaceTile(x, y, id);
                     }
                 }
             }
@@ -156,7 +155,7 @@ namespace DunGen.NET
         }
         protected void GenerateRooms()
         {
-            Value2D<ushort> chunkSize = new() { x = (ushort)(grid.width/MapChunks.x), y = (ushort)(grid.height/MapChunks.y) };
+            Value2D<ushort> chunkSize = new() { x = (ushort)(map.width/MapChunks.x), y = (ushort)(map.height/MapChunks.y) };
             Value2D<ushort> pos;
             Value2D<ushort> size;
             float f;
@@ -189,29 +188,29 @@ namespace DunGen.NET
             ushort x, y;
             Value2D<ushort> minBounds = new() { x = !TouchRooms && pos.x > 0 ? (ushort)(pos.x - 1) : pos.x, y = !TouchRooms && pos.y > 0 ? (ushort)(pos.y - 1) : pos.y };
             Value2D<ushort> maxBounds = new() { x = (ushort)(TouchRooms ? pos.x + size.x : pos.x + size.x + 1), y = (ushort)(TouchRooms ? pos.y + size.y : pos.y + size.y + 1) };
-            for (y = minBounds.y; y < maxBounds.y && y < grid.height; y++)
+            for (y = minBounds.y; y < maxBounds.y && y < map.height; y++)
             {
-                if (y >= grid.height) break;
+                if (y >= map.height) break;
                 if (TouchRooms && (y == pos.y || y == pos.y + size.y - 1))
                 {
-                    for (x = minBounds.x; x < maxBounds.x && x < grid.width; x++)
+                    for (x = minBounds.x; x < maxBounds.x && x < map.width; x++)
                     {
-                        if (x >= grid.width) break;
-                        if (InGroundIDs(grid.GetTile(x, y))) return true;
+                        if (x >= map.width) break;
+                        if (InGroundIDs(map.GetTile(x, y))) return true;
                     }
                 }
                 else if (y < pos.y || y >= pos.y + size.y)
                 {
-                    for (x = pos.x; x < pos.x + size.x && x < grid.width; x++)
+                    for (x = pos.x; x < pos.x + size.x && x < map.width; x++)
                     {
-                        if (x >= grid.width) break;
-                        if (InGroundIDs(grid.GetTile(x, y))) return true;
+                        if (x >= map.width) break;
+                        if (InGroundIDs(map.GetTile(x, y))) return true;
                     }
                 }
                 else
                 {
-                    if (InGroundIDs(grid.GetTile(minBounds.x, y))) return true;
-                    else if (InGroundIDs(grid.GetTile(maxBounds.x < grid.width ? maxBounds.x : (ushort)(grid.width - 1), y))) return true;
+                    if (InGroundIDs(map.GetTile(minBounds.x, y))) return true;
+                    else if (InGroundIDs(map.GetTile(maxBounds.x < map.width ? maxBounds.x : (ushort)(map.width - 1), y))) return true;
                 }
             }
             return false;
@@ -230,10 +229,10 @@ namespace DunGen.NET
                 denom += item.spawnRate;
                 prob.Add(denom);
             }
-            if ((pos.x == 0 && dir == Direction.Left) || (pos.y == 0 && dir == Direction.Up) || (pos.x >= grid.width - 1 && dir == Direction.Right) || (pos.y >= grid.height - 1 && dir == Direction.Down)) return;
+            if ((pos.x == 0 && dir == Direction.Left) || (pos.y == 0 && dir == Direction.Up) || (pos.x >= map.width - 1 && dir == Direction.Right) || (pos.y >= map.height - 1 && dir == Direction.Down)) return;
             pos.x = (ushort)(pos.x + DirToVec(dir).x);
             pos.y = (ushort)(pos.y + DirToVec(dir).y);
-            grid.PlaceTile(pos.x, pos.y, GroundIDs[0].id);
+            map.PlaceTile(pos.x, pos.y, GroundIDs[0].id);
             byte id = ids.Count == 0 ? GroundIDs[0].id : ids[0].id;
             ushort segLength = 0;
             ushort segLimit = 0;
@@ -245,7 +244,7 @@ namespace DunGen.NET
                     if (rng.Next(2) == 0) dir = (Direction)((short)dir - 90 % 360);
                     else dir = (Direction)((short)dir + 90 % 360);
                 }
-                if ((pos.x == 0 && dir == Direction.Left) || (pos.y == 0 && dir == Direction.Up) || (pos.x >= grid.width - 1 && dir == Direction.Right) || (pos.y >= grid.height - 1 && dir == Direction.Down))
+                if ((pos.x == 0 && dir == Direction.Left) || (pos.y == 0 && dir == Direction.Up) || (pos.x >= map.width - 1 && dir == Direction.Right) || (pos.y >= map.height - 1 && dir == Direction.Down))
                 {
                     if (EndAtBoundary) return;
                     else continue;
@@ -258,15 +257,15 @@ namespace DunGen.NET
                 }
                 else
                 {
-                    if (InGroundIDs(grid.GetTile(pos.x, pos.y))) return;
+                    if (InGroundIDs(map.GetTile(pos.x, pos.y))) return;
                 }
                 if (ids.Count == 0)
                 {
-                    grid.PlaceTile(pos.x, pos.y, GroundIDs[0].id);
+                    map.PlaceTile(pos.x, pos.y, GroundIDs[0].id);
                 }
                 else if (ids.Count == 1)
                 {
-                    grid.PlaceTile(pos.x, pos.y, ids[0].id);
+                    map.PlaceTile(pos.x, pos.y, ids[0].id);
                 }
                 else
                 {
@@ -287,16 +286,51 @@ namespace DunGen.NET
                             segLimit = (ushort)rng.Next(ids[index].minSegmentLength, ids[index].maxSegmentLength + 1);
                             segLength = 1;
                         }
-                        grid.PlaceTile(pos.x, pos.y, id);
+                        map.PlaceTile(pos.x, pos.y, id);
                     }
                     else
                     {
-                        grid.PlaceTile(pos.x, pos.y, id);
+                        map.PlaceTile(pos.x, pos.y, id);
                         segLength = (ushort)(segLength + 1 == segLimit ? 0 : segLength + 1);
                     }
                 }
                 if (rng.NextSingle() < PathTerminate) return;
             }
+        }
+        protected void GeneratePools()
+        {
+            Value2D<ushort> pos = new();
+            List<float> prob = [];
+            float denom = 0F;
+            foreach (PoolOptions item in PoolIDs)
+            {
+                denom += item.spawnRate;
+                prob.Add(denom);
+            }
+            int index;
+            float rand;
+            for (uint i = 0; i < (uint)(MapChunks.x * MapChunks.y * RoomsPerChunk); i++)
+            {
+                do
+                {
+                    pos.x = (ushort)rng.Next(map.width);
+                    pos.y = (ushort)rng.Next(map.height);
+                } while (map.GetTile(pos.x, pos.y) != WallID);
+                rand = rng.NextSingle() * denom;
+                for (index = 0; index < prob.Count; index++)
+                {
+                    if (rand < prob[index]) break;
+                }
+                FillPool(pos.x, pos.y, PoolIDs[index]);
+            }
+        }
+        protected void FillPool(ushort x, ushort y, PoolOptions options)
+        {
+            map.PlaceTile(x, y, options.id);
+            if (x > 0 && map.GetTile((ushort)(x - 1), y) == WallID && rng.NextSingle() < options.spread) FillPool((ushort)(x - 1), y, options);
+            if (y > 0 && map.GetTile(x, (ushort)(y - 1)) == WallID && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y - 1), options);
+            if (x < map.width - 1 && map.GetTile((ushort)(x + 1), y) == WallID && rng.NextSingle() < options.spread) FillPool((ushort)(x + 1), y, options);
+            if (y < map.height - 1 && map.GetTile(x, (ushort)(y + 1)) == WallID && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y + 1), options);
         }
         protected static Value2D<sbyte> DirToVec(Direction dir)
         {
@@ -311,7 +345,7 @@ namespace DunGen.NET
         }
         protected bool TileInRoom(ushort x, ushort y)
         {
-            byte?[,] area = grid.GetArea(x, y);
+            byte?[,] area = map.GetArea(x, y);
             return (InGroundIDs(area[0, 0] ?? WallID) && InGroundIDs(area[0, 1] ?? WallID) && InGroundIDs(area[1, 0] ?? WallID))
                 || (InGroundIDs(area[0, 1] ?? WallID) && InGroundIDs(area[0, 2] ?? WallID) && InGroundIDs(area[1, 2] ?? WallID))
                 || (InGroundIDs(area[1, 2] ?? WallID) && InGroundIDs(area[2, 1] ?? WallID) && InGroundIDs(area[2, 2] ?? WallID))
@@ -326,7 +360,7 @@ namespace DunGen.NET
                 Direction dir = 0;
                 for (int i = 0; i < exits; i++)
                 {
-                    while ((r.pos.x == 0 && dir == Direction.Left) || (r.pos.y == 0 && dir == Direction.Up) || (r.pos.x + r.size.x >= grid.width - 1 && dir == Direction.Right) || (r.pos.y + r.size.y >= grid.height - 1 && dir == Direction.Down))
+                    while ((r.pos.x == 0 && dir == Direction.Left) || (r.pos.y == 0 && dir == Direction.Up) || (r.pos.x + r.size.x >= map.width - 1 && dir == Direction.Right) || (r.pos.y + r.size.y >= map.height - 1 && dir == Direction.Down))
                     {
                         dir = (Direction)(rng.Next(4) * 90);
                     }
@@ -358,6 +392,7 @@ namespace DunGen.NET
     {
         public byte id; 
         public float spawnRate;
+        public float spread;
         public string tag;
     }
     public struct GroundOptions

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DunGen.NET
 {
-    public class Grid
+    public class Map
     {
         private byte[] tiles;
         public readonly ushort width;
@@ -14,7 +14,7 @@ namespace DunGen.NET
         public byte WallID;
         public List<byte> GroundIDs = [];
         public List<byte> PoolIDs = [];
-        public Grid(ushort w, ushort h, byte defValue = 0)
+        public Map(ushort w, ushort h, byte defValue = 0)
         {
             width = w;
             height = h;
