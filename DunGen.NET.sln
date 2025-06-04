@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DunGenTest", "..\DunGenTest
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DunGenLib", "DunGenLib\DunGenLib.csproj", "{A53783EA-C7BF-4283-E9B1-05AE431F7415}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DunGenApp", "DunGenApp\DunGenApp.csproj", "{15A5E3D0-A186-4038-B6BC-53413CA7BDAD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{A53783EA-C7BF-4283-E9B1-05AE431F7415}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A53783EA-C7BF-4283-E9B1-05AE431F7415}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A53783EA-C7BF-4283-E9B1-05AE431F7415}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15A5E3D0-A186-4038-B6BC-53413CA7BDAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15A5E3D0-A186-4038-B6BC-53413CA7BDAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15A5E3D0-A186-4038-B6BC-53413CA7BDAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15A5E3D0-A186-4038-B6BC-53413CA7BDAD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
