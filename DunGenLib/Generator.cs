@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DunGen.NET
+namespace DunGenLib
 {
     public class Generator
     {
@@ -57,16 +57,6 @@ namespace DunGen.NET
             GenerateRooms();
             GeneratePaths();
             GeneratePools();
-        }
-        public byte NeighbourGround(ushort x, ushort y, bool corners = true)
-        {
-            byte result = 0;
-            foreach (byte? i in map.GetArea(x, y, corners))
-            {
-                if (i == null) continue;
-                if (InGroundIDs(i ?? WallID)) result++;
-            }
-            return result;
         }
         protected void CarveRect(Value2D<ushort> pos, Value2D<ushort> size, byte id)
         {
