@@ -29,8 +29,8 @@ namespace DunGenLib
         public bool EndAtBoundary = true;
 
         public byte WallID = 0;
-        public required List<PoolOptions> PoolIDs;
-        public required List<GroundOptions> GroundIDs;
+        public List<PoolOptions> PoolIDs = [];
+        public List<GroundOptions> GroundIDs = [];
         protected bool InPoolIDs(byte value)
         {
             foreach (PoolOptions i in PoolIDs)

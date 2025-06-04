@@ -5,5 +5,29 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="DunGenApp.MainWindow"
         Title="DunGen.NET">
-    
+	<DockPanel>
+		<Menu DockPanel.Dock="Top">
+			<MenuItem Header="File">
+				<MenuItem Header="Save map"/>
+				<MenuItem Header="Load map"/>
+				<MenuItem Header="Save variables"/>
+				<MenuItem Header="Load variables"/>
+				<MenuItem Header="Reset"/>
+			</MenuItem>
+			<MenuItem Header="Textures"/>
+			<MenuItem Header="Help"/>
+		</Menu>
+
+		<StackPanel HorizontalAlignment="Right" DockPanel.Dock="Bottom" Orientation="Horizontal" VerticalAlignment="Bottom">
+			<StackPanel.Styles>
+				<Style Selector="StackPanel > :is(Control)">
+					<Setter Property="Margin" Value="10"/>
+				</Style>
+			</StackPanel.Styles>
+			<Button>Edit map</Button>
+			<Button>Playtest</Button>
+			<CheckBox IsChecked="true" Margin="10, 10, 0, 10"/>
+			<TextBlock VerticalAlignment="Center" Margin="0, 10, 10, 10">Snap to Grid</TextBlock>
+		</StackPanel>
+	</DockPanel>
 </Window>
