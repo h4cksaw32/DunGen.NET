@@ -9,16 +9,18 @@ namespace DunGenLib
     public class Map
     {
         private byte[] tiles;
-        public readonly ushort width;
-        public readonly ushort height;
+        public ushort width { get; private set; }
+        public ushort height { get; private set; }
         public byte WallID;
         public List<byte> GroundIDs = [];
         public List<byte> PoolIDs = [];
-        public Map(ushort w, ushort h, byte defValue = 0)
+        private byte defValue;
+        public Map(ushort w, ushort h, byte def = 0)
         {
             width = w;
             height = h;
             tiles = new byte[width * height];
+            defValue = def;
             FillMap(defValue);
         }
         public void FillMap(byte value)
@@ -30,6 +32,13 @@ namespace DunGenLib
                     PlaceTile(x, y, value);
                 }
             }
+        }
+        public void Resize(ushort w, ushort h)
+        {
+            width = w;
+            height = h;
+            tiles = new byte[width * height];
+            FillMap(defValue);
         }
         public byte GetTile(ushort x, ushort y) => tiles[y * width + x];
         public void PlaceTile(ushort x, ushort y, byte value)

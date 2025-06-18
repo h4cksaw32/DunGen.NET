@@ -1,0 +1,147 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Tasks;
+using DunGenLib;
+
+namespace DunGenApp
+{
+    internal class DynamicGenerator : Generator, INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void InvokeChange([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        public new Point2D_16 MapChunks
+        {
+            get => mapChunks;
+            set
+            {
+                mapChunks = value;
+				InvokeChange();
+            }
+        }
+        public new Point2D_16 MinRoomSize
+        {
+            get => minRoomSize;
+            set
+            {
+                minRoomSize = value;
+				InvokeChange();
+            }
+        }
+        public new Point2D_16 MaxRoomSize
+        {
+            get => maxRoomSize;
+            set
+            {
+                maxRoomSize = value;
+				InvokeChange();
+            }
+        }
+        public new bool MergeRooms
+        {
+            get => mergeRooms;
+            set
+            {
+                mergeRooms = value;
+				InvokeChange();
+            }
+        }
+        public new bool TouchRooms
+        {
+            get => touchRooms;
+            set
+            {
+                touchRooms = value;
+				InvokeChange();
+            }
+        }
+        public new float RoomsPerChunk
+        {
+            get => roomsPerChunk;
+            set
+            {
+                roomsPerChunk = value;
+				InvokeChange();
+            }
+        }
+        public new byte MinRoomExits
+        {
+            get => minRoomExits;
+            set
+            {
+                minRoomExits = value;
+				InvokeChange();
+            }
+        }
+        public new byte MaxRoomExits
+        {
+            get => maxRoomExits;
+            set
+            {
+                maxRoomExits = value;
+				InvokeChange();
+            }
+        }
+        public new float PoolsPerChunk
+        {
+            get => poolsPerChunk;
+            set
+            {
+                poolsPerChunk = value;
+				InvokeChange();
+            }
+        }
+        public new float PathBend
+        {
+            get => pathBend;
+            set
+            {
+                pathBend = value;
+				InvokeChange();
+            }
+        }
+        public new float PathTerminate
+        {
+            get => pathTerminate;
+            set
+            {
+                pathTerminate = value;
+				InvokeChange();
+            }
+        }
+        public new bool Crossroads
+        {
+            get => crossroads;
+            set
+            {
+                crossroads = value;
+				InvokeChange();
+            }
+        }
+        public new bool EndAtBoundary
+        {
+            get => endAtBoundary;
+            set
+            {
+                endAtBoundary = value;
+				InvokeChange();
+            }
+        }
+        public new byte WallID
+        {
+            get => wallID;
+            set
+            {
+                wallID = value;
+				InvokeChange();
+            }
+        }
+    }
+}

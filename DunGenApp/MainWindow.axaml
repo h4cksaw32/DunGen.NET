@@ -2,9 +2,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        xmlns:local="using:DunGenApp"
+		xmlns:lib="using:DunGenLib"
+		xmlns:sys="using:System"
+		mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="DunGenApp.MainWindow"
-        Title="DunGen.NET">
+        Title="DunGen.NET"
+		FontSize="12"
+		Name="Window"
+		x:DataType="local:MainWindow">
 	<DockPanel>
 		<Menu DockPanel.Dock="Top">
 			<MenuItem Header="File">
@@ -17,17 +23,105 @@
 			<MenuItem Header="Textures"/>
 			<MenuItem Header="Help"/>
 		</Menu>
-
 		<StackPanel HorizontalAlignment="Right" DockPanel.Dock="Bottom" Orientation="Horizontal" VerticalAlignment="Bottom">
 			<StackPanel.Styles>
 				<Style Selector="StackPanel > :is(Control)">
 					<Setter Property="Margin" Value="10"/>
 				</Style>
 			</StackPanel.Styles>
+			<TextBlock Name="GenStatus" VerticalAlignment="Center">Not generated</TextBlock>
+			<Button Click="GenerateMap">Generate</Button>
 			<Button>Edit map</Button>
-			<Button>Playtest</Button>
+			<Button Click="PrintMap">Playtest</Button>
 			<CheckBox IsChecked="true" Margin="10, 10, 0, 10"/>
 			<TextBlock VerticalAlignment="Center" Margin="0, 10, 10, 10">Snap to Grid</TextBlock>
 		</StackPanel>
+		<ScrollViewer>
+			<StackPanel Name="GenSettings" x:DataType="lib:Generator">
+				<StackPanel.Styles>
+					<Style Selector="StackPanel > :is(Control)">
+						<Setter Property="Margin" Value="10"/>
+					</Style>
+					<Style Selector="WrapPanel :is(Control)">
+						<Setter Property="VerticalAlignment" Value="Center"/>
+					</Style>
+					<Style Selector="TextBlock.header">
+						<Setter Property="FontSize" Value="18"/>
+						<Setter Property="FontWeight" Value="DemiBold"/>
+						<Setter Property="TextDecorations" Value="Underline"/>
+					</Style>
+				</StackPanel.Styles>
+				<TextBlock Text="Map Properties" Classes="header"/>
+				<WrapPanel>
+					<TextBlock Text="Map size: "/>
+					<TextBox Name="MapWidth" MaxLines="1" MaxLength="5" Text="100"/>
+					<TextBlock Text=" &#xd7; "/>
+					<TextBox Name="MapHeight" MaxLines="1" MaxLength="5" Text="100"/>
+				</WrapPanel>
+				<WrapPanel>
+					<TextBlock Text="# of chunks: "/>
+					<TextBox MaxLines="1" MaxLength="5" Text="{Binding MapChunks.x}"/>
+					<TextBlock Text=" &#xd7; "/>
+					<TextBox MaxLines="1" MaxLength="5" Text="{Binding MapChunks.y}"/>
+				</WrapPanel>
+				<TextBlock Classes="header" Text="Room Generation"/>
+				<WrapPanel>
+					<TextBlock Text="Room size: "/>
+					<TextBox MaxLines="1" MaxLength="5" Text="{Binding MinRoomSize.x}"/>
+					<TextBlock Text=" &#xd7; "/>
+					<TextBox MaxLines="1" MaxLength="5" Text="{Binding MinRoomSize.y}"/>
+					<TextBlock Text=" to "/>
+					<TextBox MaxLines="1" MaxLength="5" Text="{Binding MaxRoomSize.x}"/>
+					<TextBlock Text=" &#xd7; "/>
+					<TextBox MaxLines="1" MaxLength="5" Text="{Binding MaxRoomSize.y}"/>
+				</WrapPanel>
+				<WrapPanel>
+					<TextBlock Text="Rooms per chunk: "/>
+					<TextBox MaxLines="1" Text="{Binding RoomsPerChunk}"/>
+				</WrapPanel>
+				<WrapPanel>
+					<CheckBox IsChecked="{Binding TouchRooms}"/>
+					<TextBlock Text="Allow rooms to touch"/>
+				</WrapPanel>
+				<WrapPanel>
+					<CheckBox IsChecked="{Binding MergeRooms}"/>
+					<TextBlock Text="Allow rooms to merge"/>
+				</WrapPanel>
+				<TextBlock Classes="header" Text="Pool Generation"/>
+				<WrapPanel>
+					<TextBlock Text="Pools per chunk: "/>
+					<TextBox MaxLines="1" Text="{Binding PoolsPerChunk}"/>
+				</WrapPanel>
+				<TextBlock Classes="header" Text="Path Generation"/>
+				<WrapPanel>
+					<TextBlock Text="Paths per room: "/>
+					<TextBox MaxLines="1" MaxLength="3" Text="{Binding MinRoomExits}"/>
+					<TextBlock Text=" to "/>
+					<TextBox MaxLines="1" MaxLength="3" Text="{Binding MaxRoomExits}"/>
+				</WrapPanel>
+				<WrapPanel>
+					<TextBlock Text="Path bend rate: "/>
+					<TextBox MaxLines="1" Text="{Binding PathBend}"/>
+				</WrapPanel>
+				<WrapPanel>
+					<TextBlock Text="Path termination rate: "/>
+					<TextBox MaxLines="1" Text="{Binding PathTerminate}"/>
+				</WrapPanel>
+				<WrapPanel>
+					<CheckBox IsChecked="{Binding Crossroads}"/>
+					<TextBlock Text="Allow paths to cross over"/>
+				</WrapPanel>
+				<WrapPanel>
+					<CheckBox IsChecked="{Binding EndAtBoundary}"/>
+					<TextBlock Text="Terminate paths at map edge"/>
+				</WrapPanel>
+				<TextBlock Classes="header" Text="Tile Info"/>
+				<WrapPanel>
+					<TextBlock Text="Wall ID: "/>
+					<TextBox MaxLines="1" MaxLength="3" Text="{Binding WallID}"/>
+				</WrapPanel>
+				<TextBox Name="ConsoleView" FontFamily="Fixed Width"/>
+			</StackPanel>
+		</ScrollViewer>
 	</DockPanel>
 </Window>

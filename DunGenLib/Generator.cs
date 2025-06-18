@@ -9,28 +9,46 @@ namespace DunGenLib
 {
     public class Generator
     {
-        public required Map map;
-        private readonly Random rng = new();
-        public Value2D<ushort> MapChunks = new() { x = 5, y = 5 };
+        public required Map Map { get; set; }
 
-        public Value2D<ushort> MinRoomSize = new() { x = 3, y = 3 };
-        public Value2D<ushort> MaxRoomSize = new() { x = 16, y = 16 };
-        public bool MergeRooms = false;
-        public bool TouchRooms = false;
-        public float RoomsPerChunk = 1;
-        public byte MinRoomExits = 3;
-        public byte MaxRoomExits = 6;
+        public Point2D_16 MapChunks { get => mapChunks; set => mapChunks = value; }
+        public Point2D_16 MinRoomSize { get => minRoomSize; set => minRoomSize = value; }
+        public Point2D_16 MaxRoomSize { get => maxRoomSize; set => maxRoomSize = value; }
+        public bool MergeRooms { get => mergeRooms; set => mergeRooms = value; }
+        public bool TouchRooms { get => touchRooms; set => touchRooms = value; }
+        public float RoomsPerChunk { get => roomsPerChunk; set => roomsPerChunk = value; }
+        public byte MinRoomExits { get => minRoomExits; set => minRoomExits = value; }
+        public byte MaxRoomExits { get => maxRoomExits; set => maxRoomExits = value; }
+        public float PoolsPerChunk { get => poolsPerChunk; set => poolsPerChunk = value; }
+        public float PathBend { get => pathBend; set => pathBend = value; }
+        public float PathTerminate { get => pathTerminate; set => pathTerminate = value; }
+        public bool Crossroads { get => crossroads; set => crossroads = value; }
+        public bool EndAtBoundary { get => endAtBoundary; set => endAtBoundary = value; }
+        public byte WallID { get => wallID; set => wallID = value; }
+        public IList<PoolOptions> PoolIDs { get => poolIDs; set => poolIDs = value; }
+        public IList<GroundOptions> GroundIDs { get => groundIDs; set => groundIDs = value; }
 
-        public float PoolsPerChunk = 1;
+        protected readonly Random rng = new();
+        protected Point2D_16 mapChunks = new() { x = 5, y = 5 };
 
-        public float PathBend = 0.15F;
-        public float PathTerminate = 0.01F;
-        public bool Crossroads = true;
-        public bool EndAtBoundary = true;
+        protected Point2D_16 minRoomSize = new() { x = 3, y = 3 };
+        protected Point2D_16 maxRoomSize = new() { x = 16, y = 16 };
+        protected bool mergeRooms = false;
+        protected bool touchRooms = false;
+        protected float roomsPerChunk = 1;
+        protected byte minRoomExits = 3;
+        protected byte maxRoomExits = 6;
 
-        public byte WallID = 0;
-        public List<PoolOptions> PoolIDs = [];
-        public List<GroundOptions> GroundIDs = [];
+        protected float poolsPerChunk = 1;
+
+        protected float pathBend = 0.15F;
+        protected float pathTerminate = 0.01F;
+        protected bool crossroads = true;
+        protected bool endAtBoundary = true;
+
+        protected byte wallID = 0;
+        protected IList<PoolOptions> poolIDs = [];
+        protected IList<GroundOptions> groundIDs = [];
         protected bool InPoolIDs(byte value)
         {
             foreach (PoolOptions i in PoolIDs)
@@ -48,31 +66,31 @@ namespace DunGenLib
             return false;
         }
 
-        private List<RoomData> rooms = [];
+        protected List<RoomData> rooms = [];
         public void GenerateMap()
         {
-            foreach (GroundOptions item in GroundIDs) map.GroundIDs.Add(item.id);
-            foreach (PoolOptions item in PoolIDs) map.PoolIDs.Add(item.id);
-            map.FillMap(WallID);
+            foreach (GroundOptions item in GroundIDs) Map.GroundIDs.Add(item.id);
+            foreach (PoolOptions item in PoolIDs) Map.PoolIDs.Add(item.id);
+            Map.FillMap(WallID);
             GenerateRooms();
             GeneratePaths();
             GeneratePools();
         }
-        protected void CarveRect(Value2D<ushort> pos, Value2D<ushort> size, byte id)
+        protected void CarveRect(Point2D_16 pos, Point2D_16 size, byte id)
         {
             for (ushort y = pos.y; y < pos.y + size.y; y++)
             {
-                if (y >= map.height) break;
+                if (y >= Map.height) break;
                 for (ushort x = pos.x; x < pos.x + size.x; x++)
                 {
-                    if (x >= map.width) break;
-                    map.PlaceTile(x, y, id);
+                    if (x >= Map.width) break;
+                    Map.PlaceTile(x, y, id);
                 }
             }
         }
-        protected void CarveRoom(Value2D<ushort> pos, Value2D<ushort> size)
+        protected void CarveRoom(Point2D_16 pos, Point2D_16 size)
         {
-            List<GroundOptions> ids = [];
+            IList<GroundOptions> ids = [];
             List<float> prob = [];
             float denom = 0;
             foreach (GroundOptions item in GroundIDs)
@@ -88,17 +106,17 @@ namespace DunGenLib
             float rand;
             for (ushort y = pos.y; y < pos.y + size.y; y++)
             {
-                if (y >= map.height) break;
+                if (y >= Map.height) break;
                 for (ushort x = pos.x; x < pos.x + size.x; x++)
                 {
-                    if (x >= map.width) break;
+                    if (x >= Map.width) break;
                     if (ids.Count == 0)
                     {
-                        map.PlaceTile(x, y, GroundIDs[0].id);
+                        Map.PlaceTile(x, y, GroundIDs[0].id);
                     }
                     else if (ids.Count == 1)
                     {
-                        map.PlaceTile(x, y, ids[0].id);
+                        Map.PlaceTile(x, y, ids[0].id);
                     }
                     else
                     {
@@ -111,7 +129,7 @@ namespace DunGenLib
                                 break;
                             }
                         }
-                        map.PlaceTile(x, y, id);
+                        Map.PlaceTile(x, y, id);
                     }
                 }
             }
@@ -121,8 +139,8 @@ namespace DunGenLib
                 if (item.inRooms && item.patches) ids.Add(item);
             }
             float f;
-            Value2D<ushort> patchPos = new();
-            Value2D<ushort> patchSize = new();
+            Point2D_16 patchPos = new();
+            Point2D_16 patchSize = new();
             foreach (GroundOptions item in ids)
             {
                 f = item.patchesPerRoom;
@@ -145,9 +163,9 @@ namespace DunGenLib
         }
         protected void GenerateRooms()
         {
-            Value2D<ushort> chunkSize = new() { x = (ushort)(map.width/MapChunks.x), y = (ushort)(map.height/MapChunks.y) };
-            Value2D<ushort> pos;
-            Value2D<ushort> size;
+            Point2D_16 chunkSize = new() { x = (ushort)(Map.width/MapChunks.x), y = (ushort)(Map.height/MapChunks.y) };
+            Point2D_16 pos = new();
+            Point2D_16 size = new();
             float f;
             for (ushort v = 0; v < MapChunks.y; v++)
             {
@@ -160,11 +178,11 @@ namespace DunGenLib
                         {
                             do
                             {
-                                pos.x = (ushort)rng.Next(chunkSize.x * h, chunkSize.x * (h + 1) - (ushort)Math.Ceiling((double)chunkSize.x / 2));
-                                pos.y = (ushort)rng.Next(chunkSize.y * v, chunkSize.y * (v + 1) - (ushort)Math.Ceiling((double)chunkSize.y / 2));
                                 size.x = (ushort)rng.Next(MinRoomSize.x, MaxRoomSize.x);
                                 size.y = (ushort)rng.Next(MinRoomSize.y, MaxRoomSize.y);
-                            } while (!MergeRooms && CheckRoom(pos, size));
+                                pos.x = (ushort)rng.Next(chunkSize.x * h, chunkSize.x * (h + 1) - size.x - 1);
+                                pos.y = (ushort)rng.Next(chunkSize.y * v, chunkSize.y * (v + 1) - size.y - 1);
+                            } while (!MergeRooms && CheckRoomOverlap(pos, size));
                             CarveRoom(pos, size);
                             rooms.Add(new() { pos = pos, size = size });
                         }
@@ -173,41 +191,25 @@ namespace DunGenLib
                 }
             }
         }
-        protected bool CheckRoom(Value2D<ushort> pos, Value2D<ushort> size)
+        protected bool CheckRoomOverlap(Point2D_16 pos, Point2D_16 size)
         {
-            ushort x, y;
-            Value2D<ushort> minBounds = new() { x = !TouchRooms && pos.x > 0 ? (ushort)(pos.x - 1) : pos.x, y = !TouchRooms && pos.y > 0 ? (ushort)(pos.y - 1) : pos.y };
-            Value2D<ushort> maxBounds = new() { x = (ushort)(TouchRooms ? pos.x + size.x : pos.x + size.x + 1), y = (ushort)(TouchRooms ? pos.y + size.y : pos.y + size.y + 1) };
-            for (y = minBounds.y; y < maxBounds.y && y < map.height; y++)
+            foreach (RoomData r in rooms)
             {
-                if (y >= map.height) break;
-                if (TouchRooms && (y == pos.y || y == pos.y + size.y - 1))
+                if (TouchRooms)
                 {
-                    for (x = minBounds.x; x < maxBounds.x && x < map.width; x++)
-                    {
-                        if (x >= map.width) break;
-                        if (InGroundIDs(map.GetTile(x, y))) return true;
-                    }
+                    if ((r.pos.x <= pos.x && pos.x < r.pos.x + r.size.x) && (r.pos.y <= pos.y && pos.y < r.pos.y + r.size.y) ||
+                        (pos.x <= r.pos.x && r.pos.x < pos.x + size.x) && (pos.y <= r.pos.y && r.pos.y < pos.y + size.y)) return true;
                 }
-                else if (y < pos.y || y >= pos.y + size.y)
-                {
-                    for (x = pos.x; x < pos.x + size.x && x < map.width; x++)
-                    {
-                        if (x >= map.width) break;
-                        if (InGroundIDs(map.GetTile(x, y))) return true;
-                    }
-                }
-                else
-                {
-                    if (InGroundIDs(map.GetTile(minBounds.x, y))) return true;
-                    else if (InGroundIDs(map.GetTile(maxBounds.x < map.width ? maxBounds.x : (ushort)(map.width - 1), y))) return true;
+                else {
+                    if ((r.pos.x <= pos.x && pos.x <= r.pos.x + r.size.x) && (r.pos.y <= pos.y && pos.y <= r.pos.y + r.size.y) ||
+                        (pos.x <= r.pos.x && r.pos.x <= pos.x + size.x) && (pos.y <= r.pos.y && r.pos.y <= pos.y + size.y)) return true;
                 }
             }
             return false;
         }
-        protected void CarvePath(Value2D<ushort> pos, Direction dir)
+        protected void CarvePath(Point2D_16 pos, Direction dir)
         {
-            List<GroundOptions> ids = [];
+            IList<GroundOptions> ids = [];
             foreach (GroundOptions item in GroundIDs)
             {
                 if (item.inPaths) ids.Add(item);
@@ -219,10 +221,10 @@ namespace DunGenLib
                 denom += item.spawnRate;
                 prob.Add(denom);
             }
-            if ((pos.x == 0 && dir == Direction.Left) || (pos.y == 0 && dir == Direction.Up) || (pos.x >= map.width - 1 && dir == Direction.Right) || (pos.y >= map.height - 1 && dir == Direction.Down)) return;
+            if ((pos.x == 0 && dir == Direction.Left) || (pos.y == 0 && dir == Direction.Up) || (pos.x >= Map.width - 1 && dir == Direction.Right) || (pos.y >= Map.height - 1 && dir == Direction.Down)) return;
             pos.x = (ushort)(pos.x + DirToVec(dir).x);
             pos.y = (ushort)(pos.y + DirToVec(dir).y);
-            map.PlaceTile(pos.x, pos.y, GroundIDs[0].id);
+            Map.PlaceTile(pos.x, pos.y, GroundIDs[0].id);
             byte id = ids.Count == 0 ? GroundIDs[0].id : ids[0].id;
             ushort segLength = 0;
             ushort segLimit = 0;
@@ -234,7 +236,7 @@ namespace DunGenLib
                     if (rng.Next(2) == 0) dir = (Direction)((short)dir - 90 % 360);
                     else dir = (Direction)((short)dir + 90 % 360);
                 }
-                if ((pos.x == 0 && dir == Direction.Left) || (pos.y == 0 && dir == Direction.Up) || (pos.x >= map.width - 1 && dir == Direction.Right) || (pos.y >= map.height - 1 && dir == Direction.Down))
+                if ((pos.x == 0 && dir == Direction.Left) || (pos.y == 0 && dir == Direction.Up) || (pos.x >= Map.width - 1 && dir == Direction.Right) || (pos.y >= Map.height - 1 && dir == Direction.Down))
                 {
                     if (EndAtBoundary) return;
                     else continue;
@@ -247,15 +249,15 @@ namespace DunGenLib
                 }
                 else
                 {
-                    if (InGroundIDs(map.GetTile(pos.x, pos.y))) return;
+                    if (InGroundIDs(Map.GetTile(pos.x, pos.y))) return;
                 }
                 if (ids.Count == 0)
                 {
-                    map.PlaceTile(pos.x, pos.y, GroundIDs[0].id);
+                    Map.PlaceTile(pos.x, pos.y, GroundIDs[0].id);
                 }
                 else if (ids.Count == 1)
                 {
-                    map.PlaceTile(pos.x, pos.y, ids[0].id);
+                    Map.PlaceTile(pos.x, pos.y, ids[0].id);
                 }
                 else
                 {
@@ -276,11 +278,11 @@ namespace DunGenLib
                             segLimit = (ushort)rng.Next(ids[index].minSegmentLength, ids[index].maxSegmentLength + 1);
                             segLength = 1;
                         }
-                        map.PlaceTile(pos.x, pos.y, id);
+                        Map.PlaceTile(pos.x, pos.y, id);
                     }
                     else
                     {
-                        map.PlaceTile(pos.x, pos.y, id);
+                        Map.PlaceTile(pos.x, pos.y, id);
                         segLength = (ushort)(segLength + 1 == segLimit ? 0 : segLength + 1);
                     }
                 }
@@ -289,7 +291,7 @@ namespace DunGenLib
         }
         protected void GeneratePools()
         {
-            Value2D<ushort> pos = new();
+            Point2D_16 pos = new();
             List<float> prob = [];
             float denom = 0F;
             foreach (PoolOptions item in PoolIDs)
@@ -303,9 +305,9 @@ namespace DunGenLib
             {
                 do
                 {
-                    pos.x = (ushort)rng.Next(map.width);
-                    pos.y = (ushort)rng.Next(map.height);
-                } while (map.GetTile(pos.x, pos.y) != WallID);
+                    pos.x = (ushort)rng.Next(Map.width);
+                    pos.y = (ushort)rng.Next(Map.height);
+                } while (Map.GetTile(pos.x, pos.y) != WallID);
                 rand = rng.NextSingle() * denom;
                 for (index = 0; index < prob.Count; index++)
                 {
@@ -316,13 +318,13 @@ namespace DunGenLib
         }
         protected void FillPool(ushort x, ushort y, PoolOptions options)
         {
-            map.PlaceTile(x, y, options.id);
-            if (x > 0 && map.GetTile((ushort)(x - 1), y) == WallID && rng.NextSingle() < options.spread) FillPool((ushort)(x - 1), y, options);
-            if (y > 0 && map.GetTile(x, (ushort)(y - 1)) == WallID && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y - 1), options);
-            if (x < map.width - 1 && map.GetTile((ushort)(x + 1), y) == WallID && rng.NextSingle() < options.spread) FillPool((ushort)(x + 1), y, options);
-            if (y < map.height - 1 && map.GetTile(x, (ushort)(y + 1)) == WallID && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y + 1), options);
+            Map.PlaceTile(x, y, options.id);
+            if (x > 0 && Map.GetTile((ushort)(x - 1), y) == WallID && rng.NextSingle() < options.spread) FillPool((ushort)(x - 1), y, options);
+            if (y > 0 && Map.GetTile(x, (ushort)(y - 1)) == WallID && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y - 1), options);
+            if (x < Map.width - 1 && Map.GetTile((ushort)(x + 1), y) == WallID && rng.NextSingle() < options.spread) FillPool((ushort)(x + 1), y, options);
+            if (y < Map.height - 1 && Map.GetTile(x, (ushort)(y + 1)) == WallID && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y + 1), options);
         }
-        protected static Value2D<sbyte> DirToVec(Direction dir)
+        protected static Vec2D_8 DirToVec(Direction dir)
         {
             return dir switch
             {
@@ -335,7 +337,7 @@ namespace DunGenLib
         }
         protected bool TileInRoom(ushort x, ushort y)
         {
-            byte?[,] area = map.GetArea(x, y);
+            byte?[,] area = Map.GetArea(x, y);
             return (InGroundIDs(area[0, 0] ?? WallID) && InGroundIDs(area[0, 1] ?? WallID) && InGroundIDs(area[1, 0] ?? WallID))
                 || (InGroundIDs(area[0, 1] ?? WallID) && InGroundIDs(area[0, 2] ?? WallID) && InGroundIDs(area[1, 2] ?? WallID))
                 || (InGroundIDs(area[1, 2] ?? WallID) && InGroundIDs(area[2, 1] ?? WallID) && InGroundIDs(area[2, 2] ?? WallID))
@@ -350,7 +352,7 @@ namespace DunGenLib
                 Direction dir = 0;
                 for (int i = 0; i < exits; i++)
                 {
-                    while ((r.pos.x == 0 && dir == Direction.Left) || (r.pos.y == 0 && dir == Direction.Up) || (r.pos.x + r.size.x >= map.width - 1 && dir == Direction.Right) || (r.pos.y + r.size.y >= map.height - 1 && dir == Direction.Down))
+                    while ((r.pos.x == 0 && dir == Direction.Left) || (r.pos.y == 0 && dir == Direction.Up) || (r.pos.x + r.size.x >= Map.width - 1 && dir == Direction.Right) || (r.pos.y + r.size.y >= Map.height - 1 && dir == Direction.Down))
                     {
                         dir = (Direction)(rng.Next(4) * 90);
                     }
@@ -373,36 +375,41 @@ namespace DunGenLib
             }
         }
     }
-    public struct Value2D<T>
+    public struct Point2D_16
     {
-        public T x;
-        public T y;
+        public ushort x { get; set; }
+        public ushort y { get; set; }
     }
-    public struct PoolOptions
+    public struct Vec2D_8
+    {
+        public sbyte x { get; set; }
+        public sbyte y { get; set; }
+    }
+    public class PoolOptions
     {
         public byte id; 
         public float spawnRate;
         public float spread;
-        public string tag;
+        public string tag = "";
     }
-    public struct GroundOptions
+    public class GroundOptions
     {
         public byte id;
         public float spawnRate;
-        public bool inRooms;
+        public bool inRooms = true;
         public bool patches;
         public float patchesPerRoom;
-        public Value2D<ushort> minPatchSize;
-        public Value2D<ushort> maxPatchSize;
-        public bool inPaths;
+        public Point2D_16 minPatchSize;
+        public Point2D_16 maxPatchSize;
+        public bool inPaths = true;
         public bool segments;
         public ushort minSegmentLength;
         public ushort maxSegmentLength;
     }
     public struct RoomData
     {
-        public Value2D<ushort> pos;
-        public Value2D<ushort> size;
+        public Point2D_16 pos;
+        public Point2D_16 size;
     }
     public enum Direction : short
     {
