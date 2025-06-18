@@ -29,7 +29,6 @@
 					<Setter Property="Margin" Value="10"/>
 				</Style>
 			</StackPanel.Styles>
-			<TextBlock Name="GenStatus" VerticalAlignment="Center">Not generated</TextBlock>
 			<Button Click="GenerateMap">Generate</Button>
 			<Button>Edit map</Button>
 			<Button Click="PrintMap">Playtest</Button>

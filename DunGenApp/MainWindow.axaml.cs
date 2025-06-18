@@ -9,7 +9,6 @@ namespace DunGenApp
     {
         private Map map = new(1, 1);
         private DynamicGenerator gen {  get; set; }
-        private bool mapReady = false;
         public MainWindow()
         {
             InitializeComponent();
