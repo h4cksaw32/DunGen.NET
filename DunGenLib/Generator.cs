@@ -418,10 +418,11 @@ namespace DunGenLib
     public class TileOptions
     {
         public byte id { get; set; }
-        public float spawnRate { get; set; }
+        public float spawnRate { get => spawnRateF; set => spawnRateF = value; }
         public string tag { get => tagF; set => tagF = value; }
 
         protected string tagF = "";
+        private float spawnRateF = 1;
     }
     public class PoolOptions : TileOptions
     {

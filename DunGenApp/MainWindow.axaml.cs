@@ -1,6 +1,8 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using DialogHostAvalonia;
 using DunGenLib;
+using MsBox.Avalonia;
 using System;
 using System.Collections;
 using System.Collections.ObjectModel;
@@ -13,8 +15,8 @@ namespace DunGenApp
         private DynamicGenerator gen { get; set; }
         public MainWindow()
         {
-            //gen = new DynamicGenerator { Map = map };
-            gen = new DynamicGenerator
+            gen = new DynamicGenerator { Map = map };
+            /*gen = new DynamicGenerator
             {
                 Map = map,
                 LoopAttempts = 10,
@@ -40,7 +42,7 @@ namespace DunGenApp
                     new GroundOptions{id = 7, spawnRate = 0.5F, inRooms = true, patches = true, inPaths = false, patchesPerRoom = 0.5F, minPatchSize = new() { x = 2, y = 2 }, maxPatchSize = new() { x = 6, y = 6 }},
                     new GroundOptions{id = 4, spawnRate = 0.5F, inRooms = true, patches = true, inPaths = false, patchesPerRoom = 0.5F, minPatchSize = new() { x = 3, y = 3 }, maxPatchSize = new() { x = 8, y = 8 }},
                 ]
-            };
+            };*/
             gen.UpdateIDs();
             InitializeComponent();
             gen.PropertyChanged += (source, ev) => MapStatus.Text = "Settings changed";
@@ -56,11 +58,9 @@ namespace DunGenApp
         }
         private void AddGroundType(object? source, RoutedEventArgs e)
         {
-            if (GroundTypes.SelectedIndex > -1)
-            {
-                gen.ObservableGroundIDs.RemoveAt(GroundTypes.SelectedIndex);
-                GroundTypes.SelectedIndex = -1;
-            }
+            byte? newID = FindLatestTileID();
+            if (newID == null) MessageBoxManager.GetMessageBoxStandard("No IDs available", "The entire ID range (0 ~ 255) is occupied.", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error).ShowAsync();
+            else gen.ObservableGroundIDs.Add(new GroundOptions { id = newID ?? 0 });
         }
         private void RemoveGroundType(object? source, RoutedEventArgs e)
         {
@@ -70,13 +70,40 @@ namespace DunGenApp
                 GroundTypes.SelectedIndex = -1;
             }
         }
+        private byte? FindLatestTileID()
+        {
+            gen.UpdateIDs();
+            byte? id = 0;
+            bool[] available = new bool[256];
+            Array.Fill<bool>(available, false);
+            available[gen.WallID] = true;
+            foreach (GroundOptions g in gen.GroundIDs)
+            {
+                available[g.id] = true;
+            }
+            foreach (PoolOptions p in gen.PoolIDs)
+            {
+                available[p.id] = true;
+            }
+            checked
+            {
+                try
+                {
+                    while (available[id ?? 0]) id++;
+                }
+                catch (OverflowException)
+                {
+                    id = null;
+                }
+            }
+            return id;
+        }
         private void AddPoolType(object? source, RoutedEventArgs e)
         {
-            if (PoolTypes.SelectedIndex > -1)
-            {
-                gen.ObservablePoolIDs.RemoveAt(PoolTypes.SelectedIndex);
-                PoolTypes.SelectedIndex = -1;
-            }
+
+            byte? newID = FindLatestTileID();
+            if (newID == null) MessageBoxManager.GetMessageBoxStandard("No IDs available", "The entire ID range (0 ~ 255) is occupied.", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error).ShowAsync();
+            else gen.ObservablePoolIDs.Add(new PoolOptions { id = newID ?? 0 });
         }
         private void RemovePoolType(object? source, RoutedEventArgs e)
         {

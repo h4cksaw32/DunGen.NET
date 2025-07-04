@@ -1,3 +1,3 @@
 !IMPORTANT THINGS TO DO!
-1) Add functionality to "add" buttons, which automatically add a tile type with the latest (unsused?) tile ID.
+1) Add tooltips to each setting.
 2) Add self-validation method to generator, which either raises an exception or does basic corrections.
