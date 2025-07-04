@@ -17,13 +17,22 @@ namespace DunGenApp
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+        public new ushort LoopAttempts
+        {
+            get => loopAttempts;
+            set
+            {
+                loopAttempts = value;
+                InvokeChange();
+            }
+        }
         public new Point2D_16 MapChunks
         {
             get => mapChunks;
             set
             {
                 mapChunks = value;
-				InvokeChange();
+                InvokeChange();
             }
         }
         public new Point2D_16 MinRoomSize
@@ -32,7 +41,7 @@ namespace DunGenApp
             set
             {
                 minRoomSize = value;
-				InvokeChange();
+                InvokeChange();
             }
         }
         public new Point2D_16 MaxRoomSize
@@ -41,7 +50,7 @@ namespace DunGenApp
             set
             {
                 maxRoomSize = value;
-				InvokeChange();
+                InvokeChange();
             }
         }
         public new bool MergeRooms
@@ -50,7 +59,7 @@ namespace DunGenApp
             set
             {
                 mergeRooms = value;
-				InvokeChange();
+                InvokeChange();
             }
         }
         public new bool TouchRooms
@@ -59,7 +68,7 @@ namespace DunGenApp
             set
             {
                 touchRooms = value;
-				InvokeChange();
+                InvokeChange();
             }
         }
         public new float RoomsPerChunk
@@ -68,7 +77,7 @@ namespace DunGenApp
             set
             {
                 roomsPerChunk = value;
-				InvokeChange();
+                InvokeChange();
             }
         }
         public new byte MinRoomExits
@@ -77,7 +86,7 @@ namespace DunGenApp
             set
             {
                 minRoomExits = value;
-				InvokeChange();
+                InvokeChange();
             }
         }
         public new byte MaxRoomExits
@@ -86,7 +95,7 @@ namespace DunGenApp
             set
             {
                 maxRoomExits = value;
-				InvokeChange();
+                InvokeChange();
             }
         }
         public new float PoolsPerChunk
@@ -95,7 +104,7 @@ namespace DunGenApp
             set
             {
                 poolsPerChunk = value;
-				InvokeChange();
+                InvokeChange();
             }
         }
         public new float PathBend
@@ -104,7 +113,7 @@ namespace DunGenApp
             set
             {
                 pathBend = value;
-				InvokeChange();
+                InvokeChange();
             }
         }
         public new float PathTerminate
@@ -113,7 +122,7 @@ namespace DunGenApp
             set
             {
                 pathTerminate = value;
-				InvokeChange();
+                InvokeChange();
             }
         }
         public new bool Crossroads
@@ -122,7 +131,7 @@ namespace DunGenApp
             set
             {
                 crossroads = value;
-				InvokeChange();
+                InvokeChange();
             }
         }
         public new bool EndAtBoundary
@@ -131,7 +140,7 @@ namespace DunGenApp
             set
             {
                 endAtBoundary = value;
-				InvokeChange();
+                InvokeChange();
             }
         }
         public new byte WallID
@@ -140,8 +149,66 @@ namespace DunGenApp
             set
             {
                 wallID = value;
-				InvokeChange();
+                InvokeChange();
             }
         }
+        public ObservableCollection<GroundOptions> ObservableGroundIDs { get => observeGroundIDs; set => observeGroundIDs = value; }
+        protected ObservableCollection<GroundOptions> observeGroundIDs = [new GroundOptions { id = 1, inPaths = true, inRooms = true, spawnRate = 1 }];
+        public ObservableCollection<PoolOptions> ObservablePoolIDs { get => observePoolIDs; set => observePoolIDs = value; }
+        protected ObservableCollection<PoolOptions> observePoolIDs = [new PoolOptions { id = 2, spawnRate = 1, spread = 0.5F }];
+        public void UpdateIDs()
+        {
+            GroundIDs = [.. ObservableGroundIDs];
+            PoolIDs = [.. ObservablePoolIDs];
+        }
+    }
+    internal class Point2D_16_D : Point2D_16, INotifyPropertyChanged
+    {
+
+        public new ushort x 
+        { 
+            get => fx; 
+            set
+            {
+                fx = value;
+                InvokeChange();
+            } 
+        }
+        public new ushort y
+        {
+            get => fy;
+            set
+            {
+                fy = value;
+                InvokeChange();
+            }
+        }
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private void InvokeChange([CallerMemberName] string? propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+    internal class Vec2D_8_D : Vec2D_8, INotifyPropertyChanged
+    {
+
+        public new sbyte x
+        {
+            get => fx;
+            set
+            {
+                fx = value;
+                InvokeChange();
+            }
+        }
+        public new sbyte y
+        {
+            get => fy;
+            set
+            {
+                fy = value;
+                InvokeChange();
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private void InvokeChange([CallerMemberName] string? propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

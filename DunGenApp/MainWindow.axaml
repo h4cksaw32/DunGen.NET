@@ -29,6 +29,7 @@
 					<Setter Property="Margin" Value="10"/>
 				</Style>
 			</StackPanel.Styles>
+			<TextBlock Name="MapStatus" Text="No map" VerticalAlignment="Center"/>
 			<Button Click="GenerateMap">Generate</Button>
 			<Button>Edit map</Button>
 			<Button Click="PrintMap">Playtest</Button>
@@ -36,7 +37,7 @@
 			<TextBlock VerticalAlignment="Center" Margin="0, 10, 10, 10">Snap to Grid</TextBlock>
 		</StackPanel>
 		<ScrollViewer>
-			<StackPanel Name="GenSettings" x:DataType="lib:Generator">
+			<StackPanel Name="GenSettings" x:DataType="local:DynamicGenerator">
 				<StackPanel.Styles>
 					<Style Selector="StackPanel > :is(Control)">
 						<Setter Property="Margin" Value="10"/>
@@ -49,13 +50,17 @@
 						<Setter Property="FontWeight" Value="DemiBold"/>
 						<Setter Property="TextDecorations" Value="Underline"/>
 					</Style>
+					<Style Selector="TextBlock.header2">
+						<Setter Property="FontSize" Value="15"/>
+						<Setter Property="TextDecorations" Value="Underline"/>
+					</Style>
 				</StackPanel.Styles>
-				<TextBlock Text="Map Properties" Classes="header"/>
+				<TextBlock Text="General" Classes="header"/>
 				<WrapPanel>
 					<TextBlock Text="Map size: "/>
-					<TextBox Name="MapWidth" MaxLines="1" MaxLength="5" Text="100"/>
+					<TextBox Name="MapWidth" MaxLines="1" MaxLength="5" Text="128"/>
 					<TextBlock Text=" &#xd7; "/>
-					<TextBox Name="MapHeight" MaxLines="1" MaxLength="5" Text="100"/>
+					<TextBox Name="MapHeight" MaxLines="1" MaxLength="5" Text="128"/>
 				</WrapPanel>
 				<WrapPanel>
 					<TextBlock Text="# of chunks: "/>
@@ -63,13 +68,17 @@
 					<TextBlock Text=" &#xd7; "/>
 					<TextBox MaxLines="1" MaxLength="5" Text="{Binding MapChunks.y}"/>
 				</WrapPanel>
+				<WrapPanel>
+					<TextBlock Text="Generation attempts (per feature): "/>
+					<TextBox MaxLines="1" Text="{Binding LoopAttempts}"/>
+				</WrapPanel>
 				<TextBlock Classes="header" Text="Room Generation"/>
 				<WrapPanel>
 					<TextBlock Text="Room size: "/>
 					<TextBox MaxLines="1" MaxLength="5" Text="{Binding MinRoomSize.x}"/>
 					<TextBlock Text=" &#xd7; "/>
 					<TextBox MaxLines="1" MaxLength="5" Text="{Binding MinRoomSize.y}"/>
-					<TextBlock Text=" to "/>
+					<TextBlock Text=" ~ "/>
 					<TextBox MaxLines="1" MaxLength="5" Text="{Binding MaxRoomSize.x}"/>
 					<TextBlock Text=" &#xd7; "/>
 					<TextBox MaxLines="1" MaxLength="5" Text="{Binding MaxRoomSize.y}"/>
@@ -95,7 +104,7 @@
 				<WrapPanel>
 					<TextBlock Text="Paths per room: "/>
 					<TextBox MaxLines="1" MaxLength="3" Text="{Binding MinRoomExits}"/>
-					<TextBlock Text=" to "/>
+					<TextBlock Text=" ~ "/>
 					<TextBox MaxLines="1" MaxLength="3" Text="{Binding MaxRoomExits}"/>
 				</WrapPanel>
 				<WrapPanel>
@@ -108,7 +117,7 @@
 				</WrapPanel>
 				<WrapPanel>
 					<CheckBox IsChecked="{Binding Crossroads}"/>
-					<TextBlock Text="Allow paths to cross over"/>
+					<TextBlock Text="Allow paths ~ cross over"/>
 				</WrapPanel>
 				<WrapPanel>
 					<CheckBox IsChecked="{Binding EndAtBoundary}"/>
@@ -118,6 +127,84 @@
 				<WrapPanel>
 					<TextBlock Text="Wall ID: "/>
 					<TextBox MaxLines="1" MaxLength="3" Text="{Binding WallID}"/>
+				</WrapPanel>
+				<TextBlock Classes="header2" Text="Ground Tiles"/>
+				<DataGrid Name="GroundTypes" ItemsSource="{Binding ObservableGroundIDs}">
+					<DataGrid.Columns>
+						<DataGridTextColumn Header="ID" Binding="{Binding id}"/>
+						<DataGridTextColumn Header="Name" Binding="{Binding tag}"/>
+						<DataGridTextColumn Header="Spawn rate" Binding="{Binding spawnRate}"/>
+						<DataGridCheckBoxColumn Header="In rooms" Binding="{Binding inRooms}"/>
+						<DataGridCheckBoxColumn Header="Spawn in patches" Binding="{Binding patches}"/>
+						<DataGridTemplateColumn Header="Patch size">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate DataType="lib:GroundOptions">
+									<StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+										<TextBlock Text="{Binding minPatchSize.x}"/>
+										<TextBlock Text="&#xd7;" VerticalAlignment="Center"/>
+										<TextBlock Text="{Binding minPatchSize.y}"/>
+										<TextBlock Text="~" VerticalAlignment="Center"/>
+										<TextBlock Text="{Binding maxPatchSize.x}"/>
+										<TextBlock Text="&#xd7;" VerticalAlignment="Center"/>
+										<TextBlock Text="{Binding maxPatchSize.y}"/>
+									</StackPanel>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+							<DataGridTemplateColumn.CellEditingTemplate>
+								<DataTemplate DataType="lib:GroundOptions">
+									<StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+										<TextBox Text="{Binding minPatchSize.x}"/>
+										<TextBlock Text="&#xd7;" VerticalAlignment="Center"/>
+										<TextBox Text="{Binding minPatchSize.y}"/>
+										<TextBlock Text="~" VerticalAlignment="Center"/>
+										<TextBox Text="{Binding maxPatchSize.x}"/>
+										<TextBlock Text="&#xd7;" VerticalAlignment="Center"/>
+										<TextBox Text="{Binding maxPatchSize.y}"/>
+									</StackPanel>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellEditingTemplate>
+						</DataGridTemplateColumn>
+						<DataGridTextColumn Header="Patches per room" Binding="{Binding patchesPerRoom}"/>
+						<DataGridCheckBoxColumn Header="In paths" Binding="{Binding inPaths}"/>
+						<DataGridCheckBoxColumn Header="Spawn in segments" Binding="{Binding segments}"/>
+						<DataGridTemplateColumn Header="Segment length">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate DataType="lib:GroundOptions">
+									<StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+										<TextBlock Text="{Binding minSegmentLength}"/>
+										<TextBlock Text="~" VerticalAlignment="Center"/>
+										<TextBlock Text="{Binding maxSegmentLength}"/>
+									</StackPanel>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+							<DataGridTemplateColumn.CellEditingTemplate>
+								<DataTemplate DataType="lib:GroundOptions">
+									<StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+										<TextBox Text="{Binding minSegmentLength}"/>
+										<TextBlock Text="~" VerticalAlignment="Center"/>
+										<TextBox Text="{Binding maxSegmentLength}"/>
+									</StackPanel>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellEditingTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+				</DataGrid>
+				<WrapPanel>
+					<Button Content="Add" Click="AddGroundType"/>
+					<Button Content="Delete" Click="RemoveGroundType"/>
+				</WrapPanel>
+				<TextBlock Classes="header2" Text="Pool Tiles"/>
+				<DataGrid Name="PoolTypes" ItemsSource="{Binding ObservablePoolIDs}">
+					<DataGrid.Columns>
+						<DataGridTextColumn Header="ID" Binding="{Binding id}"/>
+						<DataGridTextColumn Header="Name" Binding="{Binding tag}"/>
+						<DataGridTextColumn Header="Spawn rate" Binding="{Binding spawnRate}"/>
+						<DataGridTextColumn Header="Spread" Binding="{Binding spread}"/>
+					</DataGrid.Columns>
+				</DataGrid>
+				<WrapPanel>
+					<Button Content="Add" Click="AddPoolType"/>
+					<Button Content="Delete" Click="RemovePoolType"/>
 				</WrapPanel>
 				<TextBox Name="ConsoleView" FontFamily="Fixed Width"/>
 			</StackPanel>
