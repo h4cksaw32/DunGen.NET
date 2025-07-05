@@ -67,11 +67,40 @@ namespace DunGenLib
             }
             return false;
         }
+        public byte? FindVacantTileID()
+        {
+            byte? id = 0;
+            bool[] available = new bool[256];
+            Array.Fill<bool>(available, false);
+            available[WallID] = true;
+            foreach (GroundOptions g in GroundIDs)
+            {
+                available[g.id] = true;
+            }
+            foreach (PoolOptions p in PoolIDs)
+            {
+                available[p.id] = true;
+            }
+            checked
+            {
+                try
+                {
+                    while (available[id ?? 0]) id++;
+                }
+                catch (OverflowException)
+                {
+                    id = null;
+                }
+            }
+            return id;
+        }
 
         protected List<RoomData> rooms = [];
 
         public void GenerateMap()
         {
+            Map.GroundIDs.Clear();
+            Map.PoolIDs.Clear();
             foreach (GroundOptions item in GroundIDs) Map.GroundIDs.Add(item.id);
             foreach (PoolOptions item in PoolIDs) Map.PoolIDs.Add(item.id);
             Map.FillMap(WallID);
@@ -79,6 +108,7 @@ namespace DunGenLib
             GeneratePaths();
             GeneratePools();
         }
+
         protected void CarveRect(Point2D_16 pos, Point2D_16 size, byte id)
         {
             for (ushort y = pos.y; y < pos.y + size.y; y++)
@@ -161,7 +191,7 @@ namespace DunGenLib
                             patchSize.x = (ushort)rng.Next(item.minPatchSize.x, item.maxPatchSize.x);
                             patchSize.y = (ushort)rng.Next(item.minPatchSize.y, item.maxPatchSize.y);
                         } while (counter <= loopAttempts && (patchPos.x + patchSize.x >= pos.x + size.x || patchPos.y + patchSize.y >= pos.y + size.y));
-                        CarveRect(patchPos, patchSize, item.id);
+                        if (counter < loopAttempts) CarveRect(patchPos, patchSize, item.id);
                     }
                     f -= 1;
                 }
@@ -187,13 +217,16 @@ namespace DunGenLib
                             do
                             {
                                 counter++;
-                                size.x = (ushort)rng.Next(MinRoomSize.x, MaxRoomSize.x);
-                                size.y = (ushort)rng.Next(MinRoomSize.y, MaxRoomSize.y);
-                                pos.x = (ushort)rng.Next(chunkSize.x * h, chunkSize.x * (h + 1) - size.x);
-                                pos.y = (ushort)rng.Next(chunkSize.y * v, chunkSize.y * (v + 1) - size.y);
+                                size.x = (ushort)rng.Next(MinRoomSize.x, MaxRoomSize.x + 1);
+                                size.y = (ushort)rng.Next(MinRoomSize.y, MaxRoomSize.y + 1);
+                                pos.x = size.x >= chunkSize.x ? (ushort)(Map.width / MapChunks.x * h) : (ushort)rng.Next(Map.width / MapChunks.x * h, Map.width / MapChunks.x * (h + 1) - size.x);
+                                pos.y = size.y >= chunkSize.y ? (ushort)(Map.height / MapChunks.y * v) : (ushort)rng.Next(Map.height / MapChunks.y * v, Map.height / MapChunks.y * (v + 1) - size.y);
                             } while (counter <= loopAttempts && !MergeRooms && CheckRoomOverlap(pos, size));
-                            CarveRoom(pos, size);
-                            rooms.Add(new() { pos = pos, size = size });
+                            if (counter <= loopAttempts)
+                            {
+                                CarveRoom(pos, size);
+                                rooms.Add(new() { pos = pos, size = size });
+                            }
                         }
                         f -= 1;
                     }

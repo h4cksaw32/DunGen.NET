@@ -33,8 +33,6 @@
 			<Button Click="GenerateMap">Generate</Button>
 			<Button>Edit map</Button>
 			<Button Click="PrintMap">Playtest</Button>
-			<CheckBox IsChecked="true" Margin="10, 10, 0, 10"/>
-			<TextBlock VerticalAlignment="Center" Margin="0, 10, 10, 10">Snap to Grid</TextBlock>
 		</StackPanel>
 		<ScrollViewer>
 			<StackPanel Name="GenSettings" x:DataType="local:DynamicGenerator">
@@ -117,7 +115,7 @@
 				</WrapPanel>
 				<WrapPanel>
 					<CheckBox IsChecked="{Binding Crossroads}"/>
-					<TextBlock Text="Allow paths ~ cross over"/>
+					<TextBlock Text="Allow paths to cross over"/>
 				</WrapPanel>
 				<WrapPanel>
 					<CheckBox IsChecked="{Binding EndAtBoundary}"/>

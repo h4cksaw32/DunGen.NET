@@ -52,13 +52,12 @@ namespace DunGenApp
         {
             MapStatus.Text = "Generating...";
             map.Resize(UInt16.Parse(MapWidth?.Text ?? "1"), UInt16.Parse(MapHeight?.Text ?? "1"));
-            gen.UpdateIDs();
             gen.GenerateMap();
             MapStatus.Text = "Map ready";
         }
         private void AddGroundType(object? source, RoutedEventArgs e)
         {
-            byte? newID = FindLatestTileID();
+            byte? newID = gen.FindVacantTileID();
             if (newID == null) MessageBoxManager.GetMessageBoxStandard("No IDs available", "The entire ID range (0 ~ 255) is occupied.", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error).ShowAsync();
             else gen.ObservableGroundIDs.Add(new GroundOptions { id = newID ?? 0 });
         }
@@ -70,38 +69,10 @@ namespace DunGenApp
                 GroundTypes.SelectedIndex = -1;
             }
         }
-        private byte? FindLatestTileID()
-        {
-            gen.UpdateIDs();
-            byte? id = 0;
-            bool[] available = new bool[256];
-            Array.Fill<bool>(available, false);
-            available[gen.WallID] = true;
-            foreach (GroundOptions g in gen.GroundIDs)
-            {
-                available[g.id] = true;
-            }
-            foreach (PoolOptions p in gen.PoolIDs)
-            {
-                available[p.id] = true;
-            }
-            checked
-            {
-                try
-                {
-                    while (available[id ?? 0]) id++;
-                }
-                catch (OverflowException)
-                {
-                    id = null;
-                }
-            }
-            return id;
-        }
         private void AddPoolType(object? source, RoutedEventArgs e)
         {
 
-            byte? newID = FindLatestTileID();
+            byte? newID = gen.FindVacantTileID();
             if (newID == null) MessageBoxManager.GetMessageBoxStandard("No IDs available", "The entire ID range (0 ~ 255) is occupied.", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error).ShowAsync();
             else gen.ObservablePoolIDs.Add(new PoolOptions { id = newID ?? 0 });
         }

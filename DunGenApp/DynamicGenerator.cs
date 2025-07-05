@@ -152,14 +152,24 @@ namespace DunGenApp
                 InvokeChange();
             }
         }
-        public ObservableCollection<GroundOptions> ObservableGroundIDs { get => observeGroundIDs; set => observeGroundIDs = value; }
+        public ObservableCollection<GroundOptions> ObservableGroundIDs { get => observeGroundIDs; set { observeGroundIDs = value; GroundIDs = [.. value]; } }
         protected ObservableCollection<GroundOptions> observeGroundIDs = [new GroundOptions { id = 1, inPaths = true, inRooms = true, spawnRate = 1 }];
-        public ObservableCollection<PoolOptions> ObservablePoolIDs { get => observePoolIDs; set => observePoolIDs = value; }
+        public ObservableCollection<PoolOptions> ObservablePoolIDs { get => observePoolIDs; set { observePoolIDs = value; PoolIDs = [.. value]; } }
         protected ObservableCollection<PoolOptions> observePoolIDs = [new PoolOptions { id = 2, spawnRate = 1, spread = 0.5F }];
+        public new byte? FindVacantTileID()
+        {
+            UpdateIDs();
+            return base.FindVacantTileID();
+        }
         public void UpdateIDs()
         {
             GroundIDs = [.. ObservableGroundIDs];
             PoolIDs = [.. ObservablePoolIDs];
+        }
+        public new void GenerateMap()
+        {
+            UpdateIDs();
+            base.GenerateMap();
         }
     }
     internal class Point2D_16_D : Point2D_16, INotifyPropertyChanged
