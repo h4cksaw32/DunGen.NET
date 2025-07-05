@@ -166,10 +166,16 @@ namespace DunGenApp
             GroundIDs = [.. ObservableGroundIDs];
             PoolIDs = [.. ObservablePoolIDs];
         }
-        public new void GenerateMap()
+        public void ExposeIDs()
+        {
+            ObservableGroundIDs = [.. GroundIDs];
+            ObservablePoolIDs = [.. PoolIDs];
+        }
+        public new void ValidateIDs()
         {
             UpdateIDs();
-            base.GenerateMap();
+            base.ValidateIDs();
+            ExposeIDs();
         }
     }
 }

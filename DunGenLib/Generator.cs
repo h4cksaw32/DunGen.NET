@@ -101,12 +101,17 @@ namespace DunGenLib
         {
             Map.GroundIDs.Clear();
             Map.PoolIDs.Clear();
+            ValidateIDs();
             foreach (GroundOptions item in GroundIDs) Map.GroundIDs.Add(item.id);
             foreach (PoolOptions item in PoolIDs) Map.PoolIDs.Add(item.id);
             Map.FillMap(WallID);
             GenerateRooms();
             GeneratePaths();
             GeneratePools();
+        }
+        public void ValidateIDs()
+        {
+
         }
 
         protected void CarveRect(Point2D_16 pos, Point2D_16 size, byte id)
@@ -201,6 +206,7 @@ namespace DunGenLib
         }
         protected void GenerateRooms()
         {
+            rooms.Clear();
             Point2D_16 chunkSize = new() { x = (ushort)(Map.width/MapChunks.x), y = (ushort)(Map.height/MapChunks.y) };
             Point2D_16 pos;
             Point2D_16 size;
