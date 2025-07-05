@@ -172,8 +172,8 @@ namespace DunGenLib
                 if (item.inRooms && item.patches) ids.Add(item);
             }
             float f;
-            Point2D_16 patchPos = new();
-            Point2D_16 patchSize = new();
+            Point2D_16 patchPos;
+            Point2D_16 patchSize;
             ushort counter;
             foreach (GroundOptions item in ids)
             {
@@ -186,6 +186,8 @@ namespace DunGenLib
                         do
                         {
                             counter++;
+                            patchPos = new();
+                            patchSize = new();
                             patchPos.x = (ushort)rng.Next(pos.x, pos.x + size.x);
                             patchPos.y = (ushort)rng.Next(pos.y, pos.y + size.y);
                             patchSize.x = (ushort)rng.Next(item.minPatchSize.x, item.maxPatchSize.x);
@@ -200,8 +202,8 @@ namespace DunGenLib
         protected void GenerateRooms()
         {
             Point2D_16 chunkSize = new() { x = (ushort)(Map.width/MapChunks.x), y = (ushort)(Map.height/MapChunks.y) };
-            Point2D_16 pos = new();
-            Point2D_16 size = new();
+            Point2D_16 pos;
+            Point2D_16 size;
             float f;
             ushort counter;
             for (ushort v = 0; v < MapChunks.y; v++)
@@ -217,6 +219,8 @@ namespace DunGenLib
                             do
                             {
                                 counter++;
+                                size = new();
+                                pos = new();
                                 size.x = (ushort)rng.Next(MinRoomSize.x, MaxRoomSize.x + 1);
                                 size.y = (ushort)rng.Next(MinRoomSize.y, MaxRoomSize.y + 1);
                                 pos.x = size.x >= chunkSize.x ? (ushort)(Map.width / MapChunks.x * h) : (ushort)rng.Next(Map.width / MapChunks.x * h, Map.width / MapChunks.x * (h + 1) - size.x);
