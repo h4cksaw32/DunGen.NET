@@ -109,7 +109,7 @@ namespace DunGenLib
             GeneratePaths();
             GeneratePools();
         }
-        public void ValidateIDs()
+        public virtual void ValidateIDs()
         {
             if (InGroundIDs(WallID)) WallID = (byte)(FindVacantTileID() ?? (PoolIDs.Count > 0 ? PoolIDs[0].id : 0));
             if (InPoolIDs(WallID)) WallID = (byte)(FindVacantTileID() ?? (PoolIDs.Count > 0 ? PoolIDs[0].id : 0));

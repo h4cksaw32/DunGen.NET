@@ -171,7 +171,7 @@ namespace DunGenApp
             ObservableGroundIDs = [.. GroundIDs];
             ObservablePoolIDs = [.. PoolIDs];
         }
-        public new void ValidateIDs()
+        public override void ValidateIDs()
         {
             UpdateIDs();
             base.ValidateIDs();
