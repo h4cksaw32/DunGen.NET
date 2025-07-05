@@ -16,8 +16,8 @@
 			<MenuItem Header="File">
 				<MenuItem Header="Save map"/>
 				<MenuItem Header="Load map"/>
-				<MenuItem Header="Save variables"/>
-				<MenuItem Header="Load variables"/>
+				<MenuItem Header="Save preset"/>
+				<MenuItem Header="Load preset"/>
 				<MenuItem Header="Reset"/>
 			</MenuItem>
 			<MenuItem Header="Textures"/>

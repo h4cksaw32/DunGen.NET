@@ -46,6 +46,8 @@ namespace DunGenApp
             gen.UpdateIDs();
             InitializeComponent();
             gen.PropertyChanged += (source, ev) => MapStatus.Text = "Settings changed";
+            gen.ObservableGroundIDs.CollectionChanged += (source, ev) => MapStatus.Text = "Settings changed";
+            gen.ObservablePoolIDs.CollectionChanged += (source, ev) => MapStatus.Text = "Settings changed";
             GenSettings.DataContext = gen;
         }
         private void GenerateMap(object? source, RoutedEventArgs e)
