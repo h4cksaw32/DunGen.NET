@@ -51,7 +51,7 @@ namespace DunGenLib
         protected byte wallID = 0;
         protected List<PoolOptions> poolIDs = [new PoolOptions { id = 2, spawnRate = 1, spread = 0.5F }];
         protected List<GroundOptions> groundIDs = [new GroundOptions { id = 1, inPaths = true, inRooms = true, spawnRate = 1 }];
-        protected bool InPoolIDs(byte value)
+        public bool InPoolIDs(byte value)
         {
             foreach (PoolOptions i in PoolIDs)
             {
@@ -59,7 +59,7 @@ namespace DunGenLib
             }
             return false;
         }
-        protected bool InGroundIDs(byte value)
+        public bool InGroundIDs(byte value)
         {
             foreach (GroundOptions i in GroundIDs)
             {
@@ -111,7 +111,9 @@ namespace DunGenLib
         }
         public void ValidateIDs()
         {
-
+            if (InGroundIDs(WallID)) WallID = (byte)(FindVacantTileID() ?? (PoolIDs.Count > 0 ? PoolIDs[0].id : 0));
+            if (InPoolIDs(WallID)) WallID = (byte)(FindVacantTileID() ?? (PoolIDs.Count > 0 ? PoolIDs[0].id : 0));
+            if (GroundIDs.Count == 0) GroundIDs.Add(new GroundOptions { id = FindVacantTileID() ?? (byte)((WallID + 1) & 0b11111111), inPaths = true, inRooms = true, spawnRate = 1 });
         }
 
         protected void CarveRect(Point2D_16 pos, Point2D_16 size, byte id)
@@ -343,6 +345,7 @@ namespace DunGenLib
         }
         protected void GeneratePools()
         {
+            if (PoolIDs.Count == 0) return;
             Point2D_16 pos = new();
             List<float> prob = [];
             float denom = 0F;
