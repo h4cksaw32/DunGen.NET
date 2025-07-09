@@ -71,12 +71,21 @@ namespace DunGenApp
                 InvokeChange();
             }
         }
-        public new float RoomsPerChunk
+        public new byte MinRoomsPerChunk
         {
-            get => roomsPerChunk;
+            get => minRoomsPerChunk;
             set
             {
-                roomsPerChunk = value;
+                minRoomsPerChunk = value;
+                InvokeChange();
+            }
+        }
+        public new byte MaxRoomsPerChunk
+        {
+            get => maxRoomsPerChunk;
+            set
+            {
+                maxRoomsPerChunk = value;
                 InvokeChange();
             }
         }

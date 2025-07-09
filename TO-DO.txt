@@ -1,3 +1,2 @@
 !IMPORTANT THINGS TO DO!
-1) Add tooltips to each setting.
-2) Add self-validation method to generator, which either raises an exception or does basic corrections.
+1) Add remaining features.

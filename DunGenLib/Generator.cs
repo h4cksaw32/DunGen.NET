@@ -17,7 +17,8 @@ namespace DunGenLib
         public Point2D_16 MaxRoomSize { get => maxRoomSize; set => maxRoomSize = value; }
         public bool MergeRooms { get => mergeRooms; set => mergeRooms = value; }
         public bool TouchRooms { get => touchRooms; set => touchRooms = value; }
-        public float RoomsPerChunk { get => roomsPerChunk; set => roomsPerChunk = value; }
+        public byte MinRoomsPerChunk { get => minRoomsPerChunk; set => minRoomsPerChunk = value; }
+        public byte MaxRoomsPerChunk { get => maxRoomsPerChunk; set => maxRoomsPerChunk = value; }
         public byte MinRoomExits { get => minRoomExits; set => minRoomExits = value; }
         public byte MaxRoomExits { get => maxRoomExits; set => maxRoomExits = value; }
         public float PoolsPerChunk { get => poolsPerChunk; set => poolsPerChunk = value; }
@@ -37,7 +38,8 @@ namespace DunGenLib
         protected Point2D_16 maxRoomSize = new() { x = 16, y = 16 };
         protected bool mergeRooms = false;
         protected bool touchRooms = false;
-        protected float roomsPerChunk = 1;
+        protected byte minRoomsPerChunk = 1;
+        protected byte maxRoomsPerChunk = 1;
         protected byte minRoomExits = 3;
         protected byte maxRoomExits = 6;
 
@@ -212,35 +214,30 @@ namespace DunGenLib
             Point2D_16 chunkSize = new() { x = (ushort)(Map.width/MapChunks.x), y = (ushort)(Map.height/MapChunks.y) };
             Point2D_16 pos;
             Point2D_16 size;
-            float f;
+            byte r = (byte)rng.Next(minRoomsPerChunk, maxRoomsPerChunk + 1);
             ushort counter;
             for (ushort v = 0; v < MapChunks.y; v++)
             {
                 for (ushort h = 0; h < MapChunks.x; h++)
                 {
-                    f = RoomsPerChunk;
-                    while (f > 0)
+                    for (byte i = 0; i < r; i++)
                     {
-                        if (f >= 1 || f < rng.NextSingle())
+                        counter = 0;
+                        do
                         {
-                            counter = 0;
-                            do
-                            {
-                                counter++;
-                                size = new();
-                                pos = new();
-                                size.x = (ushort)rng.Next(MinRoomSize.x, MaxRoomSize.x + 1);
-                                size.y = (ushort)rng.Next(MinRoomSize.y, MaxRoomSize.y + 1);
-                                pos.x = size.x >= chunkSize.x ? (ushort)(Map.width / MapChunks.x * h) : (ushort)rng.Next(Map.width / MapChunks.x * h, Map.width / MapChunks.x * (h + 1) - size.x);
-                                pos.y = size.y >= chunkSize.y ? (ushort)(Map.height / MapChunks.y * v) : (ushort)rng.Next(Map.height / MapChunks.y * v, Map.height / MapChunks.y * (v + 1) - size.y);
-                            } while (counter <= loopAttempts && !MergeRooms && CheckRoomOverlap(pos, size));
-                            if (counter <= loopAttempts)
-                            {
-                                CarveRoom(pos, size);
-                                rooms.Add(new() { pos = pos, size = size });
-                            }
+                            counter++;
+                            size = new();
+                            pos = new();
+                            size.x = (ushort)rng.Next(MinRoomSize.x, MaxRoomSize.x + 1);
+                            size.y = (ushort)rng.Next(MinRoomSize.y, MaxRoomSize.y + 1);
+                            pos.x = size.x >= chunkSize.x ? (ushort)(Map.width / MapChunks.x * h) : (ushort)rng.Next(Map.width / MapChunks.x * h, Map.width / MapChunks.x * (h + 1) - size.x);
+                            pos.y = size.y >= chunkSize.y ? (ushort)(Map.height / MapChunks.y * v) : (ushort)rng.Next(Map.height / MapChunks.y * v, Map.height / MapChunks.y * (v + 1) - size.y);
+                        } while (counter <= loopAttempts && !MergeRooms && CheckRoomOverlap(pos, size));
+                        if (counter <= loopAttempts)
+                        {
+                            CarveRoom(pos, size);
+                            rooms.Add(new() { pos = pos, size = size });
                         }
-                        f -= 1;
                     }
                 }
             }
@@ -356,13 +353,16 @@ namespace DunGenLib
             }
             int index;
             float rand;
-            for (uint i = 0; i < (uint)(MapChunks.x * MapChunks.y * RoomsPerChunk); i++)
+            ushort counter;
+            for (uint i = 0; i < (uint)(MapChunks.x * MapChunks.y * PoolsPerChunk); i++)
             {
+                counter = 0;
                 do
                 {
+                    counter++;
                     pos.x = (ushort)rng.Next(Map.width);
                     pos.y = (ushort)rng.Next(Map.height);
-                } while (Map.GetTile(pos.x, pos.y) != WallID);
+                } while (Map.GetTile(pos.x, pos.y) != WallID && counter <= loopAttempts);
                 rand = rng.NextSingle() * denom;
                 for (index = 0; index < prob.Count; index++)
                 {

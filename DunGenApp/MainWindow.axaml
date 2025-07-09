@@ -61,13 +61,13 @@
 					<TextBox Name="MapHeight" MaxLines="1" MaxLength="5" Text="128"/>
 				</WrapPanel>
 				<WrapPanel>
-					<TextBlock Text="# of chunks: "/>
+					<TextBlock Text="# of chunks: " ToolTip.Tip="The number of chunks to divide the map into, horizontally and vertically."/>
 					<TextBox MaxLines="1" MaxLength="5" Text="{Binding MapChunks.x}"/>
 					<TextBlock Text=" &#xd7; "/>
 					<TextBox MaxLines="1" MaxLength="5" Text="{Binding MapChunks.y}"/>
 				</WrapPanel>
 				<WrapPanel>
-					<TextBlock Text="Generation attempts (per feature): "/>
+					<TextBlock Text="Generation attempts (per feature): " ToolTip.Tip="The maximum number of times to repeat each loop in the generation code. If the maximum number is reached, the feature will not be generated."/>
 					<TextBox MaxLines="1" Text="{Binding LoopAttempts}"/>
 				</WrapPanel>
 				<TextBlock Classes="header" Text="Room Generation"/>
@@ -82,35 +82,37 @@
 					<TextBox MaxLines="1" MaxLength="5" Text="{Binding MaxRoomSize.y}"/>
 				</WrapPanel>
 				<WrapPanel>
-					<TextBlock Text="Rooms per chunk: "/>
-					<TextBox MaxLines="1" Text="{Binding RoomsPerChunk}"/>
+					<TextBlock Text="Rooms per chunk: " ToolTip.Tip="The number of rooms to generate in each map chunk."/>
+					<TextBox MaxLines="1" MaxLength="5" Text="{Binding MinRoomsPerChunk}"/>
+					<TextBlock Text=" ~ "/>
+					<TextBox MaxLines="1" MaxLength="5" Text="{Binding MaxRoomsPerChunk}"/>
 				</WrapPanel>
 				<WrapPanel>
 					<CheckBox IsChecked="{Binding TouchRooms}"/>
-					<TextBlock Text="Allow rooms to touch"/>
+					<TextBlock Text="Allow rooms to touch" ToolTip.Tip="Allow rooms to share an edge. Requires merging rooms to be disabled."/>
 				</WrapPanel>
 				<WrapPanel>
 					<CheckBox IsChecked="{Binding MergeRooms}"/>
-					<TextBlock Text="Allow rooms to merge"/>
+					<TextBlock Text="Allow rooms to merge" ToolTip.Tip="Allow rooms to generate partially or completely on top of each other."/>
 				</WrapPanel>
 				<TextBlock Classes="header" Text="Pool Generation"/>
 				<WrapPanel>
-					<TextBlock Text="Pools per chunk: "/>
+					<TextBlock Text="Pools per chunk: " ToolTip.Tip="The number of pools to generate for each chunk. Pools are generated at any available location on the map, so the position is not based on the chunks."/>
 					<TextBox MaxLines="1" Text="{Binding PoolsPerChunk}"/>
 				</WrapPanel>
 				<TextBlock Classes="header" Text="Path Generation"/>
 				<WrapPanel>
-					<TextBlock Text="Paths per room: "/>
+					<TextBlock Text="Paths per room: " ToolTip.Tip="The number of paths to generate starting from each room. A path that connects two rooms only counts for one room."/>
 					<TextBox MaxLines="1" MaxLength="3" Text="{Binding MinRoomExits}"/>
 					<TextBlock Text=" ~ "/>
 					<TextBox MaxLines="1" MaxLength="3" Text="{Binding MaxRoomExits}"/>
 				</WrapPanel>
 				<WrapPanel>
-					<TextBlock Text="Path bend rate: "/>
+					<TextBlock Text="Path bend rate: " ToolTip.Tip="The probability that a path bends on any given tile."/>
 					<TextBox MaxLines="1" Text="{Binding PathBend}"/>
 				</WrapPanel>
 				<WrapPanel>
-					<TextBlock Text="Path termination rate: "/>
+					<TextBlock Text="Path termination rate: " ToolTip.Tip="The probability that a path spontaneously ends on any given tile. A very low (&lt;0.05) value is recommended to avoid having rooms cut off from each other."/>
 					<TextBox MaxLines="1" Text="{Binding PathTerminate}"/>
 				</WrapPanel>
 				<WrapPanel>
@@ -119,21 +121,37 @@
 				</WrapPanel>
 				<WrapPanel>
 					<CheckBox IsChecked="{Binding EndAtBoundary}"/>
-					<TextBlock Text="Terminate paths at map edge"/>
+					<TextBlock Text="Terminate paths at map edge" ToolTip.Tip="Terminates a path when it attempts to generate outside of map boundaries."/>
 				</WrapPanel>
 				<TextBlock Classes="header" Text="Tile Info"/>
 				<WrapPanel>
-					<TextBlock Text="Wall ID: "/>
+					<TextBlock Text="Wall ID: " ToolTip.Tip="The numerical (0~255) identifier for wall tiles."/>
 					<TextBox MaxLines="1" MaxLength="3" Text="{Binding WallID}"/>
 				</WrapPanel>
 				<TextBlock Classes="header2" Text="Ground Tiles"/>
 				<DataGrid Name="GroundTypes" ItemsSource="{Binding ObservableGroundIDs}">
 					<DataGrid.Columns>
-						<DataGridTextColumn Header="ID" Binding="{Binding id}"/>
-						<DataGridTextColumn Header="Name" Binding="{Binding tag}"/>
-						<DataGridTextColumn Header="Spawn rate" Binding="{Binding spawnRate}"/>
+						<DataGridTextColumn Binding="{Binding id}">
+							<DataGridTextColumn.Header>
+								<TextBlock Text="ID" ToolTip.Tip="0 ~ 255"/>
+							</DataGridTextColumn.Header>
+						</DataGridTextColumn>
+						<DataGridTextColumn Binding="{Binding tag}">
+							<DataGridTextColumn.Header>
+								<TextBlock Text="Name" ToolTip.Tip="A description of the tile. This does not affect room generation and is meant to make implementations in other projects easier."/>
+							</DataGridTextColumn.Header>
+						</DataGridTextColumn>
+						<DataGridTextColumn Binding="{Binding spawnRate}">
+							<DataGridTextColumn.Header>
+								<TextBlock Text="Spawn rate" ToolTip.Tip="The probability that the tile appears. The denominator is the sum of the spawn rates of each tile in the table."/>
+							</DataGridTextColumn.Header>
+						</DataGridTextColumn>
 						<DataGridCheckBoxColumn Header="In rooms" Binding="{Binding inRooms}"/>
-						<DataGridCheckBoxColumn Header="Spawn in patches" Binding="{Binding patches}"/>
+						<DataGridCheckBoxColumn Binding="{Binding patches}">
+							<DataGridCheckBoxColumn.Header>
+								<TextBlock Text="Spawn in patches" ToolTip.Tip="Generate in rectangular pathces in rooms. Requires 'in rooms' to be enabled."/>
+							</DataGridCheckBoxColumn.Header>
+						</DataGridCheckBoxColumn>
 						<DataGridTemplateColumn Header="Patch size">
 							<DataGridTemplateColumn.CellTemplate>
 								<DataTemplate DataType="lib:GroundOptions">
@@ -162,9 +180,17 @@
 								</DataTemplate>
 							</DataGridTemplateColumn.CellEditingTemplate>
 						</DataGridTemplateColumn>
-						<DataGridTextColumn Header="Patches per room" Binding="{Binding patchesPerRoom}"/>
+						<DataGridTextColumn Binding="{Binding patchesPerRoom}">
+							<DataGridTextColumn.Header>
+								<TextBlock Text="Patches per room" ToolTip.Tip="The number of patches to generate in each room. A decimal value determines the probability that the last patch generates."/>
+							</DataGridTextColumn.Header>
+						</DataGridTextColumn>
 						<DataGridCheckBoxColumn Header="In paths" Binding="{Binding inPaths}"/>
-						<DataGridCheckBoxColumn Header="Spawn in segments" Binding="{Binding segments}"/>
+						<DataGridCheckBoxColumn Binding="{Binding segments}">
+							<DataGridCheckBoxColumn.Header>
+								<TextBlock Text="Spawn in segments" ToolTip.Tip="Generate in segments of the same tile in paths. Requires 'in paths' to be enabled."/>
+							</DataGridCheckBoxColumn.Header>
+						</DataGridCheckBoxColumn>
 						<DataGridTemplateColumn Header="Segment length">
 							<DataGridTemplateColumn.CellTemplate>
 								<DataTemplate DataType="lib:GroundOptions">
@@ -194,10 +220,26 @@
 				<TextBlock Classes="header2" Text="Pool Tiles"/>
 				<DataGrid Name="PoolTypes" ItemsSource="{Binding ObservablePoolIDs}">
 					<DataGrid.Columns>
-						<DataGridTextColumn Header="ID" Binding="{Binding id}"/>
-						<DataGridTextColumn Header="Name" Binding="{Binding tag}"/>
-						<DataGridTextColumn Header="Spawn rate" Binding="{Binding spawnRate}"/>
-						<DataGridTextColumn Header="Spread" Binding="{Binding spread}"/>
+						<DataGridTextColumn Binding="{Binding id}">
+							<DataGridTextColumn.Header>
+								<TextBlock Text="ID" ToolTip.Tip="0 ~ 255"/>
+							</DataGridTextColumn.Header>
+						</DataGridTextColumn>
+						<DataGridTextColumn Binding="{Binding tag}">
+							<DataGridTextColumn.Header>
+								<TextBlock Text="Name" ToolTip.Tip="A description of the tile. This does not affect room generation and is meant to make implementations in other projects easier."/>
+							</DataGridTextColumn.Header>
+						</DataGridTextColumn>
+						<DataGridTextColumn Binding="{Binding spawnRate}">
+							<DataGridTextColumn.Header>
+								<TextBlock Text="Spawn rate" ToolTip.Tip="The probability that the tile appears. The denominator is the sum of the spawn rates of each tile in the table."/>
+							</DataGridTextColumn.Header>
+						</DataGridTextColumn>
+						<DataGridTextColumn Binding="{Binding spread}">
+							<DataGridTextColumn.Header>
+								<TextBlock Text="Spread" ToolTip.Tip="The probability that a tile spreads to an adjacent tile. It does not spread onto ground tiles."/>
+							</DataGridTextColumn.Header>
+						</DataGridTextColumn>
 					</DataGrid.Columns>
 				</DataGrid>
 				<WrapPanel>
