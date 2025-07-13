@@ -272,7 +272,7 @@ namespace DunGenLib
                 denom += item.spawnRate;
                 prob.Add(denom);
             }
-            if ((pos.x == 0 && dir == Direction.Left) || (pos.y == 0 && dir == Direction.Up) || (pos.x >= Map.width - 1 && dir == Direction.Right) || (pos.y >= Map.height - 1 && dir == Direction.Down)) return;
+            if ((pos.x == 0 && dir == Direction.W) || (pos.y == 0 && dir == Direction.N) || (pos.x >= Map.width - 1 && dir == Direction.E) || (pos.y >= Map.height - 1 && dir == Direction.S)) return;
             pos.x = (ushort)(pos.x + DirToVec(dir).x);
             pos.y = (ushort)(pos.y + DirToVec(dir).y);
             Map.PlaceTile(pos.x, pos.y, GroundIDs[0].id);
@@ -287,7 +287,7 @@ namespace DunGenLib
                     if (rng.Next(2) == 0) dir = (Direction)((short)dir - 90 % 360);
                     else dir = (Direction)((short)dir + 90 % 360);
                 }
-                if ((pos.x == 0 && dir == Direction.Left) || (pos.y == 0 && dir == Direction.Up) || (pos.x >= Map.width - 1 && dir == Direction.Right) || (pos.y >= Map.height - 1 && dir == Direction.Down))
+                if ((pos.x == 0 && dir == Direction.W) || (pos.y == 0 && dir == Direction.N) || (pos.x >= Map.width - 1 && dir == Direction.E) || (pos.y >= Map.height - 1 && dir == Direction.S))
                 {
                     if (EndAtBoundary) return;
                     else continue;
@@ -383,10 +383,10 @@ namespace DunGenLib
         {
             return dir switch
             {
-                Direction.Up => new() { x = 0, y = -1 },
-                Direction.Down => new() { x = 0, y = 1 },
-                Direction.Left => new() { x = -1, y = 0 },
-                Direction.Right => new() { x = 1, y = 0 },
+                Direction.N => new() { x = 0, y = -1 },
+                Direction.S => new() { x = 0, y = 1 },
+                Direction.W => new() { x = -1, y = 0 },
+                Direction.E => new() { x = 1, y = 0 },
                 _ => new() { x = 0, y = 0 },
             };
         }
@@ -407,22 +407,22 @@ namespace DunGenLib
                 Direction dir = 0;
                 for (int i = 0; i < exits; i++)
                 {
-                    while ((r.pos.x == 0 && dir == Direction.Left) || (r.pos.y == 0 && dir == Direction.Up) || (r.pos.x + r.size.x >= Map.width - 1 && dir == Direction.Right) || (r.pos.y + r.size.y >= Map.height - 1 && dir == Direction.Down))
+                    while ((r.pos.x == 0 && dir == Direction.W) || (r.pos.y == 0 && dir == Direction.N) || (r.pos.x + r.size.x >= Map.width - 1 && dir == Direction.E) || (r.pos.y + r.size.y >= Map.height - 1 && dir == Direction.S))
                     {
                         dir = (Direction)(rng.Next(4) * 90);
                     }
                     switch (dir)
                     {
-                        case Direction.Up:
+                        case Direction.N:
                             CarvePath(new() { x = (ushort)(r.pos.x + rng.Next(r.size.x)), y = r.pos.y}, dir);
                             break;
-                        case Direction.Down:
+                        case Direction.S:
                             CarvePath(new() { x = (ushort)(r.pos.x + rng.Next(r.size.x)), y = (ushort)(r.pos.y + r.size.y) }, dir);
                             break;
-                        case Direction.Left:
+                        case Direction.W:
                             CarvePath(new() { x = r.pos.x, y = (ushort)(r.pos.y + rng.Next(r.size.y)) }, dir);
                             break;
-                        case Direction.Right:
+                        case Direction.E:
                             CarvePath(new() { x = (ushort)(r.pos.x + r.size.y), y = (ushort)(r.pos.y + rng.Next(r.size.y)) }, dir);
                             break;
                     }
@@ -498,9 +498,13 @@ namespace DunGenLib
     }
     public enum Direction : short
     {
-        Up = 0,
-        Right = 90,
-        Down = 180,
-        Left = 270,
+        N = 0,
+        NE = 45,
+        E = 90,
+        SE = 135,
+        S = 180,
+        SW = 225,
+        W = 270,
+        NW = 315,
     }
 }

@@ -7,5 +7,14 @@
     <Application.Styles>
         <FluentTheme />
 		<StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
+		<Style Selector="TextBlock.header">
+			<Setter Property="FontSize" Value="18"/>
+			<Setter Property="FontWeight" Value="DemiBold"/>
+			<Setter Property="TextDecorations" Value="Underline"/>
+		</Style>
+		<Style Selector="TextBlock.header2">
+			<Setter Property="FontSize" Value="15"/>
+			<Setter Property="TextDecorations" Value="Underline"/>
+		</Style>
     </Application.Styles>
 </Application>

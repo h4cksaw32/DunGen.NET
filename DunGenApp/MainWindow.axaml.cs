@@ -13,6 +13,8 @@ namespace DunGenApp
     {
         private Map map = new(1, 1);
         private DynamicGenerator gen { get; set; }
+        private TextureOptions textures = new();
+        private Image[] player = new Image[8];
         public MainWindow()
         {
             gen = new DynamicGenerator { Map = map };
@@ -86,6 +88,11 @@ namespace DunGenApp
                 gen.ObservablePoolIDs.RemoveAt(PoolTypes.SelectedIndex);
                 PoolTypes.SelectedIndex = -1;
             }
+        }
+        private void EditTextures(object? source, RoutedEventArgs e)
+        {
+            TextureEditor w = new TextureEditor(textures);
+            w.ShowDialog(this);
         }
         private void PrintMap(object? source, RoutedEventArgs e)
         {

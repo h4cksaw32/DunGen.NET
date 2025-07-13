@@ -14,13 +14,11 @@
 	<DockPanel>
 		<Menu DockPanel.Dock="Top">
 			<MenuItem Header="File">
-				<MenuItem Header="Save map"/>
-				<MenuItem Header="Load map"/>
 				<MenuItem Header="Save preset"/>
 				<MenuItem Header="Load preset"/>
 				<MenuItem Header="Reset"/>
 			</MenuItem>
-			<MenuItem Header="Textures"/>
+			<MenuItem Header="Textures" Click="EditTextures"/>
 			<MenuItem Header="Help"/>
 		</Menu>
 		<StackPanel HorizontalAlignment="Right" DockPanel.Dock="Bottom" Orientation="Horizontal" VerticalAlignment="Bottom">
@@ -33,6 +31,10 @@
 			<Button Click="GenerateMap">Generate</Button>
 			<Button>Edit map</Button>
 			<Button Click="PrintMap">Playtest</Button>
+			<WrapPanel>
+				<CheckBox/>
+				<TextBlock Text="Allow diagonal movement" VerticalAlignment="Center"/>
+			</WrapPanel>
 		</StackPanel>
 		<ScrollViewer>
 			<StackPanel Name="GenSettings" x:DataType="local:DynamicGenerator">
@@ -42,15 +44,6 @@
 					</Style>
 					<Style Selector="WrapPanel :is(Control)">
 						<Setter Property="VerticalAlignment" Value="Center"/>
-					</Style>
-					<Style Selector="TextBlock.header">
-						<Setter Property="FontSize" Value="18"/>
-						<Setter Property="FontWeight" Value="DemiBold"/>
-						<Setter Property="TextDecorations" Value="Underline"/>
-					</Style>
-					<Style Selector="TextBlock.header2">
-						<Setter Property="FontSize" Value="15"/>
-						<Setter Property="TextDecorations" Value="Underline"/>
 					</Style>
 				</StackPanel.Styles>
 				<TextBlock Text="General" Classes="header"/>
