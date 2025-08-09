@@ -5,8 +5,25 @@
 		xmlns:local="clr-namespace:DunGenApp;assembly=DunGenApp"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="DunGenApp.TextureEditor"
-        Title="Textures">
-	<StackPanel>
-		
-	</StackPanel>
+        Title="Textures"
+		FontSize="12">
+	<ScrollViewer>
+		<StackPanel Name="Disp" Margin="10" x:DataType="local:TextureOptions">
+			<StackPanel.Styles>
+				<Style Selector="WrapPanel :is(Control)">
+					<Setter Property="VerticalAlignment" Value="Center"/>
+				</Style>
+				<Style Selector="TextBlock">
+					<Setter Property="VerticalAlignment" Value="Center"/>
+				</Style>
+				<Style Selector="StackPanel > :is(Control)">
+					<Setter Property="Margin" Value="10"/>
+				</Style>
+			</StackPanel.Styles>
+			<WrapPanel>
+				<TextBlock Text="Tile size: " VerticalAlignment="Center"/>
+				<TextBox Text="{Binding TileSize}"/>
+			</WrapPanel>
+		</StackPanel>
+	</ScrollViewer>
 </Window>

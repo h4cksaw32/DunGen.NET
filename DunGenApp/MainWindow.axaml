@@ -16,7 +16,7 @@
 			<MenuItem Header="File">
 				<MenuItem Header="Save preset"/>
 				<MenuItem Header="Load preset"/>
-				<MenuItem Header="Reset"/>
+				<MenuItem Header="Reset options" Click="ResetOptions"/>
 			</MenuItem>
 			<MenuItem Header="Textures" Click="EditTextures"/>
 			<MenuItem Header="Help"/>

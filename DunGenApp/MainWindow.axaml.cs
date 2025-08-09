@@ -11,10 +11,9 @@ namespace DunGenApp
 {
     public partial class MainWindow : Window
     {
-        private Map map = new(1, 1);
+        private Map map = new(128, 128);
         private DynamicGenerator gen { get; set; }
-        private TextureOptions textures = new();
-        private Image[] player = new Image[8];
+        private TextureOptions textures;
         public MainWindow()
         {
             gen = new DynamicGenerator { Map = map };
@@ -47,7 +46,19 @@ namespace DunGenApp
                 ]
             };*/
             gen.UpdateIDs();
+            textures = new() { gen = gen };
             InitializeComponent();
+            gen.PropertyChanged += (source, ev) => MapStatus.Text = "Settings changed";
+            gen.ObservableGroundIDs.CollectionChanged += (source, ev) => MapStatus.Text = "Settings changed";
+            gen.ObservablePoolIDs.CollectionChanged += (source, ev) => MapStatus.Text = "Settings changed";
+            GenSettings.DataContext = gen;
+        }
+        private void ResetOptions(object? source, RoutedEventArgs e)
+        {
+            map = new(128, 128);
+            gen = new DynamicGenerator { Map = map };
+            gen.UpdateIDs();
+            textures = new() { gen = gen };
             gen.PropertyChanged += (source, ev) => MapStatus.Text = "Settings changed";
             gen.ObservableGroundIDs.CollectionChanged += (source, ev) => MapStatus.Text = "Settings changed";
             gen.ObservablePoolIDs.CollectionChanged += (source, ev) => MapStatus.Text = "Settings changed";

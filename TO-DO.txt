@@ -1,2 +1,4 @@
 !IMPORTANT THINGS TO DO!
 1) Add remaining features.
+2) Design default texture(s).
+3) Test if the texture editor actually works.
