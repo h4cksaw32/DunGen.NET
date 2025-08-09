@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using Avalonia.Layout;
 using Avalonia.Media;
 using DunGenLib;
+using Avalonia.Media.Imaging;
 
 namespace DunGenApp;
 

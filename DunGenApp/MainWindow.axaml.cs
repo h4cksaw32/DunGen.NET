@@ -1,11 +1,15 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using DialogHostAvalonia;
 using DunGenLib;
 using MsBox.Avalonia;
 using System;
 using System.Collections;
 using System.Collections.ObjectModel;
+using System.IO;
 
 namespace DunGenApp
 {
@@ -104,6 +108,11 @@ namespace DunGenApp
         {
             TextureEditor w = new TextureEditor(textures);
             w.ShowDialog(this);
+        }
+        private void EditMap(object? source, RoutedEventArgs e)
+        {
+            MapEditor w = new MapEditor(map, textures);
+            w.Show();
         }
         private void PrintMap(object? source, RoutedEventArgs e)
         {

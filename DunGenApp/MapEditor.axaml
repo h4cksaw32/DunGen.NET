@@ -1,0 +1,27 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="DunGenApp.MapEditor"
+        Title="MapEditor">
+	<StackPanel>
+		<Menu>
+			<MenuItem Header="Save"/>
+			<MenuItem Header="Load"/>
+			<MenuItem Header="Clear" Click="FillMap"/>
+		</Menu>
+		<Menu Name="TileSelect">
+			
+		</Menu>
+		<DockPanel>
+			<Button DockPanel.Dock="Left"/>
+			<Button DockPanel.Dock="Right"/>
+			<Button DockPanel.Dock="Top"/>
+			<Button DockPanel.Dock="Bottom"/>
+			<Canvas Name="EditArea">
+				
+			</Canvas>
+		</DockPanel>
+	</StackPanel>
+</Window>

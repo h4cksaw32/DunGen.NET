@@ -29,7 +29,7 @@
 			</StackPanel.Styles>
 			<TextBlock Name="MapStatus" Text="No map" VerticalAlignment="Center"/>
 			<Button Click="GenerateMap">Generate</Button>
-			<Button>Edit map</Button>
+			<Button Click="EditMap">Edit map</Button>
 			<Button Click="PrintMap">Playtest</Button>
 			<WrapPanel>
 				<CheckBox/>

@@ -4,6 +4,7 @@ using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
+using Avalonia.Media;
 
 namespace DunGenApp;
 
@@ -19,8 +20,9 @@ public partial class ImgListSelectButton : UserControl
     {
         Index = i;
         Collection = list;
-        if (Image != null) Disp.Content = Image;
+        if (Image == null) Image = new Image { Source = new Bitmap("default.png"), Stretch = Stretch.None };
         InitializeComponent();
+        if (Image != null) Disp.Content = Image;
     }
     private async void SelectImage(object source, RoutedEventArgs ev)
     {
@@ -33,7 +35,7 @@ public partial class ImgListSelectButton : UserControl
         {
             if (Image == null) Image = new Image();
             Image.Source = new Bitmap(await files[0].OpenReadAsync());
-            Image.Stretch = Avalonia.Media.Stretch.None;
+            Image.Stretch = Stretch.None;
             Disp.Content = Image;
         }
     }

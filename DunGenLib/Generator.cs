@@ -96,6 +96,7 @@ namespace DunGenLib
             }
             return id;
         }
+        public void FillMap() => Map.FillMap(WallID);
 
         protected List<RoomData> rooms = [];
 
