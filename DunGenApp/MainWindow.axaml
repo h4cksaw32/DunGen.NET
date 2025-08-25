@@ -22,11 +22,6 @@
 			<MenuItem Header="Help"/>
 		</Menu>
 		<StackPanel HorizontalAlignment="Right" DockPanel.Dock="Bottom" Orientation="Horizontal" VerticalAlignment="Bottom">
-			<StackPanel.Styles>
-				<Style Selector="StackPanel > :is(Control)">
-					<Setter Property="Margin" Value="10"/>
-				</Style>
-			</StackPanel.Styles>
 			<TextBlock Name="MapStatus" Text="No map" VerticalAlignment="Center"/>
 			<Button Click="GenerateMap">Generate</Button>
 			<Button Click="EditMap">Edit map</Button>
@@ -38,14 +33,6 @@
 		</StackPanel>
 		<ScrollViewer>
 			<StackPanel Name="GenSettings" x:DataType="local:DynamicGenerator">
-				<StackPanel.Styles>
-					<Style Selector="StackPanel > :is(Control)">
-						<Setter Property="Margin" Value="10"/>
-					</Style>
-					<Style Selector="WrapPanel :is(Control)">
-						<Setter Property="VerticalAlignment" Value="Center"/>
-					</Style>
-				</StackPanel.Styles>
 				<TextBlock Text="General" Classes="header"/>
 				<WrapPanel>
 					<TextBlock Text="Map size: "/>

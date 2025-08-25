@@ -2,9 +2,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        xmlns:local="clr-namespace:DunGenApp;assembly=DunGenApp"
+		mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="DunGenApp.MapEditor"
-        Title="MapEditor">
+        Title="MapEditor"
+		x:Name="window">
 	<StackPanel>
 		<Menu>
 			<MenuItem Header="Save"/>
@@ -12,16 +14,38 @@
 			<MenuItem Header="Clear" Click="FillMap"/>
 		</Menu>
 		<Menu Name="TileSelect">
-			
+			<MenuItem>
+				<Image Name="SelectDisp"/>
+			</MenuItem>
+			<ContentControl Margin="5"/>
 		</Menu>
+		<WrapPanel x:DataType="local:MapEditor" VerticalAlignment="Center">
+			<TextBlock Text="View width: "/>
+			<TextBox Text="{Binding #window.DispSize}" PropertyChanged="ResizeDisp"/>
+			<TextBlock Text=" tiles"/>
+		</WrapPanel>
+		<Button Content="Show/Hide full map" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
 		<DockPanel>
-			<Button DockPanel.Dock="Left"/>
-			<Button DockPanel.Dock="Right"/>
-			<Button DockPanel.Dock="Top"/>
-			<Button DockPanel.Dock="Bottom"/>
-			<Canvas Name="EditArea">
+			<DockPanel.Styles>
+				<Style Selector=":is(Button)">
+					<Setter Property="FontSize" Value="24"/>
+					<Setter Property="HorizontalContentAlignment" Value="Center"/>
+					<Setter Property="VerticalContentAlignment" Value="Center"/>
+					<Setter Property="FontWeight" Value="Black"/>
+				</Style>
+			</DockPanel.Styles>
+			<Button DockPanel.Dock="Left" VerticalAlignment="Stretch" Content="&#x2190;"/>
+			<Button DockPanel.Dock="Right" VerticalAlignment="Stretch" Content="&#x2192;"/>
+			<Button DockPanel.Dock="Top" HorizontalAlignment="Stretch" Content="&#x2191;"/>
+			<Button DockPanel.Dock="Bottom" HorizontalAlignment="Stretch" Content="&#x2193;"/>
+			<ScrollViewer>
+				<Grid>
+					<UniformGrid Name="EditArea">
 				
-			</Canvas>
+					</UniformGrid>
+					<Canvas Name="FullMap" IsVisible="False"/>
+				</Grid>
+			</ScrollViewer>
 		</DockPanel>
 	</StackPanel>
 </Window>

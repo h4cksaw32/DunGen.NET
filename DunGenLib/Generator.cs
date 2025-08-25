@@ -53,21 +53,25 @@ namespace DunGenLib
         protected byte wallID = 0;
         protected List<PoolOptions> poolIDs = [new PoolOptions { id = 2, spawnRate = 1, spread = 0.5F }];
         protected List<GroundOptions> groundIDs = [new GroundOptions { id = 1, inPaths = true, inRooms = true, spawnRate = 1 }];
-        public bool InPoolIDs(byte value)
+        public int InPoolIDs(byte value)
         {
+            int index = 0;
             foreach (PoolOptions i in PoolIDs)
             {
-                if (i.id == value) return true;
+                if (i.id == value) return index;
+                index++;
             }
-            return false;
+            return -1;
         }
-        public bool InGroundIDs(byte value)
+        public int InGroundIDs(byte value)
         {
+            int index = 0;
             foreach (GroundOptions i in GroundIDs)
             {
-                if (i.id == value) return true;
+                if (i.id == value) return index;
+                index++;
             }
-            return false;
+            return -1;
         }
         public byte? FindVacantTileID()
         {
@@ -114,8 +118,8 @@ namespace DunGenLib
         }
         public virtual void ValidateIDs()
         {
-            if (InGroundIDs(WallID)) WallID = (byte)(FindVacantTileID() ?? (PoolIDs.Count > 0 ? PoolIDs[0].id : 0));
-            if (InPoolIDs(WallID)) WallID = (byte)(FindVacantTileID() ?? (PoolIDs.Count > 0 ? PoolIDs[0].id : 0));
+            if (InGroundIDs(WallID) > -1) WallID = (byte)(FindVacantTileID() ?? (PoolIDs.Count > 0 ? PoolIDs[0].id : 0));
+            if (InPoolIDs(WallID) > -1) WallID = (byte)(FindVacantTileID() ?? (PoolIDs.Count > 0 ? PoolIDs[0].id : 0));
             if (GroundIDs.Count == 0) GroundIDs.Add(new GroundOptions { id = FindVacantTileID() ?? (byte)((WallID + 1) & 0b11111111), inPaths = true, inRooms = true, spawnRate = 1 });
         }
 
@@ -301,7 +305,7 @@ namespace DunGenLib
                 }
                 else
                 {
-                    if (InGroundIDs(Map.GetTile(pos.x, pos.y))) return;
+                    if (InGroundIDs(Map.GetTile(pos.x, pos.y)) > -1) return;
                 }
                 if (ids.Count == 0)
                 {
@@ -394,10 +398,10 @@ namespace DunGenLib
         protected bool TileInRoom(ushort x, ushort y)
         {
             byte?[,] area = Map.GetArea(x, y);
-            return (InGroundIDs(area[0, 0] ?? WallID) && InGroundIDs(area[0, 1] ?? WallID) && InGroundIDs(area[1, 0] ?? WallID))
-                || (InGroundIDs(area[0, 1] ?? WallID) && InGroundIDs(area[0, 2] ?? WallID) && InGroundIDs(area[1, 2] ?? WallID))
-                || (InGroundIDs(area[1, 2] ?? WallID) && InGroundIDs(area[2, 1] ?? WallID) && InGroundIDs(area[2, 2] ?? WallID))
-                || (InGroundIDs(area[1, 0] ?? WallID) && InGroundIDs(area[2, 0] ?? WallID) && InGroundIDs(area[2, 1] ?? WallID));
+            return (InGroundIDs(area[0, 0] ?? WallID) > -1 && InGroundIDs(area[0, 1] ?? WallID) > -1 && InGroundIDs(area[1, 0] ?? WallID) > -1)
+                || (InGroundIDs(area[0, 1] ?? WallID) > -1 && InGroundIDs(area[0, 2] ?? WallID) > -1 && InGroundIDs(area[1, 2] ?? WallID) > -1)
+                || (InGroundIDs(area[1, 2] ?? WallID) > -1 && InGroundIDs(area[2, 1] ?? WallID) > -1 && InGroundIDs(area[2, 2] ?? WallID) > -1)
+                || (InGroundIDs(area[1, 0] ?? WallID) > -1 && InGroundIDs(area[2, 0] ?? WallID) > -1 && InGroundIDs(area[2, 1] ?? WallID) > -1);
         }
         protected void GeneratePaths()
         {
