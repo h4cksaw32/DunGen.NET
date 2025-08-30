@@ -7,45 +7,53 @@
         x:Class="DunGenApp.MapEditor"
         Title="MapEditor"
 		x:Name="window">
-	<StackPanel>
-		<Menu>
-			<MenuItem Header="Save"/>
-			<MenuItem Header="Load"/>
-			<MenuItem Header="Clear" Click="FillMap"/>
-		</Menu>
-		<Menu Name="TileSelect">
-			<MenuItem>
-				<Image Name="SelectDisp"/>
-			</MenuItem>
-			<ContentControl Margin="5"/>
-		</Menu>
-		<WrapPanel x:DataType="local:MapEditor" VerticalAlignment="Center">
-			<TextBlock Text="View width: "/>
-			<TextBox Text="{Binding #window.DispSize}" PropertyChanged="ResizeDisp"/>
-			<TextBlock Text=" tiles"/>
-		</WrapPanel>
-		<Button Content="Show/Hide full map" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
-		<DockPanel>
-			<DockPanel.Styles>
-				<Style Selector=":is(Button)">
-					<Setter Property="FontSize" Value="24"/>
-					<Setter Property="HorizontalContentAlignment" Value="Center"/>
-					<Setter Property="VerticalContentAlignment" Value="Center"/>
-					<Setter Property="FontWeight" Value="Black"/>
-				</Style>
-			</DockPanel.Styles>
-			<Button DockPanel.Dock="Left" VerticalAlignment="Stretch" Content="&#x2190;"/>
-			<Button DockPanel.Dock="Right" VerticalAlignment="Stretch" Content="&#x2192;"/>
-			<Button DockPanel.Dock="Top" HorizontalAlignment="Stretch" Content="&#x2191;"/>
-			<Button DockPanel.Dock="Bottom" HorizontalAlignment="Stretch" Content="&#x2193;"/>
-			<ScrollViewer>
-				<Grid>
-					<UniformGrid Name="EditArea">
-				
-					</UniformGrid>
-					<Canvas Name="FullMap" IsVisible="False"/>
-				</Grid>
+	<DockPanel VerticalAlignment="Stretch">
+		<Grid DockPanel.Dock="Top" RowDefinitions="Auto, Auto">
+			<Menu>
+				<MenuItem Header="Save"/>
+				<MenuItem Header="Load"/>
+				<MenuItem Header="Clear" Click="FillMap"/>
+			</Menu>
+			<ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto">
+				<Menu Name="TileSelect" Margin="0, 0, 0, 15">
+					<MenuItem Name="SelectDisp" Margin="10, 0, 25, 0"/>
+				</Menu>
 			</ScrollViewer>
-		</DockPanel>
-	</StackPanel>
+		</Grid>
+		<ScrollViewer>
+			<StackPanel VerticalAlignment="Stretch">
+				<WrapPanel x:DataType="local:MapEditor" VerticalAlignment="Center">
+					<TextBlock Text="View width: "/>
+					<TextBox Text="{Binding #window.DispSize}" PropertyChanged="ResizeDisp"/>
+					<TextBlock Text=" tiles"/>
+				</WrapPanel>
+				<Button Content="Show/Hide full map" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Click="ToggleMap"/>
+				<DockPanel VerticalAlignment="Stretch">
+					<DockPanel.Styles>
+						<Style Selector=":is(Button)">
+							<Setter Property="FontSize" Value="24"/>
+							<Setter Property="HorizontalContentAlignment" Value="Center"/>
+							<Setter Property="VerticalContentAlignment" Value="Center"/>
+							<Setter Property="FontWeight" Value="Black"/>
+						</Style>
+					</DockPanel.Styles>
+					<Button DockPanel.Dock="Left" VerticalAlignment="Stretch" Content="&#x2190;"/>
+					<Button DockPanel.Dock="Right" VerticalAlignment="Stretch" Content="&#x2192;"/>
+					<Button DockPanel.Dock="Top" HorizontalAlignment="Stretch" Content="&#x2191;"/>
+					<Button DockPanel.Dock="Bottom" HorizontalAlignment="Stretch" Content="&#x2193;"/>
+					<ScrollViewer VerticalAlignment="Stretch" Name="MapDisp">
+						<Grid>
+							<UniformGrid Name="EditArea">
+
+							</UniformGrid>
+							<Canvas Name="FullMap" IsVisible="False">
+								<Image Name="MapImage" Stretch="Uniform" Canvas.Left="0" Canvas.Top="0" RenderOptions.BitmapInterpolationMode="None"/>
+								<Rectangle Name="PosMarker" Width="128" Height="128" Fill="#ff0000" Opacity="0.5" Canvas.Left="0" Canvas.Top="0"/>
+							</Canvas>
+						</Grid>
+					</ScrollViewer>
+				</DockPanel>
+			</StackPanel>
+		</ScrollViewer>
+	</DockPanel>
 </Window>

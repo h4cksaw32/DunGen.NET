@@ -138,11 +138,11 @@ public class IndexedButton : Button
 }
 public class TextureOptions
 {
-    private readonly Image?[] tiles = new Image?[256];
-    private readonly Image[] player = new Image[9];
+    private readonly Bitmap?[] tiles = new Bitmap?[256];
+    private readonly Bitmap[] player = new Bitmap[9];
     private ushort tileSize = 32;
-    public Image?[] Tiles => tiles;
-    public Image?[] Player => player;
+    public Bitmap?[] Tiles => tiles;
+    public Bitmap?[] Player => player;
     public ushort TileSize { get => tileSize; set => tileSize = value; }
     public required Generator gen { get; set; }
 }

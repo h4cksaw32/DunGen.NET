@@ -2,9 +2,11 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using DunGenLib;
 using System;
 using System.Drawing;
+using System.IO;
 
 namespace DunGenApp;
 
@@ -15,13 +17,75 @@ public partial class MapEditor : Window
     private byte dispSize = 32;
     private ushort xPos = 0;
     private ushort yPos = 0;
+    private const byte IMAGE_SCALE = 4;
+    private byte tileType = 0;
     public byte DispSize { get => dispSize; set => dispSize = value; }
     public MapEditor(Map m, TextureOptions t)
     {
         map = m;
         textures = t;
-        MenuItem mi = new MenuItem();
         InitializeComponent();
+        TileSelect.Height = textures.TileSize;
+        MenuItem mi = new MenuItem
+        {
+            Width = textures.TileSize,
+            Height = textures.TileSize,
+            Padding = new Thickness(0),
+            Margin = new Thickness(5, 0),
+            Header = new Avalonia.Controls.Image { Source = textures.Tiles[textures.gen.WallID], Stretch = Stretch.Uniform },
+            Tag = textures.gen.WallID,
+        };
+        ToolTip.SetTip(mi, "Wall");
+        mi.Click += SelectTile;
+        TileSelect.Items.Add(mi);
+        foreach (GroundOptions g in textures.gen.GroundIDs)
+        {
+            mi = new MenuItem
+            {
+                Width = textures.TileSize,
+                Height = textures.TileSize,
+                Padding = new Thickness(0),
+                Margin = new Thickness(5, 0),
+                Header = new Avalonia.Controls.Image { Source = textures.Tiles[g.id], Stretch = Stretch.Uniform },
+                Tag = g.id,
+            };
+            ToolTip.SetTip(mi, g.tag);
+            mi.Click += SelectTile;
+            TileSelect.Items.Add(mi);
+        }
+        foreach (PoolOptions p in textures.gen.PoolIDs)
+        {
+            mi = new MenuItem
+            {
+                Width = textures.TileSize,
+                Height = textures.TileSize,
+                Padding = new Thickness(0),
+                Margin = new Thickness(5, 0),
+                Header = new Avalonia.Controls.Image { Source = textures.Tiles[p.id], Stretch = Stretch.Uniform },
+                Tag = p.id,
+            };
+            ToolTip.SetTip(mi, p.tag);
+            mi.Click += SelectTile;
+            TileSelect.Items.Add(mi);
+        }
+        SelectDisp.Width = textures.TileSize;
+        SelectDisp.Height = textures.TileSize;
+        PosMarker.Width = DispSize * IMAGE_SCALE;
+        PosMarker.Height = DispSize * IMAGE_SCALE;
+    }
+    private void SelectTile(object? source, RoutedEventArgs e)
+    {
+        MenuItem b = (MenuItem)(source ?? new MenuItem());
+        try
+        {
+            tileType = (byte)(b.Tag ?? 0);
+            SelectDisp.Header = new Avalonia.Controls.Image { Source = textures.Tiles[tileType], Stretch = Stretch.Uniform, Width = textures.TileSize, Height = textures.TileSize };
+            ToolTip.SetTip(SelectDisp, $"Current selection: {ToolTip.GetTip(b)}");
+        }
+        catch
+        {
+            
+        }
     }
     private void FillMap(object? source, RoutedEventArgs e)
     {
@@ -35,12 +99,43 @@ public partial class MapEditor : Window
     {
 
     }
+    private void ToggleMap(object? source, RoutedEventArgs e)
+    {
+        if (FullMap.IsVisible)
+        {
+            FullMap.IsVisible = false;
+            EditArea.IsVisible = true;
+        }
+        else
+        {
+            UpdateMapImage();
+            MapDisp.Height = MapImage.Height;
+            FullMap.IsVisible = true;
+            EditArea.IsVisible = false;
+        }
+    }
+    private void UpdateMapImage()
+    {
+        Avalonia.Media.Imaging.Bitmap bmp = ConvertBitmap(VisualizeMap());
+        MapImage.Source = bmp;
+        MapImage.Width = bmp.Size.Width * IMAGE_SCALE;
+        MapImage.Height = bmp.Size.Height * IMAGE_SCALE;
+    }
+    private Avalonia.Media.Imaging.Bitmap ConvertBitmap(Bitmap bmp)
+    {
+        using (MemoryStream ms = new MemoryStream())
+        {
+            bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
+            ms.Seek(0, SeekOrigin.Begin);
+            return new Avalonia.Media.Imaging.Bitmap(ms);
+        }
+    }
     private Bitmap VisualizeMap()
     {
         Bitmap bmp = new(map.width, map.height);
         byte b;
         int i;
-        Color wallCol = Color.FromArgb(191, 127, 0);
+        System.Drawing.Color wallCol = System.Drawing.Color.FromArgb(191, 127, 0);
         for (ushort y = 0; y < map.height; y++)
         {
             for (ushort x = 0; x < map.width; x++)
@@ -49,13 +144,13 @@ public partial class MapEditor : Window
                 i = textures.gen.InGroundIDs(b);
                 if (i > -1)
                 {
-                    bmp.SetPixel(x, y, Color.FromArgb(0, (i + 1) / textures.gen.GroundIDs.Count * 255, 0));
+                    bmp.SetPixel(x, y, System.Drawing.Color.FromArgb(0, (i + 1) / textures.gen.GroundIDs.Count * 255, 0));
                     continue;
                 }
                 i = textures.gen.InPoolIDs(b);
                 if (i > -1)
                 {
-                    bmp.SetPixel(x, y, Color.FromArgb(0, (i + 1) / textures.gen.PoolIDs.Count * 255, 0));
+                    bmp.SetPixel(x, y, System.Drawing.Color.FromArgb(0, 0, (i + 1) / textures.gen.PoolIDs.Count * 255));
                     continue;
                 }
                 if (b == textures.gen.WallID) bmp.SetPixel(x, y, wallCol);

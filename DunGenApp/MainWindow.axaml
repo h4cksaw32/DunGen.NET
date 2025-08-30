@@ -24,7 +24,7 @@
 		<StackPanel HorizontalAlignment="Right" DockPanel.Dock="Bottom" Orientation="Horizontal" VerticalAlignment="Bottom">
 			<TextBlock Name="MapStatus" Text="No map" VerticalAlignment="Center"/>
 			<Button Click="GenerateMap">Generate</Button>
-			<Button Click="EditMap">Edit map</Button>
+			<Button Name="EditMapBtn" IsEnabled="False" Click="EditMap">Edit map</Button>
 			<Button Click="PrintMap">Playtest</Button>
 			<WrapPanel>
 				<CheckBox/>

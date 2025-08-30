@@ -162,9 +162,9 @@ namespace DunGenApp
             }
         }
         public ObservableCollection<GroundOptions> ObservableGroundIDs { get => observeGroundIDs; set { observeGroundIDs = value; GroundIDs = [.. value]; } }
-        protected ObservableCollection<GroundOptions> observeGroundIDs = [new GroundOptions { id = 1, inPaths = true, inRooms = true, spawnRate = 1 }];
+        protected ObservableCollection<GroundOptions> observeGroundIDs = [new GroundOptions { id = 1, inPaths = true, inRooms = true, spawnRate = 1, tag = "Ground" }];
         public ObservableCollection<PoolOptions> ObservablePoolIDs { get => observePoolIDs; set { observePoolIDs = value; PoolIDs = [.. value]; } }
-        protected ObservableCollection<PoolOptions> observePoolIDs = [new PoolOptions { id = 2, spawnRate = 1, spread = 0.5F }];
+        protected ObservableCollection<PoolOptions> observePoolIDs = [new PoolOptions { id = 2, spawnRate = 1, spread = 0.5F, tag = "Water" }];
         public new byte? FindVacantTileID()
         {
             UpdateIDs();

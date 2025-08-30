@@ -11,18 +11,18 @@ namespace DunGenApp;
 public partial class ImgListSelectButton : UserControl
 {
     public int Index { get; set; }
-    public Image?[] Collection { get; set; }
-    public Image? Image {
+    public Bitmap?[] Collection { get; set; }
+    public Bitmap? Bitmap {
         get => Collection[Index];
         set => Collection[Index] = value;
     }
-    public ImgListSelectButton(int i, Image?[] list)
+    public ImgListSelectButton(int i, Bitmap?[] list)
     {
         Index = i;
         Collection = list;
-        if (Image == null) Image = new Image { Source = new Bitmap("default.png"), Stretch = Stretch.None };
+        if (Bitmap == null) Bitmap = new Bitmap("default.png");
         InitializeComponent();
-        if (Image != null) Disp.Content = Image;
+        if (Bitmap != null) Disp.Content = new Image { Source = Bitmap, Stretch = Stretch.None };
     }
     private async void SelectImage(object source, RoutedEventArgs ev)
     {
@@ -33,10 +33,8 @@ public partial class ImgListSelectButton : UserControl
         });
         if (files != null && files.Count >= 1)
         {
-            if (Image == null) Image = new Image();
-            Image.Source = new Bitmap(await files[0].OpenReadAsync());
-            Image.Stretch = Stretch.None;
-            Disp.Content = Image;
+            Bitmap = new Bitmap(await files[0].OpenReadAsync());
+            Disp.Content = new Image { Source = Bitmap, Stretch = Stretch.None };
         }
     }
 }

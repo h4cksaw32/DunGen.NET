@@ -46,13 +46,13 @@ namespace DunGenLib
         protected float poolsPerChunk = 1;
 
         protected float pathBend = 0.15F;
-        protected float pathTerminate = 0.01F;
+        protected float pathTerminate = 0.001F;
         protected bool crossroads = true;
-        protected bool endAtBoundary = true;
+        protected bool endAtBoundary = false;
 
         protected byte wallID = 0;
-        protected List<PoolOptions> poolIDs = [new PoolOptions { id = 2, spawnRate = 1, spread = 0.5F }];
-        protected List<GroundOptions> groundIDs = [new GroundOptions { id = 1, inPaths = true, inRooms = true, spawnRate = 1 }];
+        protected List<PoolOptions> poolIDs = [new PoolOptions { id = 2, spawnRate = 1, spread = 0.5F, tag = "Water" }];
+        protected List<GroundOptions> groundIDs = [new GroundOptions { id = 1, inPaths = true, inRooms = true, spawnRate = 1, tag = "Ground" }];
         public int InPoolIDs(byte value)
         {
             int index = 0;
@@ -472,7 +472,7 @@ namespace DunGenLib
         public float spawnRate { get => spawnRateF; set => spawnRateF = value; }
         public string tag { get => tagF; set => tagF = value; }
 
-        protected string tagF = "";
+        protected string tagF = "Tile";
         private float spawnRateF = 1;
     }
     public class PoolOptions : TileOptions
