@@ -24,6 +24,8 @@ public partial class MapEditor : Window
     {
         map = m;
         textures = t;
+        EditArea = new();
+        PosMarker = new Avalonia.Controls.Shapes.Rectangle { Fill = new SolidColorBrush(Avalonia.Media.Color.FromRgb(255, 0, 0)), Opacity = 0.5 };
         InitializeComponent();
         TileSelect.Height = textures.TileSize;
         MenuItem mi = new MenuItem
@@ -52,6 +54,7 @@ public partial class MapEditor : Window
             ToolTip.SetTip(mi, g.tag);
             mi.Click += SelectTile;
             TileSelect.Items.Add(mi);
+            ReloadDisp();
         }
         foreach (PoolOptions p in textures.gen.PoolIDs)
         {
@@ -70,8 +73,7 @@ public partial class MapEditor : Window
         }
         SelectDisp.Width = textures.TileSize;
         SelectDisp.Height = textures.TileSize;
-        PosMarker.Width = DispSize * IMAGE_SCALE;
-        PosMarker.Height = DispSize * IMAGE_SCALE;
+        ReloadDisp();
     }
     private void SelectTile(object? source, RoutedEventArgs e)
     {
@@ -91,13 +93,79 @@ public partial class MapEditor : Window
     {
         textures.gen.FillMap();
     }
-    private void ResizeDisp(object? source, AvaloniaPropertyChangedEventArgs e)
+    private void ResizeDisp(object? source, RoutedEventArgs e)
     {
-
+        EditArea.Children.Clear();
+        EditArea.Rows = DispSize;
+        EditArea.Columns = DispSize;
+        EditArea.Width = textures.TileSize * DispSize;
+        EditArea.Height = textures.TileSize * DispSize;
+        ReloadDisp();
     }
-    private void UpdateSelectIcon(object? source, RoutedEventArgs e)
+    private void MoveDisp(object? source, RoutedEventArgs e)
     {
+        Button b = (Button)(source ?? new Button());
+        bool reload = false;
+        switch (b.Tag)
+        {
+            case "L":
+                reload = xPos > 0;
+                if (reload) xPos -= (byte)(DispSize / 2);
+                break;
+            case "R":
+                reload = xPos < map.width - DispSize;
+                if (reload) xPos += (byte)(DispSize / 2);
+                break;
+            case "U":
+                reload = yPos > 0;
+                if (reload) yPos -= (byte)(DispSize / 2);
+                break;
+            case "D":
+                reload = yPos < map.height - DispSize;
+                if (reload) yPos += (byte)(DispSize / 2);
+                break;
 
+        }
+        if (reload) ReloadDisp();
+    }
+    private void ReloadDisp()
+    {
+        EditArea.Children.Clear();
+        Button b;
+        for (ushort y = yPos; y < yPos + DispSize; y++)
+        {
+            for (ushort x = xPos; x < xPos + DispSize; x++)
+            {
+                b = new Button
+                {
+                    Width = textures.TileSize,
+                    Height = textures.TileSize,
+                    Content = new Avalonia.Controls.Image { Source = textures.Tiles[map.GetTile(x, y)], Stretch = Stretch.Uniform },
+                    Padding = new Thickness(0),
+                    Tag = y * map.width + x,
+                };
+                b.Click += PlaceTile;
+                EditArea.Children.Add(b);
+            }
+        }
+        PosMarker.Width = DispSize * IMAGE_SCALE;
+        PosMarker.Height = DispSize * IMAGE_SCALE;
+        Canvas.SetTop(PosMarker, yPos * IMAGE_SCALE);
+        Canvas.SetLeft(PosMarker, xPos * IMAGE_SCALE);
+    }
+    private void PlaceTile(object? source, RoutedEventArgs e)
+    {
+        Button b = (Button)(source ?? new Button());
+        try
+        {
+            uint index = Convert.ToUInt32(b.Tag ?? map.tiles.Length + 1);
+            map.tiles[index] = tileType;
+            b.Content = new Avalonia.Controls.Image { Source = textures.Tiles[tileType], Stretch = Stretch.Uniform };
+        }
+        catch
+        {
+
+        }
     }
     private void ToggleMap(object? source, RoutedEventArgs e)
     {
@@ -105,6 +173,7 @@ public partial class MapEditor : Window
         {
             FullMap.IsVisible = false;
             EditArea.IsVisible = true;
+            MapDisp.Height = EditArea.Height;
         }
         else
         {

@@ -8,7 +8,7 @@ namespace DunGenLib
 {
     public class Map
     {
-        private byte[] tiles;
+        public byte[] tiles;
         public ushort width { get; private set; }
         public ushort height { get; private set; }
         public byte WallID;
