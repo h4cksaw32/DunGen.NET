@@ -14,8 +14,8 @@ namespace DunGenApp;
 
 public partial class TextureEditor : Window
 {
-    private TextureOptions textures;
-    public TextureEditor(TextureOptions t)
+    private TextureInfo textures;
+    public TextureEditor(TextureInfo t)
     {
         textures = t;
         InitializeComponent();
@@ -135,14 +135,4 @@ public partial class TextureEditor : Window
 public class IndexedButton : Button
 {
     public int Index { get; set; }
-}
-public class TextureOptions
-{
-    private readonly Bitmap?[] tiles = new Bitmap?[256];
-    private readonly Bitmap[] player = new Bitmap[9];
-    private ushort tileSize = 32;
-    public Bitmap?[] Tiles => tiles;
-    public Bitmap?[] Player => player;
-    public ushort TileSize { get => tileSize; set => tileSize = value; }
-    public required Generator gen { get; set; }
 }

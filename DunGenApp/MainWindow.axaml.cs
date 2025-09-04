@@ -17,7 +17,7 @@ namespace DunGenApp
     {
         private Map map = new(128, 128);
         private DynamicGenerator gen { get; set; }
-        private TextureOptions textures;
+        private TextureInfo textures;
         public MainWindow()
         {
             gen = new DynamicGenerator { Map = map };

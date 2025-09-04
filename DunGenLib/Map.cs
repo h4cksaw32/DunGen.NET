@@ -67,5 +67,59 @@ namespace DunGenLib
             result[2, 2] = corners && x < width - 1 && y < height - 1 ? GetTile((ushort)(x + 1), (ushort)(y + 1)) : null;
             return result;
         }
+        public byte[] Serialize() 
+        {
+            List<byte> data = new();
+            data.Add((byte)(width & 0b11111111));
+            data.Add((byte)(width >>> 8));
+            data.Add((byte)(height & 0b11111111));
+            data.Add((byte)(height >>> 8));
+            data.AddRange(tiles);
+            return data.ToArray();
+        }
+        public void Serialize(FileStream fs)
+        {
+            fs.Position = 0;
+            fs.Write(Serialize());
+            fs.Close();
+        }
+        public void Serialize(string path)
+        {
+            using (FileStream fs = new FileStream(path, FileMode.OpenOrCreate, FileAccess.Write))
+            {
+                Serialize(fs);
+            }
+        }
+        public static Map Deserialize(byte[] data)
+        {
+            ushort w = (ushort)(data[0] + data[1] * 256);
+            ushort h = (ushort)(data[2] + data[3] * 256);
+            Map m = new Map(w, h);
+            for (ushort y = 0; y < h; y++)
+            {
+                for (ushort x = 0; x < w; x++)
+                {
+                    if (y * w + x + 4 >= data.Length) goto desExit;
+                    else m.PlaceTile(x, y, data[y * w + x + 4]);
+                }
+            }
+        desExit: return m;
+        }
+        public static Map Deserialize(FileStream fs)
+        {
+            fs.Position = 0;
+            byte[] data = new byte[fs.Length];
+            fs.ReadExactly(data);
+            fs.Close();
+            return Deserialize(data);
+        }
+        public static Map Deserialize(string path)
+        {
+            Map m;
+            using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                m = Deserialize(fs);
+            }
+            return m;
     }
 }

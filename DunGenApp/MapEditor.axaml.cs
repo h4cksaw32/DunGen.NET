@@ -13,14 +13,14 @@ namespace DunGenApp;
 public partial class MapEditor : Window
 {
     public Map map;
-    public TextureOptions textures;
+    public TextureInfo textures;
     private byte dispSize = 32;
     private ushort xPos = 0;
     private ushort yPos = 0;
     private const byte IMAGE_SCALE = 4;
     private byte tileType = 0;
     public byte DispSize { get => dispSize; set => dispSize = value; }
-    public MapEditor(Map m, TextureOptions t)
+    public MapEditor(Map m, TextureInfo t)
     {
         map = m;
         textures = t;
