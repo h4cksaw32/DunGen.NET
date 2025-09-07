@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
+using Avalonia.Platform.Storage;
 using DunGenLib;
 using System;
 using System.Drawing;
@@ -20,9 +21,9 @@ public partial class MapEditor : Window
     private const byte IMAGE_SCALE = 4;
     private byte tileType = 0;
     public byte DispSize { get => dispSize; set => dispSize = value; }
-    public MapEditor(Map m, TextureInfo t)
+    public MapEditor(TextureInfo t)
     {
-        map = m;
+        map = t.map;
         textures = t;
         EditArea = new();
         PosMarker = new Avalonia.Controls.Shapes.Rectangle { Fill = new SolidColorBrush(Avalonia.Media.Color.FromRgb(255, 0, 0)), Opacity = 0.5 };
@@ -74,6 +75,30 @@ public partial class MapEditor : Window
         SelectDisp.Width = textures.TileSize;
         SelectDisp.Height = textures.TileSize;
         ReloadDisp();
+    }
+    private async void LoadMap(object source, RoutedEventArgs e)
+    {
+        var files = await TopLevel.GetTopLevel(this)?.StorageProvider.OpenFilePickerAsync(new Avalonia.Platform.Storage.FilePickerOpenOptions
+        {
+            Title = "Select Map Data",
+            AllowMultiple = false
+        });
+        if (files.Count > 0)
+        {
+            textures = TextureInfo.Deserialize(files[0].Path.AbsolutePath);
+        }
+        MapEditor w = new MapEditor(textures);
+        w.Show();
+        Close();
+    }
+    private async void SaveMap(object source, RoutedEventArgs e)
+    {
+        var file = await TopLevel.GetTopLevel(this)?.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "Save Map Data",
+            DefaultExtension = ".dat"
+        });
+        if (file != null) textures.Serialize(file.Path.AbsolutePath);
     }
     private void SelectTile(object? source, RoutedEventArgs e)
     {

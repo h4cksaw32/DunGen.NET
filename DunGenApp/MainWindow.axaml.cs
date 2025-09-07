@@ -112,7 +112,7 @@ namespace DunGenApp
         }
         private void EditMap(object? source, RoutedEventArgs e)
         {
-            MapEditor w = new MapEditor(map, textures);
+            MapEditor w = new MapEditor(textures);
             w.Show();
         }
         private void PrintMap(object? source, RoutedEventArgs e)

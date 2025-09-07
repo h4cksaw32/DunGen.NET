@@ -121,5 +121,6 @@ namespace DunGenLib
                 m = Deserialize(fs);
             }
             return m;
+        }
     }
 }

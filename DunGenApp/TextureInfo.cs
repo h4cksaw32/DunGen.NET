@@ -20,25 +20,27 @@ namespace DunGenApp
         public ushort TileSize => tileSize;
         public required Generator gen { get; set; }
         public Map map => gen.Map;
-        public void Serialize(DirectoryInfo dir)
+        public void Serialize(string mapPath)
         {
-            map.Serialize(ExtendPath(dir, "map.dat"));
-            for (byte i = 0; i < 256; i++)
+            FileInfo f = new FileInfo(mapPath);
+            map.Serialize(mapPath);
+            for (int i = 0; i < 256; i++)
             {
                 if (tiles[i] != null)
                 {
-                    tiles[i]?.Save(ExtendPath(dir, i.ToString("x2") + ".bmp"));
+                    tiles[i]?.Save(ExtendPath(f.Directory, i.ToString("x2") + ".bmp"));
                 }
             }
         }
-        public static TextureInfo Deserialize(DirectoryInfo dir)
+        public static TextureInfo Deserialize(string mapPath)
         {
-            Map m = Map.Deserialize(ExtendPath(dir, "map.dat"));
+            FileInfo file = new FileInfo(mapPath);
+            Map m = Map.Deserialize(mapPath);
             TextureInfo t = new TextureInfo { gen = new Generator { Map = m } };
             FileInfo f;
-            for (byte b = 0; b < 256; b++)
+            for (int b = 0; b < 256; b++)
             {
-                f = new FileInfo(ExtendPath(dir, b.ToString("x2") + ".bmp"));
+                f = new FileInfo(ExtendPath(file.Directory, b.ToString("x2") + ".bmp"));
                 if (f.Exists)
                 {
                     t.tiles[b] = new Bitmap(f.FullName);

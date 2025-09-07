@@ -11,8 +11,8 @@
 	<DockPanel VerticalAlignment="Stretch">
 		<Grid DockPanel.Dock="Top" RowDefinitions="Auto, Auto">
 			<Menu>
-				<MenuItem Header="Save"/>
-				<MenuItem Header="Load"/>
+				<MenuItem Header="Save" Click="SaveMap"/>
+				<MenuItem Header="Load" Click="LoadMap"/>
 				<MenuItem Header="Clear" Click="FillMap"/>
 			</Menu>
 			<ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto">
