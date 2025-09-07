@@ -10,8 +10,10 @@ using DunGenLib;
 
 namespace DunGenApp
 {
-    internal class DynamicGenerator : Generator, INotifyPropertyChanged
+    public class DynamicGenerator : Generator, INotifyPropertyChanged
     {
+        public DynamicGenerator() : base() {  }
+        public DynamicGenerator(Map m) : base(m) {  }
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void InvokeChange([CallerMemberName] string? propertyName = null)
         {

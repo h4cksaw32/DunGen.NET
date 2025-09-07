@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace DunGenLib
 {
     public class Generator
     {
-        public required Map Map { get; set; }
+        [JsonIgnore] public Map Map { get; set; }
 
         public ushort LoopAttempts { get => loopAttempts; set => loopAttempts = value; }
         public Point2D_16 MapChunks { get => mapChunks; set => mapChunks = value; }
@@ -53,23 +54,27 @@ namespace DunGenLib
         protected byte wallID = 0;
         protected List<PoolOptions> poolIDs = [new PoolOptions { id = 2, spawnRate = 1, spread = 0.5F, tag = "Water" }];
         protected List<GroundOptions> groundIDs = [new GroundOptions { id = 1, inPaths = true, inRooms = true, spawnRate = 1, tag = "Ground" }];
+        public Generator()
+        {
+            Map = new(128, 128);
+        }
+        public Generator(Map m)
+        {
+            Map = m;
+        }
         public int InPoolIDs(byte value)
         {
-            int index = 0;
-            foreach (PoolOptions i in PoolIDs)
+            for (int i = 0; i < PoolIDs.Count; i++)
             {
-                if (i.id == value) return index;
-                index++;
+                if (PoolIDs[i].id == value) return i;
             }
             return -1;
         }
         public int InGroundIDs(byte value)
         {
-            int index = 0;
-            foreach (GroundOptions i in GroundIDs)
+            for (int i = 0; i < GroundIDs.Count; i++)
             {
-                if (i.id == value) return index;
-                index++;
+                if (GroundIDs[i].id == value) return i;
             }
             return -1;
         }

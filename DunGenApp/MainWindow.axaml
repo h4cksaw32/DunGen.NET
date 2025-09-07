@@ -14,8 +14,8 @@
 	<DockPanel>
 		<Menu DockPanel.Dock="Top">
 			<MenuItem Header="File">
-				<MenuItem Header="Save preset"/>
-				<MenuItem Header="Load preset"/>
+				<MenuItem Header="Save preset" Click="SaveOptions"/>
+				<MenuItem Header="Load preset" Click="LoadOptions"/>
 				<MenuItem Header="Reset options" Click="ResetOptions"/>
 			</MenuItem>
 			<MenuItem Header="Textures" Click="EditTextures"/>

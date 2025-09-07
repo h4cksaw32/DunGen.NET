@@ -2,19 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace DunGenLib
 {
     public class Map
     {
-        public byte[] tiles;
-        public ushort width { get; private set; }
-        public ushort height { get; private set; }
-        public byte WallID;
-        public List<byte> GroundIDs = [];
-        public List<byte> PoolIDs = [];
-        private byte defValue;
+        public byte[] tiles { get; set; }
+        [JsonInclude] public ushort width { get; private set; }
+        [JsonInclude] public ushort height { get; private set; }
+        public byte WallID { get; set; }
+        public List<byte> GroundIDs { get; set; }
+        public List<byte> PoolIDs { get; set; }
+        [JsonInclude] private byte defValue { get; set; }
         public Map(ushort w, ushort h, byte def = 0)
         {
             width = w;
@@ -22,6 +23,8 @@ namespace DunGenLib
             tiles = new byte[width * height];
             defValue = def;
             FillMap(defValue);
+            GroundIDs = [];
+            PoolIDs = [];
         }
         public void FillMap(byte value)
         {

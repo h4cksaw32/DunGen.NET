@@ -235,19 +235,22 @@ public partial class MapEditor : Window
             for (ushort x = 0; x < map.width; x++)
             {
                 b = map.GetTile(x, y);
-                i = textures.gen.InGroundIDs(b);
-                if (i > -1)
-                {
-                    bmp.SetPixel(x, y, System.Drawing.Color.FromArgb(0, (i + 1) / textures.gen.GroundIDs.Count * 255, 0));
-                    continue;
-                }
-                i = textures.gen.InPoolIDs(b);
-                if (i > -1)
-                {
-                    bmp.SetPixel(x, y, System.Drawing.Color.FromArgb(0, 0, (i + 1) / textures.gen.PoolIDs.Count * 255));
-                    continue;
-                }
                 if (b == textures.gen.WallID) bmp.SetPixel(x, y, wallCol);
+                else
+                {
+                    i = textures.gen.InGroundIDs(b);
+                    if (i > -1)
+                    {
+                        bmp.SetPixel(x, y, System.Drawing.Color.FromArgb(0, (textures.gen.GroundIDs.Count - i) * 255 / textures.gen.GroundIDs.Count, 0));
+                        continue;
+                    }
+                    i = textures.gen.InPoolIDs(b);
+                    if (i > -1)
+                    {
+                        bmp.SetPixel(x, y, System.Drawing.Color.FromArgb(0, 0, (textures.gen.PoolIDs.Count - i) * 255 / textures.gen.PoolIDs.Count));
+                        continue;
+                    }
+                }
             }
         }
         return bmp;

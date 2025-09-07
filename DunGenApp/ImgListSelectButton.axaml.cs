@@ -2,9 +2,10 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
-using System.Threading.Tasks;
-using Avalonia.Media.Imaging;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform.Storage;
+using System.Threading.Tasks;
 
 namespace DunGenApp;
 
@@ -16,11 +17,13 @@ public partial class ImgListSelectButton : UserControl
         get => Collection[Index];
         set => Collection[Index] = value;
     }
-    public ImgListSelectButton(int i, Bitmap?[] list)
+    public ImgListSelectButton(int i, Bitmap?[] list, int sizeLimit = 100)
     {
         Index = i;
         Collection = list;
         if (Bitmap == null) Bitmap = new Bitmap("default.png");
+        MaxWidth = sizeLimit;
+        MaxHeight = sizeLimit;
         InitializeComponent();
         if (Bitmap != null) Disp.Content = new Image { Source = Bitmap, Stretch = Stretch.None };
     }
@@ -29,7 +32,8 @@ public partial class ImgListSelectButton : UserControl
         var files = await TopLevel.GetTopLevel(this)?.StorageProvider.OpenFilePickerAsync(new Avalonia.Platform.Storage.FilePickerOpenOptions
         {
             Title = "Select Image",
-            AllowMultiple = false
+            AllowMultiple = false,
+            FileTypeFilter = new[] { FilePickerFileTypes.ImageAll }
         });
         if (files != null && files.Count >= 1)
         {

@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using Avalonia.Platform.Storage;
 using DialogHostAvalonia;
 using DunGenLib;
 using MsBox.Avalonia;
@@ -10,6 +11,7 @@ using System;
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Text.Json;
 
 namespace DunGenApp
 {
@@ -20,10 +22,9 @@ namespace DunGenApp
         private TextureInfo textures;
         public MainWindow()
         {
-            gen = new DynamicGenerator { Map = map };
-            /*gen = new DynamicGenerator
+            gen = new DynamicGenerator(map);
+            /*gen = new DynamicGenerator(map)
             {
-                Map = map,
                 LoopAttempts = 10,
                 MergeRooms = false,
                 TouchRooms = false,
@@ -52,10 +53,49 @@ namespace DunGenApp
             gen.UpdateIDs();
             textures = new() { gen = gen };
             InitializeComponent();
+            InitializeUI();
+        }
+        public void InitializeUI()
+        {
             gen.PropertyChanged += (source, ev) => MapStatus.Text = "Settings changed";
             gen.ObservableGroundIDs.CollectionChanged += (source, ev) => MapStatus.Text = "Settings changed";
             gen.ObservablePoolIDs.CollectionChanged += (source, ev) => MapStatus.Text = "Settings changed";
             GenSettings.DataContext = gen;
+        }
+        public MainWindow(DynamicGenerator g)
+        {
+            gen = g;
+            gen.UpdateIDs();
+            textures = new() { gen = gen };
+            InitializeComponent();
+            InitializeUI();
+        }
+        private async void SaveOptions(object source, RoutedEventArgs e)
+        {
+            var file = await TopLevel.GetTopLevel(this)?.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+            {
+                Title = "Save Generator Preset",
+                FileTypeChoices = new[] { new FilePickerFileType("JSON document") { Patterns = ["*.json"], MimeTypes = new[] { "application/json" } } }
+            });
+            if (file != null)
+            {
+                File.WriteAllText(file.Path.AbsolutePath, JsonSerializer.Serialize(gen, gen.GetType(), new JsonSerializerOptions { WriteIndented = true }));
+            }
+        }
+        private async void LoadOptions(object source, RoutedEventArgs e)
+        {
+            var files = await TopLevel.GetTopLevel(this)?.StorageProvider.OpenFilePickerAsync(new Avalonia.Platform.Storage.FilePickerOpenOptions
+            {
+                Title = "Load Generator Preset",
+                AllowMultiple = false,
+                FileTypeFilter = new[] { new FilePickerFileType("JSON document") { Patterns = ["*.json"], MimeTypes = new[] { "application/json" } } }
+            });
+            if (files.Count > 0)
+            {
+                MainWindow w = new(JsonSerializer.Deserialize<DynamicGenerator>(File.ReadAllText(files[0].Path.AbsolutePath)) ?? new DynamicGenerator { Map = map });
+                w.Show();
+                Close();
+            }
         }
         private void ResetOptions(object? source, RoutedEventArgs e)
         {

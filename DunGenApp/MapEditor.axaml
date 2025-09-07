@@ -45,7 +45,7 @@
 					<Button DockPanel.Dock="Bottom" HorizontalAlignment="Stretch" Content="&#x2193;" Tag="D" Click="MoveDisp"/>
 					<ScrollViewer VerticalAlignment="Stretch" Name="MapDisp" HorizontalScrollBarVisibility="Auto">
 						<Grid>
-							<UniformGrid Name="EditArea">
+							<UniformGrid Name="EditArea" HorizontalAlignment="Left">
 
 							</UniformGrid>
 							<Canvas Name="FullMap" IsVisible="False">
