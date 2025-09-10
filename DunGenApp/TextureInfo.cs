@@ -12,6 +12,7 @@ namespace DunGenApp
 {
     public class TextureInfo
     {
+        internal bool activated = false;
         private readonly Bitmap?[] tiles = new Bitmap?[256];
         private readonly Bitmap[] player = new Bitmap[9];
         private ushort tileSize = 32;

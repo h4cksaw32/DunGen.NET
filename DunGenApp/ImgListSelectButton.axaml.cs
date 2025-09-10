@@ -17,11 +17,11 @@ public partial class ImgListSelectButton : UserControl
         get => Collection[Index];
         set => Collection[Index] = value;
     }
-    public ImgListSelectButton(int i, Bitmap?[] list, int sizeLimit = 100)
+    public ImgListSelectButton(int i, Bitmap?[] list,  Bitmap defImage, int sizeLimit = 100)
     {
         Index = i;
         Collection = list;
-        if (Bitmap == null) Bitmap = new Bitmap("default.png");
+        if (Bitmap == null) Bitmap = defImage;
         MaxWidth = sizeLimit;
         MaxHeight = sizeLimit;
         InitializeComponent();

@@ -120,7 +120,11 @@ namespace DunGenApp
         {
             byte? newID = gen.FindVacantTileID();
             if (newID == null) MessageBoxManager.GetMessageBoxStandard("No IDs available", "The entire ID range (0 ~ 255) is occupied.", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error).ShowAsync();
-            else gen.ObservableGroundIDs.Add(new GroundOptions { id = newID ?? 0 });
+            else
+            {
+                gen.ObservableGroundIDs.Add(new GroundOptions { id = newID ?? 0 });
+                textures.activated = false;
+            }
         }
         private void RemoveGroundType(object? source, RoutedEventArgs e)
         {
@@ -135,7 +139,11 @@ namespace DunGenApp
 
             byte? newID = gen.FindVacantTileID();
             if (newID == null) MessageBoxManager.GetMessageBoxStandard("No IDs available", "The entire ID range (0 ~ 255) is occupied.", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error).ShowAsync();
-            else gen.ObservablePoolIDs.Add(new PoolOptions { id = newID ?? 0 });
+            else
+            {
+                gen.ObservablePoolIDs.Add(new PoolOptions { id = newID ?? 0 });
+                textures.activated = false;
+            }
         }
         private void RemovePoolType(object? source, RoutedEventArgs e)
         {
@@ -152,8 +160,15 @@ namespace DunGenApp
         }
         private void EditMap(object? source, RoutedEventArgs e)
         {
-            MapEditor w = new MapEditor(textures);
-            w.Show();
+            if (textures.activated)
+            {
+                MapEditor w = new MapEditor(textures);
+                w.Show();
+            }
+            else
+            {
+                TextureEditor w = new TextureEditor(textures, true);
+            }
         }
         private void PrintMap(object? source, RoutedEventArgs e)
         {

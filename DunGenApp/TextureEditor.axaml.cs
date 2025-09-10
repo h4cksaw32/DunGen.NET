@@ -14,10 +14,15 @@ namespace DunGenApp;
 
 public partial class TextureEditor : Window
 {
+    private static readonly Bitmap NULL_TILE = new("default.png");
+    private static readonly Bitmap WALL_TILE = new("wall.png");
+    private static readonly Bitmap GROUND_TILE = new("ground.png");
+    private static readonly Bitmap WATER_TILE = new("water.png");
     private TextureInfo textures;
-    public TextureEditor(TextureInfo t)
+    public TextureEditor(TextureInfo t, bool flash = false)
     {
         textures = t;
+        textures.activated = true;
         InitializeComponent();
         Disp.Children.Add(new TextBlock
         {
@@ -35,7 +40,7 @@ public partial class TextureEditor : Window
         ImgListSelectButton b;
         for (int i = 0; i < 9; i++)
         {
-            b = new ImgListSelectButton(i, textures.Player);
+            b = new ImgListSelectButton(i, textures.Player, NULL_TILE);
             b.MinHeight = 16;
             b.MinWidth = 16;
             g.Children.Add(b);
@@ -47,7 +52,7 @@ public partial class TextureEditor : Window
             FontSize = 18,
             FontWeight = FontWeight.DemiBold
         });
-        b = new ImgListSelectButton(textures.gen.WallID, textures.Tiles);
+        b = new ImgListSelectButton(textures.gen.WallID, textures.Tiles, WALL_TILE);
         b.MinHeight = 16;
         b.MinWidth = 16;
         Disp.Children.Add(b);
@@ -87,7 +92,7 @@ public partial class TextureEditor : Window
             {
                 Text = o.tag
             });
-            g.Children.Add(new ImgListSelectButton(o.id, textures.Tiles));
+            g.Children.Add(new ImgListSelectButton(o.id, textures.Tiles, GROUND_TILE));
         }
         Disp.Children.Add(g);
         Disp.Children.Add(new TextBlock
@@ -126,10 +131,16 @@ public partial class TextureEditor : Window
             {
                 Text = o.tag
             });
-            g.Children.Add(new ImgListSelectButton(o.id, textures.Tiles));
+            g.Children.Add(new ImgListSelectButton(o.id, textures.Tiles, WATER_TILE));
         }
         Disp.Children.Add(g);
         Disp.DataContext = textures;
+        if (flash)
+        {
+            MapEditor w = new MapEditor(textures);
+            w.Show();
+            Close();
+        }
     }
 }
 public class IndexedButton : Button
