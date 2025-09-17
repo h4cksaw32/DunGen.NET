@@ -8,28 +8,100 @@ using System.Threading.Tasks;
 
 namespace DunGenLib
 {
+    /// <summary>
+    /// A container & processing class to generate rooms, tiles, and pools onto a <see cref="DunGenLib.Map"/> instance.
+    /// </summary>
+    /// <remarks>This generator specifically uses a room-placement algorithm.</remarks>
     public class Generator
     {
+        /// <summary>
+        /// The map to generate the features on.
+        /// </summary>
         [JsonIgnore] public Map Map { get; set; }
 
+        /// <summary>
+        /// The number of attempts for generating each feature (rooms, pathways, pools).
+        /// </summary>
         public ushort LoopAttempts { get => loopAttempts; set => loopAttempts = value; }
+        /// <summary>
+        /// Number of evenly-sized chunks to break up the map in.
+        /// </summary>
         public Point2D_16 MapChunks { get => mapChunks; set => mapChunks = value; }
+        /// <summary>
+        /// The minimum size that a room can generated.
+        /// </summary>
         public Point2D_16 MinRoomSize { get => minRoomSize; set => minRoomSize = value; }
+        /// <summary>
+        /// The maximum size that a room can be generated.
+        /// </summary>
         public Point2D_16 MaxRoomSize { get => maxRoomSize; set => maxRoomSize = value; }
+        /// <summary>
+        /// Allow rooms to overlap each other.
+        /// </summary>
         public bool MergeRooms { get => mergeRooms; set => mergeRooms = value; }
+        /// <summary>
+        /// Allow rooms to share an edge (forming a larger irregularly-shaped room).
+        /// </summary>
         public bool TouchRooms { get => touchRooms; set => touchRooms = value; }
+        /// <summary>
+        /// Minimum number of rooms to generate in each chunk.
+        /// </summary>
         public byte MinRoomsPerChunk { get => minRoomsPerChunk; set => minRoomsPerChunk = value; }
+        /// <summary>
+        /// Maximum number of rooms to generate in each chunk.
+        /// </summary>
         public byte MaxRoomsPerChunk { get => maxRoomsPerChunk; set => maxRoomsPerChunk = value; }
+        /// <summary>
+        /// Minimum number of pathways to branch off of each room.
+        /// </summary>
+        /// <remarks>A path that connects two rooms is only attributed to one room.</remarks>
         public byte MinRoomExits { get => minRoomExits; set => minRoomExits = value; }
+        /// <summary>
+        /// Minimum number of pathways to branch off of each room.
+        /// </summary>
+        /// <remarks>A path that connects two rooms is only attributed to one room.</remarks>
         public byte MaxRoomExits { get => maxRoomExits; set => maxRoomExits = value; }
+        /// <summary>
+        /// Number of pools to generate in each chunk.
+        /// </summary>
+        /// <remarks>
+        /// Unlike rooms, pools are not confined to their chunk.
+        /// For each chunk, floor(x) pools are generated randomly within the map, with each additional pool having a probability of (x - floor(x)) for appearing.
+        /// </remarks>
         public float PoolsPerChunk { get => poolsPerChunk; set => poolsPerChunk = value; }
+        /// <summary>
+        /// The probability a path turns 90 degrees for each tile it advances.
+        /// </summary>
         public float PathBend { get => pathBend; set => pathBend = value; }
+        /// <summary>
+        /// The probability for a path to spontanenously stop generating for each tile it advances.
+        /// </summary>
+        /// <remarks>A value of <0.05 is recommended to avoid rooms being cut off from each other.</remarks>
         public float PathTerminate { get => pathTerminate; set => pathTerminate = value; }
+        /// <summary>
+        /// Allows paths to continue generating at an intersection.
+        /// </summary>
         public bool Crossroads { get => crossroads; set => crossroads = value; }
+        /// <summary>
+        /// Stops a path from generating when it is about to leave map boundaries.
+        /// </summary>
+        /// <remarks>
+        /// Disabling this option simply lets the path choose another direction to generate in.</remarks>
         public bool EndAtBoundary { get => endAtBoundary; set => endAtBoundary = value; }
+        /// <summary>
+        /// The <c>byte</c> value in the map to represent wall tiles.
+        /// </summary>
         public byte WallID { get => wallID; set => wallID = value; }
+        /// <summary>
+        /// Individual settings for the frequency and generation patterns for each type of ground tile.
+        /// </summary>
         public List<PoolOptions> PoolIDs { get => poolIDs; set => poolIDs = value; }
+        /// <summary>
+        /// Individual settings for the frequency and generation patterns for each type of liquid tile.
+        /// </summary>
         public List<GroundOptions> GroundIDs { get => groundIDs; set => groundIDs = value; }
+
+        //Below are the fields for each properties above. Find the corresponding property for information.
 
         protected readonly Random rng = new();
         protected ushort loopAttempts = 20;
@@ -54,22 +126,29 @@ namespace DunGenLib
         protected byte wallID = 0;
         protected List<PoolOptions> poolIDs = [new PoolOptions { id = 2, spawnRate = 1, spread = 0.5F, tag = "Water" }];
         protected List<GroundOptions> groundIDs = [new GroundOptions { id = 1, inPaths = true, inRooms = true, spawnRate = 1, tag = "Ground" }];
+        
+        //End of field definitions
+        
+        /// <summary>
+        /// Creates a generator with a 128 x 128 map.
+        /// </summary>
         public Generator()
         {
             Map = new(128, 128);
         }
+        /// <summary>
+        /// Creates a generator with a pre-defined map.
+        /// </summary>
+        /// <param name="m">The map fr the generator to use.</param>
         public Generator(Map m)
         {
             Map = m;
         }
-        public int InPoolIDs(byte value)
-        {
-            for (int i = 0; i < PoolIDs.Count; i++)
-            {
-                if (PoolIDs[i].id == value) return i;
-            }
-            return -1;
-        }
+        /// <summary>
+        /// Checks if a <c>byte</c> value is used to represent a ground tile.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns>Returns the index that the ID was found in <see cref="GroundIDs"/> (-1 if none)</returns>
         public int InGroundIDs(byte value)
         {
             for (int i = 0; i < GroundIDs.Count; i++)
@@ -78,6 +157,23 @@ namespace DunGenLib
             }
             return -1;
         }
+        /// <summary>
+        /// Checks if a <c>byte</c> value is used to represent a liquid tile.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns>Returns the index that the ID was found in <see cref="PoolIDs"/> (-1 if none)</returns>
+        public int InPoolIDs(byte value)
+        {
+            for (int i = 0; i < PoolIDs.Count; i++)
+            {
+                if (PoolIDs[i].id == value) return i;
+            }
+            return -1;
+        }
+        /// <summary>
+        /// Finds the lowest <c>byte</c> value that is unused in the map.
+        /// </summary>
+        /// <returns></returns>
         public byte? FindVacantTileID()
         {
             byte? id = 0;
@@ -105,29 +201,51 @@ namespace DunGenLib
             }
             return id;
         }
+        /// <summary>
+        /// Fills the map with wall tiles (value specified in <see cref="WallID"/>).
+        /// </summary>
         public void FillMap() => Map.FillMap(WallID);
 
+        /// <summary>
+        /// A private buffer list for storing the locations and sizes of each room.
+        /// </summary>
         protected List<RoomData> rooms = [];
 
+        /// <summary>
+        /// Generates all of the features on the map.
+        /// </summary>
         public void GenerateMap()
         {
+            //Flush the mirror ID indices in the map
             Map.GroundIDs.Clear();
             Map.PoolIDs.Clear();
+            
             ValidateIDs();
+            //Recopies the ID info to the map
             foreach (GroundOptions item in GroundIDs) Map.GroundIDs.Add(item.id);
             foreach (PoolOptions item in PoolIDs) Map.PoolIDs.Add(item.id);
+            //Resets the map by filling it with wall tiles
             Map.FillMap(WallID);
+            //Generate the features
             GenerateRooms();
             GeneratePaths();
             GeneratePools();
         }
+        /// <summary>
+        /// Makes sure wall tiles are distinct from ground and liquid tiles, and makes sure ground tiles exist.
+        /// </summary>
         public virtual void ValidateIDs()
         {
             if (InGroundIDs(WallID) > -1) WallID = (byte)(FindVacantTileID() ?? (PoolIDs.Count > 0 ? PoolIDs[0].id : 0));
             if (InPoolIDs(WallID) > -1) WallID = (byte)(FindVacantTileID() ?? (PoolIDs.Count > 0 ? PoolIDs[0].id : 0));
             if (GroundIDs.Count == 0) GroundIDs.Add(new GroundOptions { id = FindVacantTileID() ?? (byte)((WallID + 1) & 0b11111111), inPaths = true, inRooms = true, spawnRate = 1 });
         }
-
+        /// <summary>
+        /// Covers a rectangular area of the map with the specified tile ID. 
+        /// </summary>
+        /// <param name="pos">The position of the top-left corner of the patch.</param>
+        /// <param name="size">The dimensions of the patch.</param>
+        /// <param name="id">The tile ID to place.</param>
         protected void CarveRect(Point2D_16 pos, Point2D_16 size, byte id)
         {
             for (ushort y = pos.y; y < pos.y + size.y; y++)
@@ -140,6 +258,11 @@ namespace DunGenLib
                 }
             }
         }
+        /// <summary>
+        /// Generates a singular room with the specified position and size.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <param name="size"></param>
         protected void CarveRoom(Point2D_16 pos, Point2D_16 size)
         {
             List<GroundOptions> ids = [];
@@ -218,6 +341,9 @@ namespace DunGenLib
                 }
             }
         }
+        /// <summary>
+        /// Generates all the rooms in the map.
+        /// </summary>
         protected void GenerateRooms()
         {
             rooms.Clear();
@@ -252,6 +378,12 @@ namespace DunGenLib
                 }
             }
         }
+        /// <summary>
+        /// Checks if a rooms with the specified position and size would overlap with any exsisting rooms.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <param name="size"></param>
+        /// <remarks>The <see cref="TouchRooms"/> option changes the behavior of this method.</remarks>
         protected bool CheckRoomOverlap(Point2D_16 pos, Point2D_16 size)
         {
             foreach (RoomData r in rooms)
@@ -268,6 +400,11 @@ namespace DunGenLib
             }
             return false;
         }
+        /// <summary>
+        /// Generates a singular path from an initial position and direction.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <param name="dir"></param>
         protected void CarvePath(Point2D_16 pos, Direction dir)
         {
             IList<GroundOptions> ids = [];
@@ -350,6 +487,57 @@ namespace DunGenLib
                 if (rng.NextSingle() < PathTerminate) return;
             }
         }
+        /// <summary>
+        /// Generates all paths in the map.
+        /// </summary>
+        protected void GeneratePaths()
+        {
+            byte exits;
+            foreach (RoomData r in rooms)
+            {
+                exits = (byte)rng.Next(MinRoomExits, MaxRoomExits + 1);
+                Direction dir = 0;
+                for (int i = 0; i < exits; i++)
+                {
+                    while ((r.pos.x == 0 && dir == Direction.W) || (r.pos.y == 0 && dir == Direction.N) || (r.pos.x + r.size.x >= Map.Width - 1 && dir == Direction.E) || (r.pos.y + r.size.y >= Map.Height - 1 && dir == Direction.S))
+                    {
+                        dir = (Direction)(rng.Next(4) * 90);
+                    }
+                    switch (dir)
+                    {
+                        case Direction.N:
+                            CarvePath(new() { x = (ushort)(r.pos.x + rng.Next(r.size.x)), y = r.pos.y }, dir);
+                            break;
+                        case Direction.S:
+                            CarvePath(new() { x = (ushort)(r.pos.x + rng.Next(r.size.x)), y = (ushort)(r.pos.y + r.size.y) }, dir);
+                            break;
+                        case Direction.W:
+                            CarvePath(new() { x = r.pos.x, y = (ushort)(r.pos.y + rng.Next(r.size.y)) }, dir);
+                            break;
+                        case Direction.E:
+                            CarvePath(new() { x = (ushort)(r.pos.x + r.size.y), y = (ushort)(r.pos.y + rng.Next(r.size.y)) }, dir);
+                            break;
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// Generates a singular pool using the specified tile ID.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="options">The settings for the tile ID to be used.</param>
+        protected void FillPool(ushort x, ushort y, PoolOptions options)
+        {
+            Map.PlaceTile(x, y, options.id);
+            if (x > 0 && Map.GetTile((ushort)(x - 1), y) == WallID && rng.NextSingle() < options.spread) FillPool((ushort)(x - 1), y, options);
+            if (y > 0 && Map.GetTile(x, (ushort)(y - 1)) == WallID && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y - 1), options);
+            if (x < Map.Width - 1 && Map.GetTile((ushort)(x + 1), y) == WallID && rng.NextSingle() < options.spread) FillPool((ushort)(x + 1), y, options);
+            if (y < Map.Height - 1 && Map.GetTile(x, (ushort)(y + 1)) == WallID && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y + 1), options);
+        }
+        /// <summary>
+        /// Generate all pools in the map.
+        /// </summary>
         protected void GeneratePools()
         {
             if (PoolIDs.Count == 0) return;
@@ -381,14 +569,11 @@ namespace DunGenLib
                 FillPool(pos.x, pos.y, PoolIDs[index]);
             }
         }
-        protected void FillPool(ushort x, ushort y, PoolOptions options)
-        {
-            Map.PlaceTile(x, y, options.id);
-            if (x > 0 && Map.GetTile((ushort)(x - 1), y) == WallID && rng.NextSingle() < options.spread) FillPool((ushort)(x - 1), y, options);
-            if (y > 0 && Map.GetTile(x, (ushort)(y - 1)) == WallID && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y - 1), options);
-            if (x < Map.Width - 1 && Map.GetTile((ushort)(x + 1), y) == WallID && rng.NextSingle() < options.spread) FillPool((ushort)(x + 1), y, options);
-            if (y < Map.Height - 1 && Map.GetTile(x, (ushort)(y + 1)) == WallID && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y + 1), options);
-        }
+        /// <summary>
+        /// Converts <see cref="Direction"/> to <see cref="Vec2D_8"/>
+        /// </summary>
+        /// <param name="dir"></param>
+        /// <returns></returns>
         protected static Vec2D_8 DirToVec(Direction dir)
         {
             return dir switch
@@ -400,112 +585,143 @@ namespace DunGenLib
                 _ => new() { x = 0, y = 0 },
             };
         }
+        /// <summary>
+        /// Checks if the tile at the specified position is in a room.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <remarks>Works by checking if there are two adjacent ground tiles with a diagonal ground tile in between.</remarks>
         protected bool TileInRoom(ushort x, ushort y)
         {
+            if (InGroundIDs(Map.GetTile(x, y)) == -1) return false;
             byte?[,] area = Map.GetArea(x, y);
             return (InGroundIDs(area[0, 0] ?? WallID) > -1 && InGroundIDs(area[0, 1] ?? WallID) > -1 && InGroundIDs(area[1, 0] ?? WallID) > -1)
                 || (InGroundIDs(area[0, 1] ?? WallID) > -1 && InGroundIDs(area[0, 2] ?? WallID) > -1 && InGroundIDs(area[1, 2] ?? WallID) > -1)
                 || (InGroundIDs(area[1, 2] ?? WallID) > -1 && InGroundIDs(area[2, 1] ?? WallID) > -1 && InGroundIDs(area[2, 2] ?? WallID) > -1)
                 || (InGroundIDs(area[1, 0] ?? WallID) > -1 && InGroundIDs(area[2, 0] ?? WallID) > -1 && InGroundIDs(area[2, 1] ?? WallID) > -1);
         }
-        protected void GeneratePaths()
-        {
-            byte exits;
-            foreach (RoomData r in rooms)
-            {
-                exits = (byte)rng.Next(MinRoomExits, MaxRoomExits + 1);
-                Direction dir = 0;
-                for (int i = 0; i < exits; i++)
-                {
-                    while ((r.pos.x == 0 && dir == Direction.W) || (r.pos.y == 0 && dir == Direction.N) || (r.pos.x + r.size.x >= Map.Width - 1 && dir == Direction.E) || (r.pos.y + r.size.y >= Map.Height - 1 && dir == Direction.S))
-                    {
-                        dir = (Direction)(rng.Next(4) * 90);
-                    }
-                    switch (dir)
-                    {
-                        case Direction.N:
-                            CarvePath(new() { x = (ushort)(r.pos.x + rng.Next(r.size.x)), y = r.pos.y}, dir);
-                            break;
-                        case Direction.S:
-                            CarvePath(new() { x = (ushort)(r.pos.x + rng.Next(r.size.x)), y = (ushort)(r.pos.y + r.size.y) }, dir);
-                            break;
-                        case Direction.W:
-                            CarvePath(new() { x = r.pos.x, y = (ushort)(r.pos.y + rng.Next(r.size.y)) }, dir);
-                            break;
-                        case Direction.E:
-                            CarvePath(new() { x = (ushort)(r.pos.x + r.size.y), y = (ushort)(r.pos.y + rng.Next(r.size.y)) }, dir);
-                            break;
-                    }
-                }
-            }
-        }
     }
+    /// <summary>
+    /// Represents a 2D point using two <see cref="ushort"/> values.
+    /// </summary>
+    /// <remarks>
+    /// Can also be used for other purposes (e.g. sizes).
+    /// </remarks>
     public class Point2D_16
     {
-        protected ushort fx;
-        public ushort x
-        {
-            get => fx;
-            set => fx = value;
-        }
-        protected ushort fy;
-        public ushort y
-        {
-            get => fy;
-            set => fy = value;
-        }
+        public ushort x { get; set; }
+        public ushort y { get; set; }
     }
+    /// <summary>
+    /// Represents a 2D vector using two <see cref="sbyte"/> values.
+    /// </summary>
+    /// <remarks>
+    /// Can also be used for other purposes (e.g. coordinates & sizes).
+    /// </remarks>
     public class Vec2D_8
     {
-        protected sbyte fx;
-
-        public sbyte x
-        {
-            get => fx;
-            set => fx = value;
-        }
-        protected sbyte fy;
-        public sbyte y
-        {
-            get => fy; 
-            set => fy = value;
-        }
+        public sbyte x { get; set; }
+        public sbyte y { get; set; }
     }
+    /// <summary>
+    /// Base class for tile ID configurations.
+    /// </summary>
     public class TileOptions
     {
+        /// <summary>
+        /// The ID of the tile type.
+        /// </summary>
         public byte id { get; set; }
+        /// <summary>
+        /// The spawn rate of this type of tile.
+        /// </summary>
+        /// <remarks>
+        /// This is not a 0 to 1 probability. Instead, it is based on the sum of all probabilities of other tile types.
+        /// </remarks>
         public float spawnRate { get => spawnRateF; set => spawnRateF = value; }
+        /// <summary>
+        /// A one to several word description of the tile type.
+        /// </summary>
         public string tag { get => tagF; set => tagF = value; }
 
+        //Fields for the properties above
         protected string tagF = "Tile";
         private float spawnRateF = 1;
     }
+    /// <summary>
+    /// Extension of <see cref="TileOptions"/> for liquid tiles.
+    /// </summary>
     public class PoolOptions : TileOptions
     {
+        /// <summary>
+        /// Probability that a tile of this type spreads to an adjacent tile suring generation.
+        /// </summary>
         public float spread { get; set; }
     }
+    /// <summary>
+    /// Extension of <see cref="TileOptions"/> for ground tiles.
+    /// </summary>
     public class GroundOptions : TileOptions
     {
+        /// <summary>
+        /// Generate tiles of this type in rooms.
+        /// </summary>
         public bool inRooms { get => inRoomsF; set => inRoomsF = value; }
         protected bool inRoomsF = true;
+        /// <summary>
+        /// Generate tiles of this type in rectangular patches.
+        /// </summary>
         public bool patches { get => patchesF; set => patchesF = value; }
         protected bool patchesF = false;
+        /// <summary>
+        /// Numbers of patches to generate per room.
+        /// </summary>
+        /// <remarks>Only applies when <see cref="patches"/><c> == true</c>.</remarks>
         public float patchesPerRoom { get; set; }
+        /// <summary>
+        /// Minimum size of each patch.
+        /// </summary>
+        /// <remarks>Only applies when <see cref="patches"/><c> == true</c>.</remarks>
         public Point2D_16 minPatchSize { get => mnps; set => mnps = value; }
         protected Point2D_16 mnps = new() { x = 1, y = 1 };
+        /// <summary>
+        /// Maximum size of each patch.
+        /// </summary>
+        /// <remarks>Only applies when <see cref="patches"/><c> == true</c>.</remarks>
         public Point2D_16 maxPatchSize { get => mxps; set => mxps = value; }
         protected Point2D_16 mxps = new() { x = 1, y = 1 };
+        /// <summary>
+        /// Generate tiles of this type in pathways.
+        /// </summary>
         public bool inPaths { get => inPathsF; set => inPathsF = value; }
         protected bool inPathsF = true;
+        /// <summary>
+        /// Generate tiles of this type in segment within pathways.
+        /// </summary>
         public bool segments { get; set; }
+        /// <summary>
+        /// Minimum length of each segment.
+        /// </summary>
+        /// <remarks>Only applies when <see cref="segments"/><c> == true</c>.</remarks>
         public ushort minSegmentLength { get; set; }
+        /// <summary>
+        /// Maximum length of each segment.
+        /// </summary>
+        /// <remarks>Only applies when <see cref="segments"/><c> == true</c>.</remarks>
         public ushort maxSegmentLength { get; set; }
     }
+    /// <summary>
+    /// Contains the position and size of a room.
+    /// </summary>
     public struct RoomData
     {
+        /// <summary>
+        /// The coordinates of the top-left corner.
+        /// </summary>
         public Point2D_16 pos;
         public Point2D_16 size;
     }
+    /// <remarks>Each value corresponds with a short representing the compass angle (North = 0) of the direction in degrees.</remarks>
     public enum Direction : short
     {
         N = 0,
