@@ -8,11 +8,19 @@ using System.Threading.Tasks;
 
 namespace DunGenLib
 {
+    /// <summary>
+    /// A helper and container class for managing and storing/retrieving bitmap textures.
+    /// </summary>
     public class TextureHelper
     {
         public required Map Map { get; set; }
         public Bitmap?[] Tiles => tiles;
         private Bitmap?[] tiles = new Bitmap?[256];
+        /// <summary>
+        /// Saves the map and bitmap textures into a directory.
+        /// </summary>
+        /// <param name="mapPath">The file to save the map into.</param>
+        /// <remarks>Refer to the README for the folder structure of the data.</remarks>
         public void Serialize(string mapPath)
         {
             FileInfo f = new FileInfo(mapPath);
@@ -25,6 +33,11 @@ namespace DunGenLib
                 }
             }
         }
+        /// <summary>
+        /// Saves the map and bitmap textures from a directory.
+        /// </summary>
+        /// <param name="mapPath">The file to read the map from.</param>
+        /// <remarks>Refer to the README for the folder structure of the data.</remarks>
         public static TextureHelper Deserialize(string mapPath)
         {
             FileInfo file = new FileInfo(mapPath);
@@ -41,6 +54,10 @@ namespace DunGenLib
             }
             return t;
         }
+        /// <summary>
+        /// Helper class for fusing a directory path with a file name based on the user's OS.
+        /// </summary>
+        /// <returns>The resulting absolute path.</returns>
         private static string ExtendPath(DirectoryInfo dir, string fileName)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return $"{dir.FullName}\\{fileName}";
