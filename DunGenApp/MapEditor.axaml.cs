@@ -138,7 +138,7 @@ public partial class MapEditor : Window
                 if (reload) xPos -= (byte)(DispSize / 2);
                 break;
             case "R":
-                reload = xPos < map.width - DispSize;
+                reload = xPos < map.Width - DispSize;
                 if (reload) xPos += (byte)(DispSize / 2);
                 break;
             case "U":
@@ -146,7 +146,7 @@ public partial class MapEditor : Window
                 if (reload) yPos -= (byte)(DispSize / 2);
                 break;
             case "D":
-                reload = yPos < map.height - DispSize;
+                reload = yPos < map.Height - DispSize;
                 if (reload) yPos += (byte)(DispSize / 2);
                 break;
 
@@ -167,7 +167,7 @@ public partial class MapEditor : Window
                     Height = textures.TileSize,
                     Content = new Avalonia.Controls.Image { Source = textures.Tiles[map.GetTile(x, y)], Stretch = Stretch.Uniform },
                     Padding = new Thickness(0),
-                    Tag = y * map.width + x,
+                    Tag = y * map.Width + x,
                 };
                 b.Click += PlaceTile;
                 EditArea.Children.Add(b);
@@ -183,8 +183,8 @@ public partial class MapEditor : Window
         Button b = (Button)(source ?? new Button());
         try
         {
-            uint index = Convert.ToUInt32(b.Tag ?? map.tiles.Length + 1);
-            map.tiles[index] = tileType;
+            uint index = Convert.ToUInt32(b.Tag ?? map.Tiles.Length + 1);
+            map.Tiles[index] = tileType;
             b.Content = new Avalonia.Controls.Image { Source = textures.Tiles[tileType], Stretch = Stretch.Uniform };
         }
         catch
@@ -226,13 +226,13 @@ public partial class MapEditor : Window
     }
     private Bitmap VisualizeMap()
     {
-        Bitmap bmp = new(map.width, map.height);
+        Bitmap bmp = new(map.Width, map.Height);
         byte b;
         int i;
         System.Drawing.Color wallCol = System.Drawing.Color.FromArgb(191, 127, 0);
-        for (ushort y = 0; y < map.height; y++)
+        for (ushort y = 0; y < map.Height; y++)
         {
-            for (ushort x = 0; x < map.width; x++)
+            for (ushort x = 0; x < map.Width; x++)
             {
                 b = map.GetTile(x, y);
                 if (b == textures.gen.WallID) bmp.SetPixel(x, y, wallCol);

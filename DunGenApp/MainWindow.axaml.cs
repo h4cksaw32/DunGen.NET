@@ -173,9 +173,9 @@ namespace DunGenApp
         private void PrintMap(object? source, RoutedEventArgs e)
         {
             string disp = "";
-            for (ushort y = 0; y < map.height; y++)
+            for (ushort y = 0; y < map.Height; y++)
             {
-                for (ushort x = 0; x < map.width; x++)
+                for (ushort x = 0; x < map.Width; x++)
                 {
                     disp += map.GetTile(x, y);
                 }

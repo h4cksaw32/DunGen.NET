@@ -132,10 +132,10 @@ namespace DunGenLib
         {
             for (ushort y = pos.y; y < pos.y + size.y; y++)
             {
-                if (y >= Map.height) break;
+                if (y >= Map.Height) break;
                 for (ushort x = pos.x; x < pos.x + size.x; x++)
                 {
-                    if (x >= Map.width) break;
+                    if (x >= Map.Width) break;
                     Map.PlaceTile(x, y, id);
                 }
             }
@@ -158,10 +158,10 @@ namespace DunGenLib
             float rand;
             for (ushort y = pos.y; y < pos.y + size.y; y++)
             {
-                if (y >= Map.height) break;
+                if (y >= Map.Height) break;
                 for (ushort x = pos.x; x < pos.x + size.x; x++)
                 {
-                    if (x >= Map.width) break;
+                    if (x >= Map.Width) break;
                     if (ids.Count == 0)
                     {
                         Map.PlaceTile(x, y, GroundIDs[0].id);
@@ -221,7 +221,7 @@ namespace DunGenLib
         protected void GenerateRooms()
         {
             rooms.Clear();
-            Point2D_16 chunkSize = new() { x = (ushort)(Map.width/MapChunks.x), y = (ushort)(Map.height/MapChunks.y) };
+            Point2D_16 chunkSize = new() { x = (ushort)(Map.Width/MapChunks.x), y = (ushort)(Map.Height/MapChunks.y) };
             Point2D_16 pos;
             Point2D_16 size;
             byte r = (byte)rng.Next(minRoomsPerChunk, maxRoomsPerChunk + 1);
@@ -240,8 +240,8 @@ namespace DunGenLib
                             pos = new();
                             size.x = (ushort)rng.Next(MinRoomSize.x, MaxRoomSize.x + 1);
                             size.y = (ushort)rng.Next(MinRoomSize.y, MaxRoomSize.y + 1);
-                            pos.x = size.x >= chunkSize.x ? (ushort)(Map.width / MapChunks.x * h) : (ushort)rng.Next(Map.width / MapChunks.x * h, Map.width / MapChunks.x * (h + 1) - size.x);
-                            pos.y = size.y >= chunkSize.y ? (ushort)(Map.height / MapChunks.y * v) : (ushort)rng.Next(Map.height / MapChunks.y * v, Map.height / MapChunks.y * (v + 1) - size.y);
+                            pos.x = size.x >= chunkSize.x ? (ushort)(Map.Width / MapChunks.x * h) : (ushort)rng.Next(Map.Width / MapChunks.x * h, Map.Width / MapChunks.x * (h + 1) - size.x);
+                            pos.y = size.y >= chunkSize.y ? (ushort)(Map.Height / MapChunks.y * v) : (ushort)rng.Next(Map.Height / MapChunks.y * v, Map.Height / MapChunks.y * (v + 1) - size.y);
                         } while (counter <= loopAttempts && !MergeRooms && CheckRoomOverlap(pos, size));
                         if (counter <= loopAttempts)
                         {
@@ -282,7 +282,7 @@ namespace DunGenLib
                 denom += item.spawnRate;
                 prob.Add(denom);
             }
-            if ((pos.x == 0 && dir == Direction.W) || (pos.y == 0 && dir == Direction.N) || (pos.x >= Map.width - 1 && dir == Direction.E) || (pos.y >= Map.height - 1 && dir == Direction.S)) return;
+            if ((pos.x == 0 && dir == Direction.W) || (pos.y == 0 && dir == Direction.N) || (pos.x >= Map.Width - 1 && dir == Direction.E) || (pos.y >= Map.Height - 1 && dir == Direction.S)) return;
             pos.x = (ushort)(pos.x + DirToVec(dir).x);
             pos.y = (ushort)(pos.y + DirToVec(dir).y);
             Map.PlaceTile(pos.x, pos.y, GroundIDs[0].id);
@@ -297,7 +297,7 @@ namespace DunGenLib
                     if (rng.Next(2) == 0) dir = (Direction)((short)dir - 90 % 360);
                     else dir = (Direction)((short)dir + 90 % 360);
                 }
-                if ((pos.x == 0 && dir == Direction.W) || (pos.y == 0 && dir == Direction.N) || (pos.x >= Map.width - 1 && dir == Direction.E) || (pos.y >= Map.height - 1 && dir == Direction.S))
+                if ((pos.x == 0 && dir == Direction.W) || (pos.y == 0 && dir == Direction.N) || (pos.x >= Map.Width - 1 && dir == Direction.E) || (pos.y >= Map.Height - 1 && dir == Direction.S))
                 {
                     if (EndAtBoundary) return;
                     else continue;
@@ -370,8 +370,8 @@ namespace DunGenLib
                 do
                 {
                     counter++;
-                    pos.x = (ushort)rng.Next(Map.width);
-                    pos.y = (ushort)rng.Next(Map.height);
+                    pos.x = (ushort)rng.Next(Map.Width);
+                    pos.y = (ushort)rng.Next(Map.Height);
                 } while (Map.GetTile(pos.x, pos.y) != WallID && counter <= loopAttempts);
                 rand = rng.NextSingle() * denom;
                 for (index = 0; index < prob.Count; index++)
@@ -386,8 +386,8 @@ namespace DunGenLib
             Map.PlaceTile(x, y, options.id);
             if (x > 0 && Map.GetTile((ushort)(x - 1), y) == WallID && rng.NextSingle() < options.spread) FillPool((ushort)(x - 1), y, options);
             if (y > 0 && Map.GetTile(x, (ushort)(y - 1)) == WallID && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y - 1), options);
-            if (x < Map.width - 1 && Map.GetTile((ushort)(x + 1), y) == WallID && rng.NextSingle() < options.spread) FillPool((ushort)(x + 1), y, options);
-            if (y < Map.height - 1 && Map.GetTile(x, (ushort)(y + 1)) == WallID && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y + 1), options);
+            if (x < Map.Width - 1 && Map.GetTile((ushort)(x + 1), y) == WallID && rng.NextSingle() < options.spread) FillPool((ushort)(x + 1), y, options);
+            if (y < Map.Height - 1 && Map.GetTile(x, (ushort)(y + 1)) == WallID && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y + 1), options);
         }
         protected static Vec2D_8 DirToVec(Direction dir)
         {
@@ -417,7 +417,7 @@ namespace DunGenLib
                 Direction dir = 0;
                 for (int i = 0; i < exits; i++)
                 {
-                    while ((r.pos.x == 0 && dir == Direction.W) || (r.pos.y == 0 && dir == Direction.N) || (r.pos.x + r.size.x >= Map.width - 1 && dir == Direction.E) || (r.pos.y + r.size.y >= Map.height - 1 && dir == Direction.S))
+                    while ((r.pos.x == 0 && dir == Direction.W) || (r.pos.y == 0 && dir == Direction.N) || (r.pos.x + r.size.x >= Map.Width - 1 && dir == Direction.E) || (r.pos.y + r.size.y >= Map.Height - 1 && dir == Direction.S))
                     {
                         dir = (Direction)(rng.Next(4) * 90);
                     }
