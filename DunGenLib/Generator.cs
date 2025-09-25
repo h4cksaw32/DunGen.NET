@@ -101,7 +101,7 @@ namespace DunGenLib
         /// </summary>
         public List<GroundOptions> GroundIDs { get => groundIDs; set => groundIDs = value; }
 
-        //Below are the fields for each properties above. Find the corresponding property for information.
+        //Fields for properties above. Find the corresponding property for information.
 
         protected readonly Random rng = new();
         protected ushort loopAttempts = 20;
@@ -173,8 +173,8 @@ namespace DunGenLib
         /// <summary>
         /// Finds the lowest <c>byte</c> value that is unused in the map.
         /// </summary>
-        /// <returns></returns>
-        public byte? FindVacantTileID()
+        /// <returns>The lowest unused value, or null if none are available.</returns>
+        public byte? NextVacantTileID()
         {
             byte? id = 0;
             bool[] available = new bool[256];
@@ -236,9 +236,18 @@ namespace DunGenLib
         /// </summary>
         public virtual void ValidateIDs()
         {
-            if (InGroundIDs(WallID) > -1) WallID = (byte)(FindVacantTileID() ?? (PoolIDs.Count > 0 ? PoolIDs[0].id : 0));
-            if (InPoolIDs(WallID) > -1) WallID = (byte)(FindVacantTileID() ?? (PoolIDs.Count > 0 ? PoolIDs[0].id : 0));
-            if (GroundIDs.Count == 0) GroundIDs.Add(new GroundOptions { id = FindVacantTileID() ?? (byte)((WallID + 1) & 0b11111111), inPaths = true, inRooms = true, spawnRate = 1 });
+            if (InGroundIDs(WallID) > -1) WallID = (byte)(NextVacantTileID() ?? (PoolIDs.Count > 0 ? PoolIDs[0].id : 0));
+            if (InPoolIDs(WallID) > -1) WallID = (byte)(NextVacantTileID() ?? (PoolIDs.Count > 0 ? PoolIDs[0].id : 0));
+            if (GroundIDs.Count == 0) GroundIDs.Add(new GroundOptions { id = NextVacantTileID() ?? (byte)(WallID + 1), inPaths = true, inRooms = true, spawnRate = 1 });
+            else
+            {
+                bool rooms = false;
+                bool paths = false;
+                foreach (GroundOptions g in GroundIDs)
+                {
+                    
+                }
+            }
         }
         /// <summary>
         /// Covers a rectangular area of the map with the specified tile ID. 

@@ -170,7 +170,7 @@ namespace DunGenApp
         public new byte? FindVacantTileID()
         {
             UpdateIDs();
-            return base.FindVacantTileID();
+            return base.NextVacantTileID();
         }
         public void UpdateIDs()
         {
