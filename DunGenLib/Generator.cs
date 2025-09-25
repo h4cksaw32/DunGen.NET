@@ -232,22 +232,29 @@ namespace DunGenLib
             GeneratePools();
         }
         /// <summary>
-        /// Makes sure wall tiles are distinct from ground and liquid tiles, and makes sure ground tiles exist.
+        /// Makes sure that the tile settings allow successful terrain generation..
         /// </summary>
         public virtual void ValidateIDs()
         {
+            // Wall ID distinct?
             if (InGroundIDs(WallID) > -1) WallID = (byte)(NextVacantTileID() ?? (PoolIDs.Count > 0 ? PoolIDs[0].id : 0));
             if (InPoolIDs(WallID) > -1) WallID = (byte)(NextVacantTileID() ?? (PoolIDs.Count > 0 ? PoolIDs[0].id : 0));
+            // Ground tiles exist?
             if (GroundIDs.Count == 0) GroundIDs.Add(new GroundOptions { id = NextVacantTileID() ?? (byte)(WallID + 1), inPaths = true, inRooms = true, spawnRate = 1 });
             else
             {
+                //Ground tiles allow successful generation?
                 bool rooms = false;
                 bool paths = false;
                 foreach (GroundOptions g in GroundIDs)
                 {
-                    
+                    if (g.inRooms) rooms = true;
+                    if (g.inPaths) paths = true;
+                    if (rooms && paths) break;
                 }
+                if (!(rooms && paths)) GroundIDs.Add(new GroundOptions { id = NextVacantTileID() ?? (byte)(WallID + 1), inPaths = true, inRooms = true, spawnRate = 1 });
             }
+            // Pool tiles are optional ;)
         }
         /// <summary>
         /// Covers a rectangular area of the map with the specified tile ID. 
