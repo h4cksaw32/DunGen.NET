@@ -101,6 +101,26 @@ namespace DunGenLib
             PlaceTile(x, y, value);
         }
         /// <summary>
+        /// Fills a rectangular area with the specified value.
+        /// </summary>
+        /// <param name="recX"></param>
+        /// <param name="recY"></param>
+        /// <param name="recW"></param>
+        /// <param name="recH"></param>
+        /// <param name="value"></param>
+        public void CarveRect(ushort recX, ushort recY, ushort recW, ushort recH, byte value)
+        {
+            for (ushort y = recY; y < recY + recH; y++)
+            {
+                if (y >= Height) break;
+                for (ushort x = recX; x < recX + recW; x++)
+                {
+                    if (x >= Width) break;
+                    PlaceTile(x, y, value);
+                }
+            }
+        }
+        /// <summary>
         /// Gets the 3 x 3 area around a tile.
         /// </summary>
         /// <param name="x"></param>

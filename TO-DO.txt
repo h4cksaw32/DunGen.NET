@@ -1,3 +1,4 @@
 !IMPORTANT THINGS TO DO!
-1) Proofread & document code
-2) Write the README
+1) Review generator code & document method procedures
+2) Proofread & document application code
+3) Write the README

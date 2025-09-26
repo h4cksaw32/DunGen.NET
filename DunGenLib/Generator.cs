@@ -241,24 +241,6 @@ namespace DunGenLib
             if (GroundIDs.Count == 0) GroundIDs.Add(new GroundOptions { id = FindVacantTileID() ?? (byte)((WallID + 1) & 0b11111111), inPaths = true, inRooms = true, spawnRate = 1 });
         }
         /// <summary>
-        /// Covers a rectangular area of the map with the specified tile ID. 
-        /// </summary>
-        /// <param name="pos">The position of the top-left corner of the patch.</param>
-        /// <param name="size">The dimensions of the patch.</param>
-        /// <param name="id">The tile ID to place.</param>
-        protected void CarveRect(Point2D_16 pos, Point2D_16 size, byte id)
-        {
-            for (ushort y = pos.y; y < pos.y + size.y; y++)
-            {
-                if (y >= Map.Height) break;
-                for (ushort x = pos.x; x < pos.x + size.x; x++)
-                {
-                    if (x >= Map.Width) break;
-                    Map.PlaceTile(x, y, id);
-                }
-            }
-        }
-        /// <summary>
         /// Generates a singular room with the specified position and size.
         /// </summary>
         /// <param name="pos"></param>
@@ -335,7 +317,7 @@ namespace DunGenLib
                             patchSize.x = (ushort)rng.Next(item.minPatchSize.x, item.maxPatchSize.x);
                             patchSize.y = (ushort)rng.Next(item.minPatchSize.y, item.maxPatchSize.y);
                         } while (counter <= loopAttempts && (patchPos.x + patchSize.x >= pos.x + size.x || patchPos.y + patchSize.y >= pos.y + size.y));
-                        if (counter < loopAttempts) CarveRect(patchPos, patchSize, item.id);
+                        if (counter < loopAttempts) Map.CarveRect(patchPos.x, patchPos.y, patchSize.x, patchSize.y, item.id);
                     }
                     f -= 1;
                 }

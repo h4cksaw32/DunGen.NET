@@ -128,7 +128,7 @@ namespace DunGenApp
         }
         private void RemoveGroundType(object? source, RoutedEventArgs e)
         {
-            if (GroundTypes.SelectedIndex > -1)
+            if (GroundTypes.SelectedIndex > -1 && gen.ObservableGroundIDs.Count > 1)
             {
                 gen.ObservableGroundIDs.RemoveAt(GroundTypes.SelectedIndex);
                 GroundTypes.SelectedIndex = -1;
@@ -147,7 +147,7 @@ namespace DunGenApp
         }
         private void RemovePoolType(object? source, RoutedEventArgs e)
         {
-            if (PoolTypes.SelectedIndex > -1)
+            if (PoolTypes.SelectedIndex > -1 && gen.ObservablePoolIDs.Count > 1)
             {
                 gen.ObservablePoolIDs.RemoveAt(PoolTypes.SelectedIndex);
                 PoolTypes.SelectedIndex = -1;
