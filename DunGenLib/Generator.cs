@@ -257,56 +257,24 @@ namespace DunGenLib
             // Pool tiles are optional (sorry water lovers)
         }
         /// <summary>
+        /// Wrapper method for <see cref="Map.CarveRect(ushort, ushort, ushort, ushort, byte)"/> with less parameters.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <param name="size"></param>
+        /// <param name="id"></param>
+        protected void CarveRect(Point2D_16 pos, Point2D_16 size, byte id) => Map.CarveRect(pos.x, pos.y, size.x, size.y, id);
+        /// <summary>
         /// Generates a singular room with the specified position and size.
         /// </summary>
         /// <param name="pos"></param>
         /// <param name="size"></param>
         protected void CarveRoom(Point2D_16 pos, Point2D_16 size)
         {
+            if (GroundIDs.Count == 1)
+            {
+                Map.CarveRect(pos.x, pos.y, size.x, size.y, GroundIDs[0].id);
+            }
             List<GroundOptions> ids = [];
-            List<float> prob = [];
-            float denom = 0;
-            foreach (GroundOptions item in GroundIDs)
-            {
-                if (item.inRooms && !item.patches) ids.Add(item);
-            }
-            foreach (GroundOptions item in ids)
-            {
-                denom += item.spawnRate;
-                prob.Add(denom);
-            }
-            byte id = ids.Count == 0 ? GroundIDs[0].id : ids[0].id;
-            float rand;
-            for (ushort y = pos.y; y < pos.y + size.y; y++)
-            {
-                if (y >= Map.Height) break;
-                for (ushort x = pos.x; x < pos.x + size.x; x++)
-                {
-                    if (x >= Map.Width) break;
-                    if (ids.Count == 0)
-                    {
-                        Map.PlaceTile(x, y, GroundIDs[0].id);
-                    }
-                    else if (ids.Count == 1)
-                    {
-                        Map.PlaceTile(x, y, ids[0].id);
-                    }
-                    else
-                    {
-                        rand = rng.NextSingle() * denom;
-                        for (int index = 0; index < prob.Count; index++)
-                        {
-                            if (rand < prob[index])
-                            {
-                                id = ids[index].id;
-                                break;
-                            }
-                        }
-                        Map.PlaceTile(x, y, id);
-                    }
-                }
-            }
-            ids = [];
             foreach (GroundOptions item in GroundIDs)
             {
                 if (item.inRooms && item.patches) ids.Add(item);
@@ -336,6 +304,50 @@ namespace DunGenLib
                         if (counter < loopAttempts) Map.CarveRect(patchPos.x, patchPos.y, patchSize.x, patchSize.y, item.id);
                     }
                     f -= 1;
+                }
+            }
+            ids = [];
+            List<float> prob = [];
+            float denom = 0;
+            foreach (GroundOptions item in GroundIDs)
+            {
+                if (item.inRooms && !item.patches) ids.Add(item);
+            }
+            foreach (GroundOptions item in ids)
+            {
+                denom += item.spawnRate;
+                prob.Add(denom);
+            }
+            byte id = ids.Count == 0 ? GroundIDs[0].id : ids[0].id;
+            float rand;
+            for (ushort y = pos.y; y < pos.y + size.y; y++)
+            {
+                if (y >= Map.Height) break;
+                for (ushort x = pos.x; x < pos.x + size.x; x++)
+                {
+                    if (InGroundIDs(Map.GetTile(x, y)) > -1) continue;
+                    if (x >= Map.Width) break;
+                    if (ids.Count == 0)
+                    {
+                        Map.PlaceTile(x, y, GroundIDs[0].id);
+                    }
+                    else if (ids.Count == 1)
+                    {
+                        Map.PlaceTile(x, y, ids[0].id);
+                    }
+                    else
+                    {
+                        rand = rng.NextSingle() * denom;
+                        for (int index = 0; index < prob.Count; index++)
+                        {
+                            if (rand < prob[index])
+                            {
+                                id = ids[index].id;
+                                break;
+                            }
+                        }
+                        Map.PlaceTile(x, y, id);
+                    }
                 }
             }
         }

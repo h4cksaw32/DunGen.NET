@@ -103,17 +103,17 @@ namespace DunGenLib
         /// <summary>
         /// Fills a rectangular area with the specified value.
         /// </summary>
-        /// <param name="recX"></param>
-        /// <param name="recY"></param>
-        /// <param name="recW"></param>
-        /// <param name="recH"></param>
+        /// <param name="posX"></param>
+        /// <param name="posY"></param>
+        /// <param name="sizeX"></param>
+        /// <param name="sizeY"></param>
         /// <param name="value"></param>
-        public void CarveRect(ushort recX, ushort recY, ushort recW, ushort recH, byte value)
+        public void CarveRect(ushort posX, ushort posY, ushort sizeX, ushort sizeY, byte value)
         {
-            for (ushort y = recY; y < recY + recH; y++)
+            for (ushort y = posY; y < posY + sizeY; y++)
             {
                 if (y >= Height) break;
-                for (ushort x = recX; x < recX + recW; x++)
+                for (ushort x = posX; x < posX + sizeX; x++)
                 {
                     if (x >= Width) break;
                     PlaceTile(x, y, value);
@@ -140,22 +140,6 @@ namespace DunGenLib
             result[2, 1] = y < Height - 1 ? GetTile(x, (ushort)(y + 1)) : null;
             result[2, 2] = corners && x < Width - 1 && y < Height - 1 ? GetTile((ushort)(x + 1), (ushort)(y + 1)) : null;
             return result;
-        }
-        /// <summary>
-        /// Covers a rectangular area of the map with the specified value. 
-        /// </summary>
-        /// <param name="value">The <c>byte</c> value to fill the area with.</param>
-        public void CarveRect(ushort posX, ushort posY, ushort sizeX, ushort sizeY, byte value)
-        {
-            for (ushort y = posY; y < posY + sizeY; y++)
-            {
-                if (y >= Height) break;
-                for (ushort x = posX; x < posX + sizeX; x++)
-                {
-                    if (x >= Width) break;
-                    PlaceTile(x, y, value);
-                }
-            }
         }
         /// <summary>
         /// Serializes the map into a byte array.
