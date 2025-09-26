@@ -270,10 +270,12 @@ namespace DunGenLib
         /// <param name="size"></param>
         protected void CarveRoom(Point2D_16 pos, Point2D_16 size)
         {
+            //Draws an uniform room if only one ground tile type exists
             if (GroundIDs.Count == 1)
             {
                 Map.CarveRect(pos.x, pos.y, size.x, size.y, GroundIDs[0].id);
             }
+            //Buffer all ground tiles that generate in patches
             List<GroundOptions> ids = [];
             foreach (GroundOptions item in GroundIDs)
             {
@@ -283,6 +285,7 @@ namespace DunGenLib
             Point2D_16 patchPos;
             Point2D_16 patchSize;
             ushort counter;
+            //Place patches in the room based on the "patches per room" setting for each type.
             foreach (GroundOptions item in ids)
             {
                 f = item.patchesPerRoom;
@@ -306,6 +309,7 @@ namespace DunGenLib
                     f -= 1;
                 }
             }
+            //Buffer all ground tiles that generate singularly
             ids = [];
             List<float> prob = [];
             float denom = 0;
@@ -313,6 +317,7 @@ namespace DunGenLib
             {
                 if (item.inRooms && !item.patches) ids.Add(item);
             }
+            //Make a probability table based on the spawn rate of each tile type
             foreach (GroundOptions item in ids)
             {
                 denom += item.spawnRate;
@@ -325,19 +330,17 @@ namespace DunGenLib
                 if (y >= Map.Height) break;
                 for (ushort x = pos.x; x < pos.x + size.x; x++)
                 {
-                    if (InGroundIDs(Map.GetTile(x, y)) > -1) continue;
+                    if (InGroundIDs(Map.GetTile(x, y)) > -1) continue; //Avoid overwriting patches
                     if (x >= Map.Width) break;
-                    if (ids.Count == 0)
+                    if (ids.Count == 1)
                     {
-                        Map.PlaceTile(x, y, GroundIDs[0].id);
-                    }
-                    else if (ids.Count == 1)
-                    {
-                        Map.PlaceTile(x, y, ids[0].id);
+                        //Optimization if only one available tile type
+                        Map.PlaceTile(x, y, ids[0].id); 
                     }
                     else
                     {
                         rand = rng.NextSingle() * denom;
+                        //Look up the tile to place based on the probability table
                         for (int index = 0; index < prob.Count; index++)
                         {
                             if (rand < prob[index])
