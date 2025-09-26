@@ -111,7 +111,7 @@ namespace DunGenApp
         private void GenerateMap(object? source, RoutedEventArgs e)
         {
             MapStatus.Text = "Generating...";
-            map.Resize(UInt16.Parse(MapWidth?.Text ?? "1"), UInt16.Parse(MapHeight?.Text ?? "1"));
+            gen.Map.Resize(UInt16.Parse(MapWidth?.Text ?? "1"), UInt16.Parse(MapHeight?.Text ?? "1"));
             gen.GenerateMap();
             MapStatus.Text = "Map ready";
             EditMapBtn.IsEnabled = true;

@@ -26,10 +26,6 @@
 			<Button Click="GenerateMap">Generate</Button>
 			<Button Name="EditMapBtn" IsEnabled="False" Click="EditMap">Edit map</Button>
 			<Button Click="PrintMap">Playtest</Button>
-			<WrapPanel>
-				<CheckBox/>
-				<TextBlock Text="Allow diagonal movement" VerticalAlignment="Center"/>
-			</WrapPanel>
 		</StackPanel>
 		<ScrollViewer>
 			<StackPanel Name="GenSettings" x:DataType="local:DynamicGenerator">
