@@ -142,6 +142,22 @@ namespace DunGenLib
             return result;
         }
         /// <summary>
+        /// Covers a rectangular area of the map with the specified value. 
+        /// </summary>
+        /// <param name="value">The <c>byte</c> value to fill the area with.</param>
+        public void CarveRect(ushort posX, ushort posY, ushort sizeX, ushort sizeY, byte value)
+        {
+            for (ushort y = posY; y < posY + sizeY; y++)
+            {
+                if (y >= Height) break;
+                for (ushort x = posX; x < posX + sizeX; x++)
+                {
+                    if (x >= Width) break;
+                    PlaceTile(x, y, value);
+                }
+            }
+        }
+        /// <summary>
         /// Serializes the map into a byte array.
         /// </summary>
         /// <returns>Refer to the README for the data format.</returns>
