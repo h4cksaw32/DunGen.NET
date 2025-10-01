@@ -6,7 +6,7 @@
 		xmlns:sys="clr-namespace:System;assembly=mscorlib"
 		mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="DunGenApp.MapEditor"
-        Title="MapEditor"
+        Title="DunGen.NET - Map Editor
 		x:Name="window">
 	<DockPanel VerticalAlignment="Stretch">
 		<Grid DockPanel.Dock="Top" RowDefinitions="Auto, Auto">

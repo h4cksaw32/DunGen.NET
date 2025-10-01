@@ -361,9 +361,9 @@ namespace DunGenLib
         protected void GenerateRooms()
         {
             rooms.Clear();
-            Point2D_16 chunkSize = new() { x = (ushort)(Map.Width/MapChunks.x), y = (ushort)(Map.Height/MapChunks.y) };
             Point2D_16 pos;
             Point2D_16 size;
+            Point2D_16 maxPos;
             byte r = (byte)rng.Next(minRoomsPerChunk, maxRoomsPerChunk + 1);
             ushort counter;
             for (ushort v = 0; v < MapChunks.y; v++)
@@ -378,10 +378,13 @@ namespace DunGenLib
                             counter++;
                             size = new();
                             pos = new();
+                            maxPos = new();
                             size.x = (ushort)rng.Next(MinRoomSize.x, MaxRoomSize.x + 1);
                             size.y = (ushort)rng.Next(MinRoomSize.y, MaxRoomSize.y + 1);
-                            pos.x = size.x >= chunkSize.x ? (ushort)(Map.Width / MapChunks.x * h) : (ushort)rng.Next(Map.Width / MapChunks.x * h, Map.Width / MapChunks.x * (h + 1) - size.x);
-                            pos.y = size.y >= chunkSize.y ? (ushort)(Map.Height / MapChunks.y * v) : (ushort)rng.Next(Map.Height / MapChunks.y * v, Map.Height / MapChunks.y * (v + 1) - size.y);
+                            maxPos.x = (ushort)(Map.Width / MapChunks.x * (h + 1) - size.x);
+                            maxPos.y = (ushort)(Map.Height / MapChunks.y * (v + 1) - size.y);
+                            pos.x = maxPos.x <= Map.Width / MapChunks.x * h ? (ushort)(Map.Width / MapChunks.x * h) : (ushort)rng.Next(Map.Width / MapChunks.x * h, maxPos.x);
+                            pos.y = maxPos.y <= Map.Height / MapChunks.y * v ? (ushort)(Map.Height / MapChunks.y * v) : (ushort)rng.Next(Map.Height / MapChunks.y * v, maxPos.y);
                         } while (counter <= loopAttempts && !MergeRooms && CheckRoomOverlap(pos, size));
                         if (counter <= loopAttempts)
                         {
@@ -404,12 +407,12 @@ namespace DunGenLib
             {
                 if (TouchRooms)
                 {
-                    if ((r.pos.x <= pos.x && pos.x < r.pos.x + r.size.x) && (r.pos.y <= pos.y && pos.y < r.pos.y + r.size.y) ||
-                        (pos.x <= r.pos.x && r.pos.x < pos.x + size.x) && (pos.y <= r.pos.y && r.pos.y < pos.y + size.y)) return true;
+                    if ((r.pos.x <= pos.x && pos.x < r.pos.x + r.size.x) || (pos.x <= r.pos.x && r.pos.x < pos.x + size.x) &&
+                        (r.pos.y <= pos.y && pos.y < r.pos.y + r.size.y) || (pos.y <= r.pos.y && r.pos.y < pos.y + size.y)) return true;
                 }
                 else {
-                    if ((r.pos.x <= pos.x && pos.x <= r.pos.x + r.size.x) && (r.pos.y <= pos.y && pos.y <= r.pos.y + r.size.y) ||
-                        (pos.x <= r.pos.x && r.pos.x <= pos.x + size.x) && (pos.y <= r.pos.y && r.pos.y <= pos.y + size.y)) return true;
+                    if ((r.pos.x <= pos.x && pos.x <= r.pos.x + r.size.x) || (pos.x <= r.pos.x && r.pos.x <= pos.x + size.x) &&
+                        (r.pos.y <= pos.y && pos.y <= r.pos.y + r.size.y) || (pos.y <= r.pos.y && r.pos.y <= pos.y + size.y)) return true;
                 }
             }
             return false;

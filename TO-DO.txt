@@ -1,4 +1,5 @@
 !IMPORTANT THINGS TO DO!
 1) Review generator code & document method procedures
-2) Proofread & document application code
-3) Write the README
+2) Design app icon
+3) Proofread & document application code
+4) Write the README

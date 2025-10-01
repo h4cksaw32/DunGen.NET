@@ -5,7 +5,7 @@
 		xmlns:local="clr-namespace:DunGenApp;assembly=DunGenApp"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="DunGenApp.TextureEditor"
-        Title="Textures"
+        Title="DunGen.NET - Texture Select"
 		FontSize="12">
 	<ScrollViewer>
 		<StackPanel Name="Disp" Margin="10" x:DataType="local:TextureInfo">
