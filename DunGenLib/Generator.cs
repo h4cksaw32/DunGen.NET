@@ -273,7 +273,8 @@ namespace DunGenLib
             //Draws an uniform room if only one ground tile type exists
             if (GroundIDs.Count == 1)
             {
-                Map.CarveRect(pos.x, pos.y, size.x, size.y, GroundIDs[0].id);
+                CarveRect(pos, size, GroundIDs[0].id);
+                return;
             }
             //Buffer all ground tiles that generate in patches
             List<GroundOptions> ids = [];
@@ -304,7 +305,7 @@ namespace DunGenLib
                             patchSize.x = (ushort)rng.Next(item.minPatchSize.x, item.maxPatchSize.x);
                             patchSize.y = (ushort)rng.Next(item.minPatchSize.y, item.maxPatchSize.y);
                         } while (counter <= loopAttempts && (patchPos.x + patchSize.x >= pos.x + size.x || patchPos.y + patchSize.y >= pos.y + size.y));
-                        if (counter < loopAttempts) Map.CarveRect(patchPos.x, patchPos.y, patchSize.x, patchSize.y, item.id);
+                        if (counter < loopAttempts) CarveRect(patchPos, patchSize, item.id);
                     }
                     f -= 1;
                 }
