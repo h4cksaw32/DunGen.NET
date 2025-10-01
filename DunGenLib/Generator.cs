@@ -422,13 +422,15 @@ namespace DunGenLib
         /// </summary>
         /// <param name="pos"></param>
         /// <param name="dir"></param>
-        protected void CarvePath(Point2D_16 pos, Direction dir)
+        protected void CarvePath(Point2D_16 pos, Direction dir) //REPLACE RETURN TYPE WITH PathGenResult
         {
-            IList<GroundOptions> ids = [];
+            //Buffer all ground tiles that occur in paths
+            List<GroundOptions> ids = [];
             foreach (GroundOptions item in GroundIDs)
             {
                 if (item.inPaths) ids.Add(item);
             }
+            //Build the probability table based on the spawn rate of each tile type
             List<float> prob = [];
             float denom = 0F;
             foreach (GroundOptions item in ids)
@@ -436,6 +438,7 @@ namespace DunGenLib
                 denom += item.spawnRate;
                 prob.Add(denom);
             }
+            //Terminate paths that can't generate
             if ((pos.x == 0 && dir == Direction.W) || (pos.y == 0 && dir == Direction.N) || (pos.x >= Map.Width - 1 && dir == Direction.E) || (pos.y >= Map.Height - 1 && dir == Direction.S)) return;
             pos.x = (ushort)(pos.x + DirToVec(dir).x);
             pos.y = (ushort)(pos.y + DirToVec(dir).y);
@@ -460,7 +463,7 @@ namespace DunGenLib
                 pos.y = (ushort)(pos.y + DirToVec(dir).y);
                 if (Crossroads)
                 {
-                    if (TileInRoom(pos.x, pos.y)) return;
+                    if (TileInRoom(pos)) return;
                 }
                 else
                 {
@@ -603,19 +606,28 @@ namespace DunGenLib
             };
         }
         /// <summary>
-        /// Checks if the tile at the specified position is in a room.
+        /// Checks if the tile at the specified position is in any room within the map.
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <remarks>Works by checking if there are two adjacent ground tiles with a diagonal ground tile in between.</remarks>
-        protected bool TileInRoom(ushort x, ushort y)
+        protected bool TileInRoom(Point2D_16 pos)
         {
-            if (InGroundIDs(Map.GetTile(x, y)) == -1) return false;
-            byte?[,] area = Map.GetArea(x, y);
-            return (InGroundIDs(area[0, 0] ?? WallID) > -1 && InGroundIDs(area[0, 1] ?? WallID) > -1 && InGroundIDs(area[1, 0] ?? WallID) > -1)
-                || (InGroundIDs(area[0, 1] ?? WallID) > -1 && InGroundIDs(area[0, 2] ?? WallID) > -1 && InGroundIDs(area[1, 2] ?? WallID) > -1)
-                || (InGroundIDs(area[1, 2] ?? WallID) > -1 && InGroundIDs(area[2, 1] ?? WallID) > -1 && InGroundIDs(area[2, 2] ?? WallID) > -1)
-                || (InGroundIDs(area[1, 0] ?? WallID) > -1 && InGroundIDs(area[2, 0] ?? WallID) > -1 && InGroundIDs(area[2, 1] ?? WallID) > -1);
+            foreach (RoomData r in rooms)
+            {
+                if (TileInRoom(pos, r)) return true;
+            }
+            return false;
+        }
+        /// <summary>
+        /// Checks if the tile at the specified position is in the specified room.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <param name="r">The data of the room to check.</param>
+        /// <returns></returns>
+        protected bool TileInRoom(Point2D_16 pos, RoomData r)
+        {
+            return pos.x >= r.pos.x && pos.x < r.pos.x + r.size.x && pos.y >= r.pos.y && pos.y < r.pos.y + r.size.y;
         }
     }
     /// <summary>
@@ -641,8 +653,16 @@ namespace DunGenLib
         public sbyte y { get; set; }
     }
     /// <summary>
-    /// Base class for tile ID configurations.
+    /// Return codes for path generation. Refer to <see cref="Generator.CarvePath(Point2D_16, Direction)"/>.
     /// </summary>
+    internal enum PathGenResult : byte
+    {
+        CanNotGenerate = 0,
+        EndInRoom = 1,
+        EndAtBoundary = 2,
+        EndAtCrossroad = 3,
+        EndSpontaneously = 4,
+    }
     public class TileOptions
     {
         /// <summary>
