@@ -468,10 +468,19 @@ namespace DunGenLib
                 //Determine next position and check if path meets room or other path
                 pos.x = (ushort)(pos.x + DirToVec(dir).x);
                 pos.y = (ushort)(pos.y + DirToVec(dir).y);
-                if (TileInRoom(pos))
+                RoomData? r = TileInRoom(pos);
+                if (r != null)
                 {
-                    if (TileInRoom(pos, startRoom)) return PathGenResult.EndInStartRoom;
-                    else return PathGenResult.EndInOtherRoom;
+                    if (TileInRoom(pos, startRoom))
+                    {
+                        return PathGenResult.EndInStartRoom;
+                    }
+                    else
+                    {
+                        r.connected = true;
+                        startRoom.connected = true;
+                        return PathGenResult.EndInOtherRoom;
+                    }
                 }
                 if (!Crossroads)
                 {
@@ -521,13 +530,38 @@ namespace DunGenLib
         {
             byte exits;
             PathGenResult genResult = PathGenResult.Null;
-            foreach (RoomData r in rooms)
+            bool[] used = new bool[rooms.Count];
+            Direction dir = 0;
+            int counter = 0;
+            int index = 0;
+            RoomData r;
+            for (int i = rooms.Count; i > 0; i--)
             {
+                if (i > rooms.Count / 4)
+                {
+                    while (true)
+                    {
+                        index = rng.Next(rooms.Count);
+                        if (!used[index]) break;
+                    }
+                }
+                else 
+                {
+                    for (int j = 0; j < used.Length; j++)
+                    {
+                        if (!used[j])
+                        {
+                            index = j;
+                            break;
+                        }
+                    }
+                }
+                r = rooms[index];
+                used[index] = true;
                 exits = (byte)rng.Next(MinRoomExits, MaxRoomExits + 1);
-                Direction dir = 0;
-                bool connected = false;
-                int counter = 0;
-                while ((counter < exits || !connected) && counter < MaxRoomExits)
+                dir = 0;
+                counter = 0;
+                while ((counter < exits || !r.connected) && counter < MaxRoomExits)
                 {
                     while ((r.pos.x == 0 && dir == Direction.W) || (r.pos.y == 0 && dir == Direction.N) || (r.pos.x + r.size.x >= Map.Width - 1 && dir == Direction.E) || (r.pos.y + r.size.y >= Map.Height - 1 && dir == Direction.S))
                     {
@@ -548,7 +582,6 @@ namespace DunGenLib
                             genResult = CarvePath(new() { x = (ushort)(r.pos.x + r.size.x), y = (ushort)(r.pos.y + rng.Next(r.size.y)) }, dir, r);
                             break;
                     }
-                    if (genResult == PathGenResult.EndInOtherRoom) connected = true;
                     counter++;
                 }
             }
@@ -622,14 +655,15 @@ namespace DunGenLib
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
+        /// <returns>The room data of the room the tile was found in (null if none).</returns>
         /// <remarks>Works by checking if there are two adjacent ground tiles with a diagonal ground tile in between.</remarks>
-        protected bool TileInRoom(Point2D_16 pos)
+        protected RoomData? TileInRoom(Point2D_16 pos)
         {
             foreach (RoomData r in rooms)
             {
-                if (TileInRoom(pos, r)) return true;
+                if (TileInRoom(pos, r)) return r;
             }
-            return false;
+            return null;
         }
         /// <summary>
         /// Checks if the tile at the specified position is in the specified room.
@@ -762,15 +796,19 @@ namespace DunGenLib
         public ushort maxSegmentLength { get; set; }
     }
     /// <summary>
-    /// Contains the position and size of a room.
+    /// Contains data related to a room.
     /// </summary>
-    public struct RoomData
+    public class RoomData
     {
         /// <summary>
         /// The coordinates of the top-left corner.
         /// </summary>
-        public Point2D_16 pos;
-        public Point2D_16 size;
+        public Point2D_16 pos = new Point2D_16{ x = 0, y = 0 };
+        public Point2D_16 size = new Point2D_16{ x = 0, y = 0 };
+        /// <summary>
+        /// Whether the room is connected to any other room.
+        /// </summary>
+        public bool connected;
     }
     /// <remarks>Each value corresponds with a short representing the compass angle (North = 0) of the direction in degrees.</remarks>
     public enum Direction : short
