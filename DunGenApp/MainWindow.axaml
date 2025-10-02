@@ -97,7 +97,7 @@
 				</WrapPanel>
 				<WrapPanel>
 					<CheckBox IsChecked="{Binding EndAtBoundary}"/>
-					<TextBlock Text="Terminate paths at map edge" ToolTip.Tip="Terminates a path when it attempts to generate outside of map boundaries."/>
+					<TextBlock Text="Terminate paths at map edge" ToolTip.Tip="Terminates a path when it touches the map boundaries."/>
 				</WrapPanel>
 				<TextBlock Classes="header" Text="Tile Info"/>
 				<WrapPanel>

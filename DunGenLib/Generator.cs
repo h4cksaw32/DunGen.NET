@@ -83,7 +83,7 @@ namespace DunGenLib
         /// </summary>
         public bool Crossroads { get => crossroads; set => crossroads = value; }
         /// <summary>
-        /// Stops a path from generating when it is about to leave map boundaries.
+        /// Stops a path from generating when it touches map boundaries.
         /// </summary>
         /// <remarks>
         /// Disabling this option simply lets the path choose another direction to generate in.</remarks>
@@ -335,7 +335,6 @@ namespace DunGenLib
                     if (x >= Map.Width) break;
                     if (ids.Count == 1)
                     {
-                        //Optimization if only one available tile type
                         Map.PlaceTile(x, y, ids[0].id); 
                     }
                     else
@@ -422,7 +421,8 @@ namespace DunGenLib
         /// </summary>
         /// <param name="pos"></param>
         /// <param name="dir"></param>
-        protected void CarvePath(Point2D_16 pos, Direction dir) //REPLACE RETURN TYPE WITH PathGenResult
+        /// <param name="startRoom"></param>
+        protected PathGenResult CarvePath(Point2D_16 pos, Direction dir, RoomData startRoom)
         {
             //Buffer all ground tiles that occur in paths
             List<GroundOptions> ids = [];
@@ -439,46 +439,52 @@ namespace DunGenLib
                 prob.Add(denom);
             }
             //Terminate paths that can't generate
-            if ((pos.x == 0 && dir == Direction.W) || (pos.y == 0 && dir == Direction.N) || (pos.x >= Map.Width - 1 && dir == Direction.E) || (pos.y >= Map.Height - 1 && dir == Direction.S)) return;
+            if ((pos.x == 0 && dir == Direction.W) || (pos.y == 0 && dir == Direction.N) || (pos.x >= Map.Width - 1 && dir == Direction.E) || (pos.y >= Map.Height - 1 && dir == Direction.S)) return PathGenResult.CanNotGenerate;
+            //Place the first tile
             pos.x = (ushort)(pos.x + DirToVec(dir).x);
             pos.y = (ushort)(pos.y + DirToVec(dir).y);
-            Map.PlaceTile(pos.x, pos.y, GroundIDs[0].id);
+            Map.PlaceTile(pos.x, pos.y, ids[0].id);
+            //Set up local variables
             byte id = ids.Count == 0 ? GroundIDs[0].id : ids[0].id;
             ushort segLength = 0;
             ushort segLimit = 0;
             float rand;
             while (true)
             {
+                if (EndAtBoundary)
+                {
+                    if (pos.x == 0 || pos.y == 0 || pos.x >= Map.Width - 1 || pos.y >= Map.Height - 1) return PathGenResult.EndAtBoundary;
+                }
+                //Bend path if neccessary, correct paths about to leave map bounds
                 if (rng.NextSingle() < PathBend)
                 {
-                    if (rng.Next(2) == 0) dir = (Direction)((short)dir - 90 % 360);
-                    else dir = (Direction)((short)dir + 90 % 360);
+                    if (rng.Next(2) == 0) dir = (Direction)((short)(dir - 90) % 360);
+                    else dir = (Direction)((short)(dir + 90) % 360);
                 }
-                if ((pos.x == 0 && dir == Direction.W) || (pos.y == 0 && dir == Direction.N) || (pos.x >= Map.Width - 1 && dir == Direction.E) || (pos.y >= Map.Height - 1 && dir == Direction.S))
+                if (!EndAtBoundary)
                 {
-                    if (EndAtBoundary) return;
-                    else continue;
+                    if ((pos.x == 0 && dir == Direction.W) || (pos.y == 0 && dir == Direction.N) || (pos.x >= Map.Width - 1 && dir == Direction.E) || (pos.y >= Map.Height - 1 && dir == Direction.S)) continue;
                 }
+                //Determine next position and check if path meets room or other path
                 pos.x = (ushort)(pos.x + DirToVec(dir).x);
                 pos.y = (ushort)(pos.y + DirToVec(dir).y);
-                if (Crossroads)
+                if (TileInRoom(pos))
                 {
-                    if (TileInRoom(pos)) return;
+                    if (TileInRoom(pos, startRoom)) return PathGenResult.EndInStartRoom;
+                    else return PathGenResult.EndInOtherRoom;
                 }
-                else
+                if (!Crossroads)
                 {
-                    if (InGroundIDs(Map.GetTile(pos.x, pos.y)) > -1) return;
+                    if (InGroundIDs(Map.GetTile(pos.x, pos.y)) > -1) return PathGenResult.EndAtCrossroad;
                 }
-                if (ids.Count == 0)
-                {
-                    Map.PlaceTile(pos.x, pos.y, GroundIDs[0].id);
-                }
-                else if (ids.Count == 1)
+                //Place the tile
+                if (ids.Count == 1)
                 {
                     Map.PlaceTile(pos.x, pos.y, ids[0].id);
                 }
                 else
                 {
+                    //Determine next tile type from probability table if not in middle of a matching chain
                     if (segLength == 0)
                     {
                         rand = rng.NextSingle() * denom;
@@ -498,13 +504,14 @@ namespace DunGenLib
                         }
                         Map.PlaceTile(pos.x, pos.y, id);
                     }
+                    //Extend the matching chain
                     else
                     {
                         Map.PlaceTile(pos.x, pos.y, id);
-                        segLength = (ushort)(segLength + 1 == segLimit ? 0 : segLength + 1);
+                        segLength = (ushort)(segLength + 1 >= segLimit ? 0 : segLength + 1);
                     }
                 }
-                if (rng.NextSingle() < PathTerminate) return;
+                if (rng.NextSingle() < PathTerminate) return PathGenResult.EndSpontaneously;
             }
         }
         /// <summary>
@@ -513,31 +520,36 @@ namespace DunGenLib
         protected void GeneratePaths()
         {
             byte exits;
+            PathGenResult genResult = PathGenResult.Null;
             foreach (RoomData r in rooms)
             {
                 exits = (byte)rng.Next(MinRoomExits, MaxRoomExits + 1);
                 Direction dir = 0;
-                for (int i = 0; i < exits; i++)
+                bool connected = false;
+                int counter = 0;
+                while ((counter < exits || !connected) && counter < MaxRoomExits)
                 {
                     while ((r.pos.x == 0 && dir == Direction.W) || (r.pos.y == 0 && dir == Direction.N) || (r.pos.x + r.size.x >= Map.Width - 1 && dir == Direction.E) || (r.pos.y + r.size.y >= Map.Height - 1 && dir == Direction.S))
                     {
-                        dir = (Direction)(rng.Next(4) * 90);
+                        dir = (Direction)(short)(rng.Next(4) * 90);
                     }
                     switch (dir)
                     {
                         case Direction.N:
-                            CarvePath(new() { x = (ushort)(r.pos.x + rng.Next(r.size.x)), y = r.pos.y }, dir);
+                            genResult = CarvePath(new() { x = (ushort)(r.pos.x + rng.Next(r.size.x)), y = r.pos.y }, dir, r);
                             break;
                         case Direction.S:
-                            CarvePath(new() { x = (ushort)(r.pos.x + rng.Next(r.size.x)), y = (ushort)(r.pos.y + r.size.y) }, dir);
+                            genResult = CarvePath(new() { x = (ushort)(r.pos.x + rng.Next(r.size.x)), y = (ushort)(r.pos.y + r.size.y) }, dir, r);
                             break;
                         case Direction.W:
-                            CarvePath(new() { x = r.pos.x, y = (ushort)(r.pos.y + rng.Next(r.size.y)) }, dir);
+                            genResult = CarvePath(new() { x = r.pos.x, y = (ushort)(r.pos.y + rng.Next(r.size.y)) }, dir, r);
                             break;
                         case Direction.E:
-                            CarvePath(new() { x = (ushort)(r.pos.x + r.size.y), y = (ushort)(r.pos.y + rng.Next(r.size.y)) }, dir);
+                            genResult = CarvePath(new() { x = (ushort)(r.pos.x + r.size.x), y = (ushort)(r.pos.y + rng.Next(r.size.y)) }, dir, r);
                             break;
                     }
+                    if (genResult == PathGenResult.EndInOtherRoom) connected = true;
+                    counter++;
                 }
             }
         }
@@ -655,13 +667,15 @@ namespace DunGenLib
     /// <summary>
     /// Return codes for path generation. Refer to <see cref="Generator.CarvePath(Point2D_16, Direction)"/>.
     /// </summary>
-    internal enum PathGenResult : byte
+    public enum PathGenResult : byte
     {
-        CanNotGenerate = 0,
-        EndInRoom = 1,
-        EndAtBoundary = 2,
-        EndAtCrossroad = 3,
-        EndSpontaneously = 4,
+        Null = 0,
+        CanNotGenerate = 1,
+        EndInOtherRoom = 2,
+        EndInStartRoom = 3,
+        EndAtBoundary = 4,
+        EndAtCrossroad = 5,
+        EndSpontaneously = 6,
     }
     public class TileOptions
     {

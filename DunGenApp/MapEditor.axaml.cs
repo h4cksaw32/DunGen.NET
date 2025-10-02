@@ -18,7 +18,7 @@ public partial class MapEditor : Window
     private byte dispSize = 32;
     private ushort xPos = 0;
     private ushort yPos = 0;
-    private const byte IMAGE_SCALE = 4;
+    private byte IMAGE_SCALE = 4;
     private byte tileType = 0;
     public byte DispSize { get => dispSize; set => dispSize = value; }
     public MapEditor(TextureInfo t)
@@ -214,6 +214,8 @@ public partial class MapEditor : Window
         MapImage.Source = bmp;
         MapImage.Width = bmp.Size.Width * IMAGE_SCALE;
         MapImage.Height = bmp.Size.Height * IMAGE_SCALE;
+        FullMap.Width = MapImage.Width;
+        FullMap.Height = MapImage.Height;
     }
     private Avalonia.Media.Imaging.Bitmap ConvertBitmap(Bitmap bmp)
     {
