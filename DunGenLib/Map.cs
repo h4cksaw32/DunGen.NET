@@ -56,17 +56,17 @@ namespace DunGenLib
         /// <param name="value"></param>
         public void FillMap(byte value) => Array.Fill<byte>(Tiles, value);
         /// <summary>
-        /// Resizes the map to the specified width and height.
+        /// Resizes the map to the specified width and height and clears the map by filling it.
         /// </summary>
         /// <param name="w"></param>
         /// <param name="h"></param>
-        /// <remarks>Clears the map by filling it with its <see cref="DefValue"/></remarks>
-        public void Resize(ushort w, ushort h)
+        /// <param name="fill">The value to fill the map with (<see cref="DefValue"/> if null)</param>
+        public void Resize(ushort w, ushort h, byte? fill = null)
         {
             Width = w;
             Height = h;
             Tiles = new byte[Width * Height];
-            FillMap(DefValue);
+            FillMap(fill ?? DefValue);
         }
         /// <summary>
         /// Coordinate-based getter for the <see cref="Tiles"/> array.

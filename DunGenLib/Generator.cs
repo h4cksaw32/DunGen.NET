@@ -124,7 +124,7 @@ namespace DunGenLib
         protected bool endAtBoundary = false;
 
         protected byte wallID = 0;
-        protected List<PoolOptions> poolIDs = [new PoolOptions { id = 2, spawnRate = 1, spread = 0.5F, tag = "Water" }];
+        protected List<PoolOptions> poolIDs = [new PoolOptions { id = 2, spawnRate = 1, spread = 0.5F, tag = "Water", maxPoolSize = 40000, priority = 0 }];
         protected List<GroundOptions> groundIDs = [new GroundOptions { id = 1, inPaths = true, inRooms = true, spawnRate = 1, tag = "Ground" }];
         
         //End of field definitions
@@ -362,6 +362,7 @@ namespace DunGenLib
             rooms.Clear();
             Point2D_16 pos;
             Point2D_16 size;
+            Point2D_16 minPos;
             Point2D_16 maxPos;
             byte r = (byte)rng.Next(minRoomsPerChunk, maxRoomsPerChunk + 1);
             ushort counter;
@@ -377,13 +378,16 @@ namespace DunGenLib
                             counter++;
                             size = new();
                             pos = new();
+                            minPos = new();
                             maxPos = new();
                             size.x = (ushort)rng.Next(MinRoomSize.x, MaxRoomSize.x + 1);
                             size.y = (ushort)rng.Next(MinRoomSize.y, MaxRoomSize.y + 1);
+                            minPos.x = (ushort)(Map.Width / MapChunks.x * h);
+                            minPos.y = (ushort)(Map.Height / MapChunks.y * v);
                             maxPos.x = (ushort)(Map.Width / MapChunks.x * (h + 1) - size.x);
                             maxPos.y = (ushort)(Map.Height / MapChunks.y * (v + 1) - size.y);
-                            pos.x = maxPos.x <= Map.Width / MapChunks.x * h ? (ushort)(Map.Width / MapChunks.x * h) : (ushort)rng.Next(Map.Width / MapChunks.x * h, maxPos.x);
-                            pos.y = maxPos.y <= Map.Height / MapChunks.y * v ? (ushort)(Map.Height / MapChunks.y * v) : (ushort)rng.Next(Map.Height / MapChunks.y * v, maxPos.y);
+                            pos.x = maxPos.x <= minPos.x ? minPos.x : (ushort)rng.Next(minPos.x, maxPos.x);
+                            pos.y = maxPos.y <= minPos.y ? minPos.y : (ushort)rng.Next(minPos.y, maxPos.y);
                         } while (counter <= loopAttempts && !MergeRooms && CheckRoomOverlap(pos, size));
                         if (counter <= loopAttempts)
                         {
@@ -393,28 +397,6 @@ namespace DunGenLib
                     }
                 }
             }
-        }
-        /// <summary>
-        /// Checks if a rooms with the specified position and size would overlap with any exsisting rooms.
-        /// </summary>
-        /// <param name="pos"></param>
-        /// <param name="size"></param>
-        /// <remarks>The <see cref="TouchRooms"/> option changes the behavior of this method.</remarks>
-        protected bool CheckRoomOverlap(Point2D_16 pos, Point2D_16 size)
-        {
-            foreach (RoomData r in rooms)
-            {
-                if (TouchRooms)
-                {
-                    if ((r.pos.x <= pos.x && pos.x < r.pos.x + r.size.x) || (pos.x <= r.pos.x && r.pos.x < pos.x + size.x) &&
-                        (r.pos.y <= pos.y && pos.y < r.pos.y + r.size.y) || (pos.y <= r.pos.y && r.pos.y < pos.y + size.y)) return true;
-                }
-                else {
-                    if ((r.pos.x <= pos.x && pos.x <= r.pos.x + r.size.x) || (pos.x <= r.pos.x && r.pos.x <= pos.x + size.x) &&
-                        (r.pos.y <= pos.y && pos.y <= r.pos.y + r.size.y) || (pos.y <= r.pos.y && r.pos.y <= pos.y + size.y)) return true;
-                }
-            }
-            return false;
         }
         /// <summary>
         /// Generates a singular path from an initial position and direction.
@@ -597,11 +579,14 @@ namespace DunGenLib
         {
             try
             {
-                Map.PlaceTile(x, y, options.id);
-                if (x > 0 && Map.GetTile((ushort)(x - 1), y) == WallID && rng.NextSingle() < options.spread) FillPool((ushort)(x - 1), y, options);
-                if (y > 0 && Map.GetTile(x, (ushort)(y - 1)) == WallID && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y - 1), options);
-                if (x < Map.Width - 1 && Map.GetTile((ushort)(x + 1), y) == WallID && rng.NextSingle() < options.spread) FillPool((ushort)(x + 1), y, options);
-                if (y < Map.Height - 1 && Map.GetTile(x, (ushort)(y + 1)) == WallID && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y + 1), options);
+                byte tile = Map.GetTile(x, y);
+                int index = InPoolIDs(tile);
+                if (tile == WallID || (index > -1 && PoolIDs[index].priority > options.priority)) Map.PlaceTile(x, y, options.id);
+                else return;
+                if (x > 0 && rng.NextSingle() < options.spread) FillPool((ushort)(x - 1), y, options);
+                if (y > 0 && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y - 1), options);
+                if (x < Map.Width - 1 && rng.NextSingle() < options.spread) FillPool((ushort)(x + 1), y, options);
+                if (y < Map.Height - 1 && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y + 1), options);
             }
             catch (StackOverflowException)
             {
@@ -657,6 +642,29 @@ namespace DunGenLib
                 Direction.E => new() { x = 1, y = 0 },
                 _ => new() { x = 0, y = 0 },
             };
+        }
+        /// <summary>
+        /// Checks if a rooms with the specified position and size would overlap with any exsisting rooms.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <param name="size"></param>
+        /// <remarks>The <see cref="TouchRooms"/> option changes the behavior of this method.</remarks>
+        protected bool CheckRoomOverlap(Point2D_16 pos, Point2D_16 size)
+        {
+            foreach (RoomData r in rooms)
+            {
+                if (TouchRooms)
+                {
+                    if ((r.pos.x <= pos.x && pos.x < r.pos.x + r.size.x) || (pos.x <= r.pos.x && r.pos.x < pos.x + size.x) &&
+                        (r.pos.y <= pos.y && pos.y < r.pos.y + r.size.y) || (pos.y <= r.pos.y && r.pos.y < pos.y + size.y)) return true;
+                }
+                else
+                {
+                    if ((r.pos.x <= pos.x && pos.x <= r.pos.x + r.size.x) || (pos.x <= r.pos.x && r.pos.x <= pos.x + size.x) &&
+                        (r.pos.y <= pos.y && pos.y <= r.pos.y + r.size.y) || (pos.y <= r.pos.y && r.pos.y <= pos.y + size.y)) return true;
+                }
+            }
+            return false;
         }
         /// <summary>
         /// Checks if the tile at the specified position is in any room within the map.
@@ -767,6 +775,15 @@ namespace DunGenLib
         /// Probability that a tile of this type spreads to an adjacent tile suring generation.
         /// </summary>
         public float spread { get; set; }
+        /// <summary>
+        /// Maximum tiles each pool of this type can spread to.
+        /// </summary>
+        public uint maxPoolSize { get; set; }
+        /// <summary>
+        /// The priority of this type during pool generation compared to other types.
+        /// </summary>
+        /// <remarks>Lower number means higher priority. Tiles with higher priority spread over tiles with lower priority.</remarks>
+        public byte priority { get; set; }
     }
     /// <summary>
     /// Extension of <see cref="TileOptions"/> for ground tiles.

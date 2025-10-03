@@ -216,6 +216,16 @@
 								<TextBlock Text="Spread" ToolTip.Tip="The probability that a tile spreads to an adjacent tile. It does not spread onto ground tiles."/>
 							</DataGridTextColumn.Header>
 						</DataGridTextColumn>
+						<DataGridTextColumn Binding="{Binding maxPoolSize}">
+							<DataGridTextColumn.Header>
+								<TextBlock Text="Pool Size Limit" ToolTip.Tip="The maximum number of tiles each pool can contain."/>
+							</DataGridTextColumn.Header>
+						</DataGridTextColumn>
+						<DataGridTextColumn Binding="{Binding priority}">
+							<DataGridTextColumn.Header>
+								<TextBlock Text="Priority" ToolTip.Tip="The precedence of the tile compared to other pool tiles. Tiles with higher priority spread over tiles with lower priority."/>
+							</DataGridTextColumn.Header>
+						</DataGridTextColumn>
 					</DataGrid.Columns>
 				</DataGrid>
 				<WrapPanel>
