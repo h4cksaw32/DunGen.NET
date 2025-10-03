@@ -655,13 +655,13 @@ namespace DunGenLib
             {
                 if (TouchRooms)
                 {
-                    if ((r.pos.x <= pos.x && pos.x < r.pos.x + r.size.x) || (pos.x <= r.pos.x && r.pos.x < pos.x + size.x) &&
-                        (r.pos.y <= pos.y && pos.y < r.pos.y + r.size.y) || (pos.y <= r.pos.y && r.pos.y < pos.y + size.y)) return true;
+                    return r.pos.x - size.x < pos.x && pos.x < r.pos.x + r.size.x &&
+                           r.pos.y - size.y < pos.y && pos.y < r.pos.y + r.size.y;
                 }
                 else
                 {
-                    if ((r.pos.x <= pos.x && pos.x <= r.pos.x + r.size.x) || (pos.x <= r.pos.x && r.pos.x <= pos.x + size.x) &&
-                        (r.pos.y <= pos.y && pos.y <= r.pos.y + r.size.y) || (pos.y <= r.pos.y && r.pos.y <= pos.y + size.y)) return true;
+                    return r.pos.x - size.x <= pos.x && pos.x <= r.pos.x + r.size.x &&
+                           r.pos.y - size.y <= pos.y && pos.y <= r.pos.y + r.size.y;
                 }
             }
             return false;
