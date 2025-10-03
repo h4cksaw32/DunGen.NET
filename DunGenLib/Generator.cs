@@ -575,18 +575,37 @@ namespace DunGenLib
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <param name="options">The settings for the tile ID to be used.</param>
-        protected void FillPool(ushort x, ushort y, PoolOptions options)
+        /// <param name="tiles">The number of tiles spread so far (used for limiting recursion)</param>
+        protected void FillPool(ushort x, ushort y, PoolOptions options, uint tiles = 1)
         {
             try
             {
+                if (tiles > options.maxPoolSize) return;
                 byte tile = Map.GetTile(x, y);
                 int index = InPoolIDs(tile);
                 if (tile == WallID || (index > -1 && PoolIDs[index].priority > options.priority)) Map.PlaceTile(x, y, options.id);
                 else return;
-                if (x > 0 && rng.NextSingle() < options.spread) FillPool((ushort)(x - 1), y, options);
-                if (y > 0 && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y - 1), options);
-                if (x < Map.Width - 1 && rng.NextSingle() < options.spread) FillPool((ushort)(x + 1), y, options);
-                if (y < Map.Height - 1 && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y + 1), options);
+                Direction dir = (Direction)(short)(rng.Next(4) * 90);
+                bool rotation = rng.Next(2) == 0; //Clockwise = true
+                for (byte i = 0; i < 4; i++)
+                {
+                    switch (dir)
+                    {
+                        case Direction.N:
+                            if (y > 0 && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y - 1), options, tiles + 1);
+                            break;
+                        case Direction.S:
+                            if (y < Map.Height - 1 && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y + 1), options, tiles + 1);
+                            break;
+                        case Direction.E:
+                            if (x < Map.Width - 1 && rng.NextSingle() < options.spread) FillPool((ushort)(x + 1), y, options, tiles + 1);
+                            break;
+                        case Direction.W:
+                            if (x > 0 && rng.NextSingle() < options.spread) FillPool((ushort)(x - 1), y, options, tiles + 1);
+                            break;
+                    }
+                    if (i < 3) dir = rotation ? (Direction)((short)(dir + 90) % 360) : dir = (Direction)((short)(dir - 90) % 360);
+                }
             }
             catch (StackOverflowException)
             {
@@ -608,22 +627,26 @@ namespace DunGenLib
                 prob.Add(denom);
             }
             int index;
+            byte oldTile;
+            int oldPoolType;
             float rand;
             ushort counter;
             for (uint i = 0; i < (uint)(MapChunks.x * MapChunks.y * PoolsPerChunk); i++)
             {
+                rand = rng.NextSingle() * denom;
+                for (index = 0; index < prob.Count; index++)
+                {
+                    if (rand < prob[index]) break;
+                }
                 counter = 0;
                 do
                 {
                     counter++;
                     pos.x = (ushort)rng.Next(Map.Width);
                     pos.y = (ushort)rng.Next(Map.Height);
-                } while (Map.GetTile(pos.x, pos.y) != WallID && counter <= loopAttempts);
-                rand = rng.NextSingle() * denom;
-                for (index = 0; index < prob.Count; index++)
-                {
-                    if (rand < prob[index]) break;
-                }
+                    oldTile = Map.GetTile(pos.x, pos.y);
+                    oldPoolType = InPoolIDs(oldTile);
+                } while (oldTile != WallID && (oldPoolType > -1 && poolIDs[oldPoolType].priority <= poolIDs[index].priority) && counter <= loopAttempts);
                 FillPool(pos.x, pos.y, PoolIDs[index]);
             }
         }
@@ -774,11 +797,13 @@ namespace DunGenLib
         /// <summary>
         /// Probability that a tile of this type spreads to an adjacent tile suring generation.
         /// </summary>
-        public float spread { get; set; }
+        public float spread { get => spreadF; set => spreadF = value; }
+        private float spreadF = 0.5F;
         /// <summary>
         /// Maximum tiles each pool of this type can spread to.
         /// </summary>
-        public uint maxPoolSize { get; set; }
+        public uint maxPoolSize { get => mps; set => mps = value; }
+        private uint mps = 40000;
         /// <summary>
         /// The priority of this type during pool generation compared to other types.
         /// </summary>

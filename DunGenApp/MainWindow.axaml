@@ -218,7 +218,7 @@
 						</DataGridTextColumn>
 						<DataGridTextColumn Binding="{Binding maxPoolSize}">
 							<DataGridTextColumn.Header>
-								<TextBlock Text="Pool Size Limit" ToolTip.Tip="The maximum number of tiles each pool can contain."/>
+								<TextBlock Text="Pool Size Limit" ToolTip.Tip="The maximum number of tiles each pool can contain. Meant to prevent a stack overflow on lower-end devices if pool spread is high."/>
 							</DataGridTextColumn.Header>
 						</DataGridTextColumn>
 						<DataGridTextColumn Binding="{Binding priority}">
