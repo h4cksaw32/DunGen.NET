@@ -465,9 +465,10 @@ namespace DunGenLib
                 {
                     if ((pos.x == 0 && dir == Direction.W) || (pos.y == 0 && dir == Direction.N) || (pos.x >= Map.Width - 1 && dir == Direction.E) || (pos.y >= Map.Height - 1 && dir == Direction.S)) continue;
                 }
-                //Determine next position and check if path meets room or other path
+                //Determine next position and check if path meets room, cluster, or other path
                 pos.x = (ushort)(pos.x + DirToVec(dir).x);
                 pos.y = (ushort)(pos.y + DirToVec(dir).y);
+                if (GroundTilesInArea(pos) > 5) return PathGenResult.EndByClustering;
                 RoomData? r = TileInRoom(pos);
                 if (r != null)
                 {
@@ -594,11 +595,18 @@ namespace DunGenLib
         /// <param name="options">The settings for the tile ID to be used.</param>
         protected void FillPool(ushort x, ushort y, PoolOptions options)
         {
-            Map.PlaceTile(x, y, options.id);
-            if (x > 0 && Map.GetTile((ushort)(x - 1), y) == WallID && rng.NextSingle() < options.spread) FillPool((ushort)(x - 1), y, options);
-            if (y > 0 && Map.GetTile(x, (ushort)(y - 1)) == WallID && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y - 1), options);
-            if (x < Map.Width - 1 && Map.GetTile((ushort)(x + 1), y) == WallID && rng.NextSingle() < options.spread) FillPool((ushort)(x + 1), y, options);
-            if (y < Map.Height - 1 && Map.GetTile(x, (ushort)(y + 1)) == WallID && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y + 1), options);
+            try
+            {
+                Map.PlaceTile(x, y, options.id);
+                if (x > 0 && Map.GetTile((ushort)(x - 1), y) == WallID && rng.NextSingle() < options.spread) FillPool((ushort)(x - 1), y, options);
+                if (y > 0 && Map.GetTile(x, (ushort)(y - 1)) == WallID && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y - 1), options);
+                if (x < Map.Width - 1 && Map.GetTile((ushort)(x + 1), y) == WallID && rng.NextSingle() < options.spread) FillPool((ushort)(x + 1), y, options);
+                if (y < Map.Height - 1 && Map.GetTile(x, (ushort)(y + 1)) == WallID && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y + 1), options);
+            }
+            catch (StackOverflowException)
+            {
+                return;
+            }
         }
         /// <summary>
         /// Generate all pools in the map.
@@ -675,6 +683,22 @@ namespace DunGenLib
         {
             return pos.x >= r.pos.x && pos.x < r.pos.x + r.size.x && pos.y >= r.pos.y && pos.y < r.pos.y + r.size.y;
         }
+        /// <summary>
+        /// Counts the amount of ground tiles adjacent and diagonal to the tile in the specified position.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
+        protected byte GroundTilesInArea(Point2D_16 pos)
+        {
+            //if (InGroundIDs(Map.GetTile(pos.x, pos.y)) == -1) return false;
+            byte?[,] area = Map.GetArea(pos.x, pos.y);
+            byte result = 0;
+            foreach (byte? b in area)
+            {
+                if (b != null && InGroundIDs(b ?? WallID) > -1) result++;
+            }
+            return result;
+        }
     }
     /// <summary>
     /// Represents a 2D point using two <see cref="ushort"/> values.
@@ -710,6 +734,7 @@ namespace DunGenLib
         EndAtBoundary = 4,
         EndAtCrossroad = 5,
         EndSpontaneously = 6,
+        EndByClustering = 7
     }
     public class TileOptions
     {
