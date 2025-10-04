@@ -29,7 +29,7 @@ namespace DunGenLib
             {
                 if (tiles[i] != null)
                 {
-                    tiles[i]?.Save(ExtendPath(f.Directory, i.ToString("x2") + ".bmp"));
+                    tiles[i]?.Save(Path.Combine(f.DirectoryName ?? "", i.ToString("x2") + ".bmp"));
                 }
             }
         }
@@ -46,22 +46,13 @@ namespace DunGenLib
             FileInfo f;
             for (int b = 0; b < 256; b++)
             {
-                f = new FileInfo(ExtendPath(file.Directory, b.ToString("x2") + ".bmp"));
+                f = new FileInfo(Path.Combine(file.DirectoryName ?? "", b.ToString("x2") + ".bmp"));
                 if (f.Exists)
                 {
                     t.tiles[b] = new Bitmap(f.FullName);
                 }
             }
             return t;
-        }
-        /// <summary>
-        /// Helper class for fusing a directory path with a file name based on the user's OS.
-        /// </summary>
-        /// <returns>The resulting absolute path.</returns>
-        private static string ExtendPath(DirectoryInfo dir, string fileName)
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return $"{dir.FullName}\\{fileName}";
-            else return $"{dir.FullName}/{fileName}";
         }
     }
 }

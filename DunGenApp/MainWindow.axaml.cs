@@ -10,7 +10,9 @@ using MsBox.Avalonia;
 using System;
 using System.Collections;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
+using System.Net.NetworkInformation;
 using System.Text.Json;
 
 namespace DunGenApp
@@ -95,6 +97,38 @@ namespace DunGenApp
                 MainWindow w = new(JsonSerializer.Deserialize<DynamicGenerator>(File.ReadAllText(files[0].Path.AbsolutePath)) ?? new DynamicGenerator { Map = map });
                 w.Show();
                 Close();
+            }
+        }
+        private void OpenDocs(object source, RoutedEventArgs e)
+        {
+            bool internet = false;
+            try
+            {
+                Ping p = new();
+                if(p.Send(new System.Net.IPAddress(new byte[]{ 1, 1, 1, 1 })).Status == IPStatus.Success)
+                {
+                    System.Diagnostics.Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "https://github.com/h4cksaw32/DunGen.NET",
+                        UseShellExecute = true
+                    });
+                    internet = true;
+                }
+            }
+            catch (PingException)
+            {
+
+            }
+            finally
+            {
+                if (!internet)
+                {
+                    System.Diagnostics.Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "README.md",
+                        UseShellExecute = true
+                    });
+                }
             }
         }
         private void ResetOptions(object? source, RoutedEventArgs e)

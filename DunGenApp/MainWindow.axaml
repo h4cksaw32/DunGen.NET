@@ -19,7 +19,7 @@
 				<MenuItem Header="Reset options" Click="ResetOptions"/>
 			</MenuItem>
 			<MenuItem Header="Textures" Click="EditTextures"/>
-			<MenuItem Header="Help"/>
+			<MenuItem Header="Help" Click="OpenDocs"/>
 		</Menu>
 		<StackPanel HorizontalAlignment="Right" DockPanel.Dock="Bottom" Orientation="Horizontal" VerticalAlignment="Bottom">
 			<TextBlock Name="MapStatus" Text="No map" VerticalAlignment="Center"/>

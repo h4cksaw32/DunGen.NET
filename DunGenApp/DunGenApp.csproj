@@ -48,4 +48,8 @@
   <ItemGroup>
     <ProjectReference Include="..\DunGenLib\DunGenLib.csproj" />
   </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy &quot;$(ProjectDir)..\README.md&quot; &quot;$(TargetDir)&quot;" />
+  </Target>
 </Project>
