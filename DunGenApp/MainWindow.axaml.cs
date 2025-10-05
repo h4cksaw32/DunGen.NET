@@ -19,7 +19,7 @@ namespace DunGenApp
 {
     public partial class MainWindow : Window
     {
-        private Map map = new(128, 128);
+        private Map map = new(256, 256);
         private DynamicGenerator gen { get; set; }
         private TextureInfo textures;
         public MainWindow()

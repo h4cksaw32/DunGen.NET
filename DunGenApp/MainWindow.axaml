@@ -32,9 +32,9 @@
 				<TextBlock Text="General" Classes="header"/>
 				<WrapPanel>
 					<TextBlock Text="Map size: "/>
-					<TextBox Name="MapWidth" MaxLines="1" MaxLength="5" Text="128"/>
+					<TextBox Name="MapWidth" MaxLines="1" MaxLength="5" Text="256"/>
 					<TextBlock Text=" &#xd7; "/>
-					<TextBox Name="MapHeight" MaxLines="1" MaxLength="5" Text="128"/>
+					<TextBox Name="MapHeight" MaxLines="1" MaxLength="5" Text="256"/>
 				</WrapPanel>
 				<WrapPanel>
 					<TextBlock Text="# of chunks: " ToolTip.Tip="The number of chunks to divide the map into, horizontally and vertically."/>

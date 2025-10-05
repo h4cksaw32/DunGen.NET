@@ -1,5 +1,4 @@
 !IMPORTANT THINGS TO DO!
 1) Optimize generator code & document method procedures
-2) Add help link
-3) Proofread & document application code
-4) Write the README
+2) Proofread & document application code
+3) Write the README

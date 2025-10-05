@@ -124,8 +124,8 @@ namespace DunGenLib
         protected bool endAtBoundary = false;
 
         protected byte wallID = 0;
-        protected List<PoolOptions> poolIDs = [new PoolOptions { id = 2, spawnRate = 1, spread = 0.5F, tag = "Water", maxPoolSize = 40000, priority = 0 }];
-        protected List<GroundOptions> groundIDs = [new GroundOptions { id = 1, inPaths = true, inRooms = true, spawnRate = 1, tag = "Ground" }];
+        protected List<PoolOptions> poolIDs = [new PoolOptions { id = 2, tag = "Water" }];
+        protected List<GroundOptions> groundIDs = [new GroundOptions { id = 1, tag = "Ground" }];
         
         //End of field definitions
         
@@ -134,7 +134,7 @@ namespace DunGenLib
         /// </summary>
         public Generator()
         {
-            Map = new(128, 128);
+            Map = new(256, 256);
         }
         /// <summary>
         /// Creates a generator with a pre-defined map.
@@ -254,7 +254,7 @@ namespace DunGenLib
                 }
                 if (!(rooms && paths)) GroundIDs.Add(new GroundOptions { id = NextVacantTileID() ?? (byte)(WallID + 1), inPaths = true, inRooms = true, spawnRate = 1 });
             }
-            // Pool tiles are optional (sorry water lovers)
+            // Pool tiles are optional (sorry water/lava lovers)
         }
         /// <summary>
         /// Wrapper method for <see cref="Map.CarveRect(ushort, ushort, ushort, ushort, byte)"/> with less parameters.
@@ -331,25 +331,28 @@ namespace DunGenLib
                 if (y >= Map.Height) break;
                 for (ushort x = pos.x; x < pos.x + size.x; x++)
                 {
-                    if (InGroundIDs(Map.GetTile(x, y)) > -1) continue; //Avoid overwriting patches
-                    if (x >= Map.Width) break;
-                    if (ids.Count == 1)
+                    if (Map.GetTile(x, y) == WallID || InPoolIDs(Map.GetTile(x, y)) > -1)
                     {
-                        Map.PlaceTile(x, y, ids[0].id); 
-                    }
-                    else
-                    {
-                        rand = rng.NextSingle() * denom;
-                        //Look up the tile to place based on the probability table
-                        for (int index = 0; index < prob.Count; index++)
+
+                        if (x >= Map.Width) break;
+                        if (ids.Count == 1)
                         {
-                            if (rand < prob[index])
-                            {
-                                id = ids[index].id;
-                                break;
-                            }
+                            Map.PlaceTile(x, y, ids[0].id);
                         }
-                        Map.PlaceTile(x, y, id);
+                        else
+                        {
+                            rand = rng.NextSingle() * denom;
+                            //Look up the tile to place based on the probability table
+                            for (int index = 0; index < prob.Count; index++)
+                            {
+                                if (rand < prob[index])
+                                {
+                                    id = ids[index].id;
+                                    break;
+                                }
+                            }
+                            Map.PlaceTile(x, y, id);
+                        }
                     }
                 }
             }
@@ -370,6 +373,9 @@ namespace DunGenLib
             {
                 for (ushort h = 0; h < MapChunks.x; h++)
                 {
+                    minPos = new();
+                    minPos.x = (ushort)(Map.Width / MapChunks.x * h);
+                    minPos.y = (ushort)(Map.Height / MapChunks.y * v);
                     for (byte i = 0; i < r; i++)
                     {
                         counter = 0;
@@ -378,17 +384,15 @@ namespace DunGenLib
                             counter++;
                             size = new();
                             pos = new();
-                            minPos = new();
+                            if (counter > loopAttempts) break;
                             maxPos = new();
                             size.x = (ushort)rng.Next(MinRoomSize.x, MaxRoomSize.x + 1);
                             size.y = (ushort)rng.Next(MinRoomSize.y, MaxRoomSize.y + 1);
-                            minPos.x = (ushort)(Map.Width / MapChunks.x * h);
-                            minPos.y = (ushort)(Map.Height / MapChunks.y * v);
-                            maxPos.x = (ushort)(Map.Width / MapChunks.x * (h + 1) - size.x);
-                            maxPos.y = (ushort)(Map.Height / MapChunks.y * (v + 1) - size.y);
+                            maxPos.x = (ushort)(Map.Width / MapChunks.x * (h + 1) - (size.x / 2));
+                            maxPos.y = (ushort)(Map.Height / MapChunks.y * (v + 1) - (size.y / 2));
                             pos.x = maxPos.x <= minPos.x ? minPos.x : (ushort)rng.Next(minPos.x, maxPos.x);
                             pos.y = maxPos.y <= minPos.y ? minPos.y : (ushort)rng.Next(minPos.y, maxPos.y);
-                        } while (counter <= loopAttempts && !MergeRooms && CheckRoomOverlap(pos, size));
+                        } while (!MergeRooms && CheckRoomOverlap(pos, size));
                         if (counter <= loopAttempts)
                         {
                             CarveRoom(pos, size);
@@ -404,6 +408,7 @@ namespace DunGenLib
         /// <param name="pos"></param>
         /// <param name="dir"></param>
         /// <param name="startRoom"></param>
+        /// <returns>The <see cref="PathGenResult"/> value expressing how the path ended.</returns>
         protected PathGenResult CarvePath(Point2D_16 pos, Direction dir, RoomData startRoom)
         {
             //Buffer all ground tiles that occur in paths
@@ -512,7 +517,6 @@ namespace DunGenLib
         protected void GeneratePaths()
         {
             byte exits;
-            PathGenResult genResult = PathGenResult.Null;
             bool[] used = new bool[rooms.Count];
             Direction dir = 0;
             int counter = 0;
@@ -553,16 +557,16 @@ namespace DunGenLib
                     switch (dir)
                     {
                         case Direction.N:
-                            genResult = CarvePath(new() { x = (ushort)(r.pos.x + rng.Next(r.size.x)), y = r.pos.y }, dir, r);
+                            CarvePath(new() { x = (ushort)(r.pos.x + rng.Next(r.size.x)), y = r.pos.y }, dir, r);
                             break;
                         case Direction.S:
-                            genResult = CarvePath(new() { x = (ushort)(r.pos.x + rng.Next(r.size.x)), y = (ushort)(r.pos.y + r.size.y) }, dir, r);
+                            CarvePath(new() { x = (ushort)(r.pos.x + rng.Next(r.size.x)), y = (ushort)(r.pos.y + r.size.y) }, dir, r);
                             break;
                         case Direction.W:
-                            genResult = CarvePath(new() { x = r.pos.x, y = (ushort)(r.pos.y + rng.Next(r.size.y)) }, dir, r);
+                            CarvePath(new() { x = r.pos.x, y = (ushort)(r.pos.y + rng.Next(r.size.y)) }, dir, r);
                             break;
                         case Direction.E:
-                            genResult = CarvePath(new() { x = (ushort)(r.pos.x + r.size.x), y = (ushort)(r.pos.y + rng.Next(r.size.y)) }, dir, r);
+                            CarvePath(new() { x = (ushort)(r.pos.x + r.size.x), y = (ushort)(r.pos.y + rng.Next(r.size.y)) }, dir, r);
                             break;
                     }
                     counter++;
@@ -678,13 +682,13 @@ namespace DunGenLib
             {
                 if (TouchRooms)
                 {
-                    return r.pos.x - size.x < pos.x && pos.x < r.pos.x + r.size.x &&
-                           r.pos.y - size.y < pos.y && pos.y < r.pos.y + r.size.y;
+                    if(!(pos.x >= r.pos.x + r.size.x || r.pos.x >= pos.x + size.x ||
+                        pos.y + size.y <= r.pos.y || r.pos.y + r.size.y <= pos.y)) return true;
                 }
                 else
                 {
-                    return r.pos.x - size.x <= pos.x && pos.x <= r.pos.x + r.size.x &&
-                           r.pos.y - size.y <= pos.y && pos.y <= r.pos.y + r.size.y;
+                    if(!(pos.x > r.pos.x + r.size.x || r.pos.x > pos.x + size.x ||
+                        pos.y + size.y < r.pos.y || r.pos.y + r.size.y < pos.y)) return true;
                 }
             }
             return false;
