@@ -283,8 +283,8 @@ namespace DunGenLib
                 if (item.inRooms && item.patches) ids.Add(item);
             }
             float f;
-            Point2D_16 patchPos;
-            Point2D_16 patchSize;
+            Point2D_16 patchPos = new();
+            Point2D_16 patchSize = new();
             ushort counter;
             //Place patches in the room based on the "patches per room" setting for each type.
             foreach (GroundOptions item in ids)
@@ -298,14 +298,13 @@ namespace DunGenLib
                         do
                         {
                             counter++;
-                            patchPos = new();
-                            patchSize = new();
+                            if (counter > loopAttempts) break;
                             patchPos.x = (ushort)rng.Next(pos.x, pos.x + size.x);
                             patchPos.y = (ushort)rng.Next(pos.y, pos.y + size.y);
                             patchSize.x = (ushort)rng.Next(item.minPatchSize.x, item.maxPatchSize.x);
                             patchSize.y = (ushort)rng.Next(item.minPatchSize.y, item.maxPatchSize.y);
-                        } while (counter <= loopAttempts && (patchPos.x + patchSize.x >= pos.x + size.x || patchPos.y + patchSize.y >= pos.y + size.y));
-                        if (counter < loopAttempts) CarveRect(patchPos, patchSize, item.id);
+                        } while (patchPos.x + patchSize.x >= pos.x + size.x || patchPos.y + patchSize.y >= pos.y + size.y);
+                        if (counter <= loopAttempts) CarveRect(patchPos, patchSize, item.id);
                     }
                     f -= 1;
                 }
@@ -363,10 +362,10 @@ namespace DunGenLib
         protected void GenerateRooms()
         {
             rooms.Clear();
-            Point2D_16 pos;
-            Point2D_16 size;
-            Point2D_16 minPos;
-            Point2D_16 maxPos;
+            Point2D_16 pos = new();
+            Point2D_16 size = new();
+            Point2D_16 minPos = new();
+            Point2D_16 maxPos = new();
             byte r = (byte)rng.Next(minRoomsPerChunk, maxRoomsPerChunk + 1);
             ushort counter;
             for (ushort v = 0; v < MapChunks.y; v++)
@@ -382,10 +381,7 @@ namespace DunGenLib
                         do
                         {
                             counter++;
-                            size = new();
-                            pos = new();
                             if (counter > loopAttempts) break;
-                            maxPos = new();
                             size.x = (ushort)rng.Next(MinRoomSize.x, MaxRoomSize.x + 1);
                             size.y = (ushort)rng.Next(MinRoomSize.y, MaxRoomSize.y + 1);
                             maxPos.x = (ushort)(Map.Width / MapChunks.x * (h + 1) - (size.x / 2));
@@ -582,38 +578,31 @@ namespace DunGenLib
         /// <param name="tiles">The number of tiles spread so far (used for limiting recursion)</param>
         protected void FillPool(ushort x, ushort y, PoolOptions options, uint tiles = 1)
         {
-            try
+            if (tiles > options.maxPoolSize) return;
+            byte tile = Map.GetTile(x, y);
+            int index = InPoolIDs(tile);
+            if (tile == WallID || (index > -1 && PoolIDs[index].priority > options.priority)) Map.PlaceTile(x, y, options.id);
+            else return;
+            Direction dir = (Direction)(short)(rng.Next(4) * 90);
+            bool rotation = rng.Next(2) == 0; //Clockwise = true
+            for (byte i = 0; i < 4; i++)
             {
-                if (tiles > options.maxPoolSize) return;
-                byte tile = Map.GetTile(x, y);
-                int index = InPoolIDs(tile);
-                if (tile == WallID || (index > -1 && PoolIDs[index].priority > options.priority)) Map.PlaceTile(x, y, options.id);
-                else return;
-                Direction dir = (Direction)(short)(rng.Next(4) * 90);
-                bool rotation = rng.Next(2) == 0; //Clockwise = true
-                for (byte i = 0; i < 4; i++)
+                switch (dir)
                 {
-                    switch (dir)
-                    {
-                        case Direction.N:
-                            if (y > 0 && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y - 1), options, tiles + 1);
-                            break;
-                        case Direction.S:
-                            if (y < Map.Height - 1 && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y + 1), options, tiles + 1);
-                            break;
-                        case Direction.E:
-                            if (x < Map.Width - 1 && rng.NextSingle() < options.spread) FillPool((ushort)(x + 1), y, options, tiles + 1);
-                            break;
-                        case Direction.W:
-                            if (x > 0 && rng.NextSingle() < options.spread) FillPool((ushort)(x - 1), y, options, tiles + 1);
-                            break;
-                    }
-                    if (i < 3) dir = rotation ? (Direction)((short)(dir + 90) % 360) : dir = (Direction)((short)(dir - 90) % 360);
+                    case Direction.N:
+                        if (y > 0 && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y - 1), options, tiles + 1);
+                        break;
+                    case Direction.S:
+                        if (y < Map.Height - 1 && rng.NextSingle() < options.spread) FillPool(x, (ushort)(y + 1), options, tiles + 1);
+                        break;
+                    case Direction.E:
+                        if (x < Map.Width - 1 && rng.NextSingle() < options.spread) FillPool((ushort)(x + 1), y, options, tiles + 1);
+                        break;
+                    case Direction.W:
+                        if (x > 0 && rng.NextSingle() < options.spread) FillPool((ushort)(x - 1), y, options, tiles + 1);
+                        break;
                 }
-            }
-            catch (StackOverflowException)
-            {
-                return;
+                if (i < 3) dir = rotation ? (Direction)((short)(dir + 90) % 360) : dir = (Direction)((short)(dir - 90) % 360);
             }
         }
         /// <summary>
@@ -646,12 +635,13 @@ namespace DunGenLib
                 do
                 {
                     counter++;
+                    if (counter > loopAttempts) break;
                     pos.x = (ushort)rng.Next(Map.Width);
                     pos.y = (ushort)rng.Next(Map.Height);
                     oldTile = Map.GetTile(pos.x, pos.y);
                     oldPoolType = InPoolIDs(oldTile);
-                } while (oldTile != WallID && (oldPoolType > -1 && poolIDs[oldPoolType].priority <= poolIDs[index].priority) && counter <= loopAttempts);
-                FillPool(pos.x, pos.y, PoolIDs[index]);
+                } while (oldTile != WallID && (oldPoolType > -1 && poolIDs[oldPoolType].priority <= poolIDs[index].priority));
+                if (counter <= loopAttempts) FillPool(pos.x, pos.y, PoolIDs[index]);
             }
         }
         /// <summary>
