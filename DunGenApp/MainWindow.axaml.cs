@@ -25,33 +25,6 @@ namespace DunGenApp
         public MainWindow()
         {
             gen = new DynamicGenerator(map);
-            /*gen = new DynamicGenerator(map)
-            {
-                LoopAttempts = 10,
-                MergeRooms = false,
-                TouchRooms = false,
-                MapChunks = new() { x = 8, y = 8 },
-                MinRoomsPerChunk = 1,
-                MaxRoomsPerChunk = 1,
-                PoolsPerChunk = 0.7F,
-                MinRoomSize = new() { x = 4, y = 4 },
-                PathTerminate = 0F,
-                EndAtBoundary = false,
-                WallID = 1,
-                ObservablePoolIDs = [
-                    new PoolOptions{id = 2, spawnRate = 0.6F, spread = 0.6F},
-                    new PoolOptions{id = 5, spawnRate = 0.4F, spread = 0.4F},
-                ],
-                ObservableGroundIDs = [
-                    new GroundOptions{id = 0, spawnRate = 1.0F, inRooms = true, inPaths = false},
-                    new GroundOptions{id = 6, spawnRate = 0.2F, inRooms = false, patches = false, inPaths = true, segments = false, minSegmentLength = 5, maxSegmentLength = 20},
-                    new GroundOptions{id = 8, spawnRate = 0.5F, inRooms = true, patches = false, inPaths = true, segments = true, minSegmentLength = 5, maxSegmentLength = 10},
-                    new GroundOptions{id = 9, spawnRate = 0.3F, inRooms = false, patches = false, inPaths = true, segments = false, minSegmentLength = 5, maxSegmentLength = 20},
-                    new GroundOptions{id = 3, spawnRate = 0.5F, inRooms = true, patches = false, inPaths = false},
-                    new GroundOptions{id = 7, spawnRate = 0.5F, inRooms = true, patches = true, inPaths = false, patchesPerRoom = 0.5F, minPatchSize = new() { x = 2, y = 2 }, maxPatchSize = new() { x = 6, y = 6 }},
-                    new GroundOptions{id = 4, spawnRate = 0.5F, inRooms = true, patches = true, inPaths = false, patchesPerRoom = 0.5F, minPatchSize = new() { x = 3, y = 3 }, maxPatchSize = new() { x = 8, y = 8 }},
-                ]
-            };*/
             gen.UpdateIDs();
             textures = new() { gen = gen };
             InitializeComponent();
@@ -59,10 +32,14 @@ namespace DunGenApp
         }
         public void InitializeUI()
         {
-            gen.PropertyChanged += (source, ev) => MapStatus.Text = "Settings changed";
-            gen.ObservableGroundIDs.CollectionChanged += (source, ev) => MapStatus.Text = "Settings changed";
-            gen.ObservablePoolIDs.CollectionChanged += (source, ev) => MapStatus.Text = "Settings changed";
+            gen.PropertyChanged += SettingsChanged;
+            gen.ObservableGroundIDs.CollectionChanged += SettingsChanged;
+            gen.ObservablePoolIDs.CollectionChanged += SettingsChanged;
             GenSettings.DataContext = gen;
+        }
+        public void SettingsChanged(object? source, EventArgs e)
+        {
+            if (MapStatus.Text != "Generating...") MapStatus.Text = "Settings changed";
         }
         public MainWindow(DynamicGenerator g)
         {
@@ -137,10 +114,7 @@ namespace DunGenApp
             gen = new DynamicGenerator { Map = map };
             gen.UpdateIDs();
             textures = new() { gen = gen };
-            gen.PropertyChanged += (source, ev) => MapStatus.Text = "Settings changed";
-            gen.ObservableGroundIDs.CollectionChanged += (source, ev) => MapStatus.Text = "Settings changed";
-            gen.ObservablePoolIDs.CollectionChanged += (source, ev) => MapStatus.Text = "Settings changed";
-            GenSettings.DataContext = gen;
+            InitializeUI();
         }
         private void GenerateMap(object? source, RoutedEventArgs e)
         {

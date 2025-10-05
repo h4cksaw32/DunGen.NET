@@ -10,17 +10,37 @@ using System.Threading.Tasks;
 
 namespace DunGenApp
 {
+    /// <summary>
+    /// A container class for managing and storing/retrieving bitmap textures within the application.
+    /// </summary>
     public class TextureInfo
     {
-        internal bool activated = false;
-        private readonly Bitmap?[] tiles = new Bitmap?[256];
-        private readonly Bitmap[] player = new Bitmap[9];
-        private ushort tileSize = 32;
+        internal bool activated = false; // Used within the application to determine if the textures are being used.
+        /// <summary>
+        /// Tiles to used for the map.
+        /// </summary>
+        /// <remarks>The index of each image corresponds to the tile ID.</remarks>
         public Bitmap?[] Tiles => tiles;
+        /// <summary>
+        /// Sprites to use for the player in the playtesting feature.
+        /// </summary>
+        /// <remarks>Has slots for eight directions and a neutral sprite.</remarks>
         public Bitmap?[] Player => player;
+        /// <summary>
+        /// The size in pixels to scale each tile to.
+        /// </summary>
         public ushort TileSize => tileSize;
         public required Generator gen { get; set; }
         public Map map => gen.Map;
+        //Property fields
+        private readonly Bitmap?[] tiles = new Bitmap?[256];
+        private readonly Bitmap[] player = new Bitmap[9];
+        private ushort tileSize = 32;
+        /// <summary>
+        /// Saves the map and bitmap textures into a directory.
+        /// </summary>
+        /// <param name="mapPath">The file to save the map into.</param>
+        /// <remarks>Refer to the README for the folder structure of the data.</remarks>
         public void Serialize(string mapPath)
         {
             FileInfo f = new FileInfo(mapPath);
@@ -33,6 +53,11 @@ namespace DunGenApp
                 }
             }
         }
+        /// <summary>
+        /// Saves the map and bitmap textures from a directory.
+        /// </summary>
+        /// <param name="mapPath">The file to read the map from.</param>
+        /// <remarks>Refer to the README for the folder structure of the data.</remarks>
         public static TextureInfo Deserialize(string mapPath)
         {
             FileInfo file = new FileInfo(mapPath);

@@ -14,6 +14,10 @@ namespace DunGenLib
     public class TextureHelper
     {
         public required Map Map { get; set; }
+        /// <summary>
+        /// Tiles to used for the map.
+        /// </summary>
+        /// <remarks>The index of each image corresponds to the tile ID.</remarks>
         public Bitmap?[] Tiles => tiles;
         private Bitmap?[] tiles = new Bitmap?[256];
         /// <summary>
