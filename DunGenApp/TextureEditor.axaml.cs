@@ -19,11 +19,12 @@ public partial class TextureEditor : Window
     private static readonly Bitmap GROUND_TILE = new("ground.png");
     private static readonly Bitmap WATER_TILE = new("water.png");
     private TextureInfo textures;
-    public TextureEditor(TextureInfo t, bool flash = false)
+    public TextureEditor(TextureInfo t, bool flash = false) //Flash is used internally to load default textures if the map editor is opened with no textures.
     {
         textures = t;
         textures.activated = true;
         InitializeComponent();
+        //Add player sprite UI
         Disp.Children.Add(new TextBlock
         {
             Text = "Player",
@@ -46,6 +47,7 @@ public partial class TextureEditor : Window
             g.Children.Add(b);
         }
         Disp.Children.Add(g);
+        //Add wall tile UI
         Disp.Children.Add(new TextBlock
         {
             Text = "Wall Tile",
@@ -56,6 +58,7 @@ public partial class TextureEditor : Window
         b.MinHeight = 16;
         b.MinWidth = 16;
         Disp.Children.Add(b);
+        //Add ground and pool tile UIs
         Disp.Children.Add(new TextBlock
         {
             Text = "Ground Tiles",

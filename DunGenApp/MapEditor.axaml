@@ -10,11 +10,13 @@
 		x:Name="window">
 	<DockPanel VerticalAlignment="Stretch">
 		<Grid DockPanel.Dock="Top" RowDefinitions="Auto, Auto">
+			<!--Top menu-->
 			<Menu>
 				<MenuItem Header="Save" Click="SaveMap"/>
 				<MenuItem Header="Load" Click="LoadMap"/>
 				<MenuItem Header="Clear" Click="FillMap"/>
 			</Menu>
+			<!--Tile selection bar-->
 			<ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto">
 				<Menu Name="TileSelect" Margin="0, 0, 0, 15">
 					<MenuItem Name="SelectDisp" Margin="10, 0, 25, 0"/>
@@ -23,12 +25,14 @@
 		</Grid>
 		<ScrollViewer>
 			<StackPanel VerticalAlignment="Stretch">
+				<!--Viewport size setting-->
 				<WrapPanel x:DataType="local:MapEditor" VerticalAlignment="Center">
 					<TextBlock Text="View width: "/>
 					<TextBox Text="{Binding #window.DispSize}"/>
 					<TextBlock Text=" tiles "/>
 					<Button Content="Apply" Click="ResizeDisp"/>
 				</WrapPanel>
+				<!--Full map toggle-->
 				<Button Content="Show/Hide full map" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Click="ToggleMap"/>
 				<DockPanel VerticalAlignment="Stretch">
 					<DockPanel.Styles>
@@ -39,15 +43,18 @@
 							<Setter Property="FontWeight" Value="Black"/>
 						</Style>
 					</DockPanel.Styles>
+					<!--Viewport shifting buttons-->
 					<Button DockPanel.Dock="Left" VerticalAlignment="Stretch" Content="&#x2190;" Tag="L" Click="MoveDisp"/>
 					<Button DockPanel.Dock="Right" VerticalAlignment="Stretch" Content="&#x2192;" Tag="R" Click="MoveDisp" ToolTip.Tip="Tip: Use Shift + Scroll to scroll the rendered area horizontally if the viewport is too small."/>
 					<Button DockPanel.Dock="Top" HorizontalAlignment="Stretch" Content="&#x2191;" Tag="U" Click="MoveDisp"/>
 					<Button DockPanel.Dock="Bottom" HorizontalAlignment="Stretch" Content="&#x2193;" Tag="D" Click="MoveDisp"/>
 					<ScrollViewer VerticalAlignment="Stretch" Name="MapDisp" HorizontalScrollBarVisibility="Auto">
 						<Grid>
+							<!--Map editing area-->
 							<UniformGrid Name="EditArea" HorizontalAlignment="Left">
 
 							</UniformGrid>
+							<!--Full map display-->
 							<ScrollViewer HorizontalScrollBarVisibility="Visible">
 								<Canvas Name="FullMap" IsVisible="False">
 									<Image Name="MapImage" Stretch="Uniform" Canvas.Left="0" Canvas.Top="0" RenderOptions.BitmapInterpolationMode="None"/>

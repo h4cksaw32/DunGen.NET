@@ -8,7 +8,9 @@ using Avalonia.Platform.Storage;
 using System.Threading.Tasks;
 
 namespace DunGenApp;
-
+/// <summary>
+/// A button designed to select an image from a file, which is bound to a certain index in a collection.
+/// </summary>
 public partial class ImgListSelectButton : UserControl
 {
     public int Index { get; set; }
@@ -22,8 +24,10 @@ public partial class ImgListSelectButton : UserControl
         Index = i;
         Collection = list;
         if (Bitmap == null) Bitmap = defImage;
-        MaxWidth = sizeLimit;
-        MaxHeight = sizeLimit;
+        if (sizeLimit > 0) {
+            MaxWidth = sizeLimit;
+            MaxHeight = sizeLimit;
+        }
         InitializeComponent();
         if (Bitmap != null) Disp.Content = new Image { Source = Bitmap, Stretch = Stretch.None };
     }

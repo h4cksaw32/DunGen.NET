@@ -12,6 +12,7 @@
 		Name="Window"
 		x:DataType="local:MainWindow">
 	<DockPanel>
+		<!--Top menu-->
 		<Menu DockPanel.Dock="Top">
 			<MenuItem Header="File">
 				<MenuItem Header="Save preset" Click="SaveOptions"/>
@@ -21,14 +22,17 @@
 			<MenuItem Header="Textures" Click="EditTextures"/>
 			<MenuItem Header="Help" Click="OpenDocs"/>
 		</Menu>
+		<!--Bottom bar-->
 		<StackPanel HorizontalAlignment="Right" DockPanel.Dock="Bottom" Orientation="Horizontal" VerticalAlignment="Bottom">
 			<TextBlock Name="MapStatus" Text="No map" VerticalAlignment="Center"/>
 			<Button Click="GenerateMap">Generate</Button>
 			<Button Name="EditMapBtn" IsEnabled="False" Click="EditMap">Edit map</Button>
 			<Button Click="PrintMap">Playtest</Button>
 		</StackPanel>
+		<!--Generator settings-->
 		<ScrollViewer>
 			<StackPanel Name="GenSettings" x:DataType="local:DynamicGenerator">
+
 				<TextBlock Text="General" Classes="header"/>
 				<WrapPanel>
 					<TextBlock Text="Map size: "/>
@@ -46,6 +50,7 @@
 					<TextBlock Text="Generation attempts (per feature): " ToolTip.Tip="The maximum number of times to repeat each loop in the generation code. If the maximum number is reached, the feature will not be generated."/>
 					<TextBox MaxLines="1" Text="{Binding LoopAttempts}"/>
 				</WrapPanel>
+
 				<TextBlock Classes="header" Text="Room Generation"/>
 				<WrapPanel>
 					<TextBlock Text="Room size: "/>
@@ -76,6 +81,7 @@
 					<TextBlock Text="Pools per chunk: " ToolTip.Tip="The number of pools to generate for each chunk. Pools are generated at any available location on the map, so the position is not based on the chunks."/>
 					<TextBox MaxLines="1" Text="{Binding PoolsPerChunk}"/>
 				</WrapPanel>
+
 				<TextBlock Classes="header" Text="Path Generation"/>
 				<WrapPanel>
 					<TextBlock Text="Paths per room: " ToolTip.Tip="The number of paths to generate starting from each room. A path that connects two rooms only counts for one room."/>
@@ -99,11 +105,14 @@
 					<CheckBox IsChecked="{Binding EndAtBoundary}"/>
 					<TextBlock Text="Terminate paths at map edge" ToolTip.Tip="Terminates a path when it touches the map boundaries."/>
 				</WrapPanel>
+
+
 				<TextBlock Classes="header" Text="Tile Info"/>
 				<WrapPanel>
 					<TextBlock Text="Wall ID: " ToolTip.Tip="The numerical (0~255) identifier for wall tiles."/>
 					<TextBox MaxLines="1" MaxLength="3" Text="{Binding WallID}"/>
 				</WrapPanel>
+
 				<TextBlock Classes="header2" Text="Ground Tiles"/>
 				<DataGrid Name="GroundTypes" ItemsSource="{Binding ObservableGroundIDs}">
 					<DataGrid.Columns>
@@ -193,6 +202,7 @@
 					<Button Content="Add" Click="AddGroundType"/>
 					<Button Content="Delete" Click="RemoveGroundType"/>
 				</WrapPanel>
+
 				<TextBlock Classes="header2" Text="Pool Tiles"/>
 				<DataGrid Name="PoolTypes" ItemsSource="{Binding ObservablePoolIDs}">
 					<DataGrid.Columns>
@@ -232,6 +242,7 @@
 					<Button Content="Add" Click="AddPoolType"/>
 					<Button Content="Delete" Click="RemovePoolType"/>
 				</WrapPanel>
+				
 				<TextBox Name="ConsoleView" FontFamily="Fixed Width"/>
 			</StackPanel>
 		</ScrollViewer>
