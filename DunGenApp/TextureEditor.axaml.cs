@@ -14,6 +14,7 @@ namespace DunGenApp;
 
 public partial class TextureEditor : Window
 {
+    //Default textures
     private static readonly Bitmap NULL_TILE = new("default.png");
     private static readonly Bitmap WALL_TILE = new("wall.png");
     private static readonly Bitmap GROUND_TILE = new("ground.png");

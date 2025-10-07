@@ -15,11 +15,12 @@ public partial class MapEditor : Window
 {
     public Map map;
     public TextureInfo textures;
+    //Tile editor location and size
     private byte dispSize = 32;
     private ushort xPos = 0;
     private ushort yPos = 0;
-    private byte IMAGE_SCALE = 4;
-    private byte tileType = 0;
+    private byte IMAGE_SCALE = 4; // Scale factor for the full map display
+    private byte tileType = 0; //ID of the currently selected tile on the selection bar
     public byte DispSize { get => dispSize; set => dispSize = value; }
     public MapEditor(TextureInfo t)
     {
@@ -28,6 +29,7 @@ public partial class MapEditor : Window
         EditArea = new();
         PosMarker = new Avalonia.Controls.Shapes.Rectangle { Fill = new SolidColorBrush(Avalonia.Media.Color.FromRgb(255, 0, 0)), Opacity = 0.5 };
         InitializeComponent();
+        //Populate selection bar
         TileSelect.Height = textures.TileSize;
         MenuItem mi = new MenuItem
         {
@@ -100,24 +102,41 @@ public partial class MapEditor : Window
         });
         if (file != null) textures.Serialize(file.Path.AbsolutePath);
     }
+    /// <summary>
+    /// Handles selecting a tile from the selection bar
+    /// </summary>
+    /// <param name="source"></param>
+    /// <param name="e"></param>
     private void SelectTile(object? source, RoutedEventArgs e)
     {
         MenuItem b = (MenuItem)(source ?? new MenuItem());
+        tileType = (byte)(b.Tag ?? 0);
+        SelectDisp.Header = new Avalonia.Controls.Image { Source = textures.Tiles[tileType], Stretch = Stretch.Uniform, Width = textures.TileSize, Height = textures.TileSize };
+        ToolTip.SetTip(SelectDisp, $"Current selection: {ToolTip.GetTip(b)}");
+    }
+    private void PlaceTile(object? source, RoutedEventArgs e)
+    {
+        Button b = (Button)(source ?? new Button());
         try
         {
-            tileType = (byte)(b.Tag ?? 0);
-            SelectDisp.Header = new Avalonia.Controls.Image { Source = textures.Tiles[tileType], Stretch = Stretch.Uniform, Width = textures.TileSize, Height = textures.TileSize };
-            ToolTip.SetTip(SelectDisp, $"Current selection: {ToolTip.GetTip(b)}");
+            uint index = Convert.ToUInt32(b.Tag ?? map.Tiles.Length + 1);
+            map.Tiles[index] = tileType;
+            b.Content = new Avalonia.Controls.Image { Source = textures.Tiles[tileType], Stretch = Stretch.Uniform };
         }
         catch
         {
-            
+
         }
     }
     private void FillMap(object? source, RoutedEventArgs e)
     {
         textures.gen.FillMap();
     }
+    /// <summary>
+    /// Resizes and reloads the tile editor display area when the size is changed
+    /// </summary>
+    /// <param name="source"></param>
+    /// <param name="e"></param>
     private void ResizeDisp(object? source, RoutedEventArgs e)
     {
         EditArea.Children.Clear();
@@ -127,6 +146,11 @@ public partial class MapEditor : Window
         EditArea.Height = textures.TileSize * DispSize;
         ReloadDisp();
     }
+    /// <summary>
+    /// Handles shifting the tile editor display area
+    /// </summary>
+    /// <param name="source"></param>
+    /// <param name="e"></param>
     private void MoveDisp(object? source, RoutedEventArgs e)
     {
         Button b = (Button)(source ?? new Button());
@@ -153,6 +177,9 @@ public partial class MapEditor : Window
         }
         if (reload) ReloadDisp();
     }
+    /// <summary>
+    /// Clear and repopulate the tile editor display area
+    /// </summary>
     private void ReloadDisp()
     {
         EditArea.Children.Clear();
@@ -178,20 +205,6 @@ public partial class MapEditor : Window
         Canvas.SetTop(PosMarker, yPos * IMAGE_SCALE);
         Canvas.SetLeft(PosMarker, xPos * IMAGE_SCALE);
     }
-    private void PlaceTile(object? source, RoutedEventArgs e)
-    {
-        Button b = (Button)(source ?? new Button());
-        try
-        {
-            uint index = Convert.ToUInt32(b.Tag ?? map.Tiles.Length + 1);
-            map.Tiles[index] = tileType;
-            b.Content = new Avalonia.Controls.Image { Source = textures.Tiles[tileType], Stretch = Stretch.Uniform };
-        }
-        catch
-        {
-
-        }
-    }
     private void ToggleMap(object? source, RoutedEventArgs e)
     {
         if (FullMap.IsVisible)
@@ -208,24 +221,10 @@ public partial class MapEditor : Window
             EditArea.IsVisible = false;
         }
     }
-    private void UpdateMapImage()
-    {
-        Avalonia.Media.Imaging.Bitmap bmp = ConvertBitmap(VisualizeMap());
-        MapImage.Source = bmp;
-        MapImage.Width = bmp.Size.Width * IMAGE_SCALE;
-        MapImage.Height = bmp.Size.Height * IMAGE_SCALE;
-        FullMap.Width = MapImage.Width;
-        FullMap.Height = MapImage.Height;
-    }
-    private Avalonia.Media.Imaging.Bitmap ConvertBitmap(Bitmap bmp)
-    {
-        using (MemoryStream ms = new MemoryStream())
-        {
-            bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
-            ms.Seek(0, SeekOrigin.Begin);
-            return new Avalonia.Media.Imaging.Bitmap(ms);
-        }
-    }
+    /// <summary>
+    /// Generates a bitmap visualization of the entire map
+    /// </summary>
+    /// <returns></returns>
     private Bitmap VisualizeMap()
     {
         Bitmap bmp = new(map.Width, map.Height);
@@ -256,5 +255,31 @@ public partial class MapEditor : Window
             }
         }
         return bmp;
+    }
+    /// <summary>
+    /// Updates the full map image display
+    /// </summary>
+    private void UpdateMapImage()
+    {
+        Avalonia.Media.Imaging.Bitmap bmp = ConvertBitmap(VisualizeMap());
+        MapImage.Source = bmp;
+        MapImage.Width = bmp.Size.Width * IMAGE_SCALE;
+        MapImage.Height = bmp.Size.Height * IMAGE_SCALE;
+        FullMap.Width = MapImage.Width;
+        FullMap.Height = MapImage.Height;
+    }
+    /// <summary>
+    /// Converts <see cref="System.Drawing.Bitmap"/> to <see cref="Avalonia.Media.Imaging.Bitmap"/>.
+    /// </summary>
+    /// <param name="bmp"></param>
+    /// <returns></returns>
+    private Avalonia.Media.Imaging.Bitmap ConvertBitmap(Bitmap bmp)
+    {
+        using (MemoryStream ms = new MemoryStream())
+        {
+            bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
+            ms.Seek(0, SeekOrigin.Begin);
+            return new Avalonia.Media.Imaging.Bitmap(ms);
+        }
     }
 }
