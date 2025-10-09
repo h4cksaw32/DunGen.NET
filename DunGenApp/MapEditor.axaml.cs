@@ -197,6 +197,7 @@ public partial class MapEditor : Window
                     Tag = y * map.Width + x,
                 };
                 b.Click += PlaceTile;
+                ToolTip.SetTip(b, $"{x}, {y}");
                 EditArea.Children.Add(b);
             }
         }

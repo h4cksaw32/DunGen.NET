@@ -382,6 +382,9 @@ namespace DunGenLib
                         {
                             counter++;
                             if (counter > loopAttempts) break;
+                            size = new();
+                            pos = new();
+                            maxPos = new();
                             size.x = (ushort)rng.Next(MinRoomSize.x, MaxRoomSize.x + 1);
                             size.y = (ushort)rng.Next(MinRoomSize.y, MaxRoomSize.y + 1);
                             maxPos.x = (ushort)(Map.Width / MapChunks.x * (h + 1) - (size.x / 2));
