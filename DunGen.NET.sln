@@ -13,9 +13,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
 		ABOUT.txt = ABOUT.txt
+		DEV-NOTES.txt = DEV-NOTES.txt
 		LICENSE.txt = LICENSE.txt
 		README.md = README.md
-		TO-DO.txt = TO-DO.txt
 	EndProjectSection
 EndProject
 Global
