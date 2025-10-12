@@ -25,29 +25,8 @@ public partial class TextureEditor : Window
         textures = t;
         textures.activated = true;
         InitializeComponent();
-        //Add player sprite UI
-        Disp.Children.Add(new TextBlock
-        {
-            Text = "Player",
-            FontSize = 18,
-            FontWeight = FontWeight.DemiBold
-        });
-        UniformGrid g = new UniformGrid {
-            Columns = 3,
-            Rows = 3,
-            MinHeight = 48,
-            MinWidth = 48,
-            HorizontalAlignment = HorizontalAlignment.Left
-        };
+        UniformGrid g;
         ImgListSelectButton b;
-        for (int i = 0; i < 9; i++)
-        {
-            b = new ImgListSelectButton(i, textures.Player, NULL_TILE);
-            b.MinHeight = 16;
-            b.MinWidth = 16;
-            g.Children.Add(b);
-        }
-        Disp.Children.Add(g);
         //Add wall tile UI
         Disp.Children.Add(new TextBlock
         {

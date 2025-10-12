@@ -27,7 +27,6 @@
 			<TextBlock Name="MapStatus" Text="No map" VerticalAlignment="Center"/>
 			<Button Click="GenerateMap">Generate</Button>
 			<Button Name="EditMapBtn" IsEnabled="False" Click="EditMap">Edit map</Button>
-			<Button Click="PrintMap">Playtest</Button>
 		</StackPanel>
 		<!--Generator settings-->
 		<ScrollViewer>
@@ -242,8 +241,6 @@
 					<Button Content="Add" Click="AddPoolType"/>
 					<Button Content="Delete" Click="RemovePoolType"/>
 				</WrapPanel>
-				
-				<TextBox Name="ConsoleView" FontFamily="Fixed Width"/>
 			</StackPanel>
 		</ScrollViewer>
 	</DockPanel>

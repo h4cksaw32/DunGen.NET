@@ -22,11 +22,6 @@ namespace DunGenApp
         /// <remarks>The index of each image corresponds to the tile ID.</remarks>
         public Bitmap?[] Tiles => tiles;
         /// <summary>
-        /// Sprites to use for the player in the playtesting feature.
-        /// </summary>
-        /// <remarks>Has slots for eight directions and a neutral sprite.</remarks>
-        public Bitmap?[] Player => player;
-        /// <summary>
         /// The size in pixels to scale each tile to.
         /// </summary>
         public ushort TileSize => tileSize;
@@ -34,7 +29,6 @@ namespace DunGenApp
         public Map map => gen.Map;
         //Property fields
         private readonly Bitmap?[] tiles = new Bitmap?[256];
-        private readonly Bitmap[] player = new Bitmap[9];
         private ushort tileSize = 32;
         /// <summary>
         /// Saves the map and bitmap textures into a directory.
