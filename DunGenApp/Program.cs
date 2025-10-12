@@ -14,14 +14,16 @@ namespace DunGenApp
         public static void Main(string[] args)
         {
             AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(AssemblyResolve);
+            Start(args);
+        }
+        internal static void Start(string[] args) =>
             BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);
-        }
-
         private static Assembly AssemblyResolve(object? sender, ResolveEventArgs args)
         {
-            string altDir = Path.Combine("lib", args.Name + ".dll");
-            Assembly asm = Assembly.LoadFile(File.Exists(altDir) ? altDir : args.Name + ".dll");
+            string defDir = args.RequestingAssembly.GetName().Name + ".dll";
+            string altDir = Path.Combine("lib", args.RequestingAssembly.GetName().Name + ".dll");
+            Assembly asm = Assembly.LoadFrom(File.Exists(defDir) ? defDir : altDir);
             return asm;
         }
 
