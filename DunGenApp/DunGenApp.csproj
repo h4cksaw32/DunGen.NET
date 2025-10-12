@@ -52,6 +52,6 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy &quot;$(ProjectDir)..\README.md&quot; &quot;$(TargetDir)&quot;&#xD;&#xA;copy &quot;$(ProjectDir)..\LICENSE.txt&quot; &quot;$(TargetDir)&quot;&#xD;&#xA;copy &quot;$(ProjectDir)..\ABOUT.txt&quot; &quot;$(TargetDir)&quot;&#xD;&#xA;mkdir &quot;$(TargetDir)lib&quot;&#xD;&#xA;move /Y &quot;$(TargetDir)\*.dll&quot; &quot;$(TargetDir)lib&quot;&#xD;&#xA;move /Y &quot;$(TargetDir)\DunGenLib.pdb&quot; &quot;$(TargetDir)lib&quot;&#xD;&#xA;move /Y &quot;$(TargetDir)\lib\DunGenApp.dll&quot; &quot;$(TargetDir)&quot;" />
+    <Exec Command="copy &quot;$(ProjectDir)..\README.md&quot; &quot;$(TargetDir)&quot;&#xD;&#xA;copy &quot;$(ProjectDir)..\LICENSE.txt&quot; &quot;$(TargetDir)&quot;&#xD;&#xA;copy &quot;$(ProjectDir)..\ABOUT.txt&quot; &quot;$(TargetDir)&quot;" />
   </Target>
 </Project>
