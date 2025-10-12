@@ -55,12 +55,10 @@
 
 							</UniformGrid>
 							<!--Full map display-->
-							<ScrollViewer HorizontalScrollBarVisibility="Visible">
-								<Canvas Name="FullMap" IsVisible="False">
-									<Image Name="MapImage" Stretch="Uniform" Canvas.Left="0" Canvas.Top="0" RenderOptions.BitmapInterpolationMode="None"/>
-									<Rectangle Name="PosMarker" Width="128" Height="128" Fill="#ff0000" Opacity="0.5" Canvas.Left="0" Canvas.Top="0"/>
-								</Canvas>
-							</ScrollViewer>
+							<Canvas Name="FullMap" IsVisible="False" IsHitTestVisible="False">
+								<Image Name="MapImage" Stretch="Uniform" Canvas.Left="0" Canvas.Top="0" RenderOptions.BitmapInterpolationMode="None"/>
+								<Rectangle Name="PosMarker" Width="128" Height="128" Fill="#ff0000" Opacity="0.5" Canvas.Left="0" Canvas.Top="0"/>
+							</Canvas>
 						</Grid>
 					</ScrollViewer>
 				</DockPanel>

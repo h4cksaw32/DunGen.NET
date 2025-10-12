@@ -76,6 +76,7 @@ public partial class MapEditor : Window
         }
         SelectDisp.Width = textures.TileSize;
         SelectDisp.Height = textures.TileSize;
+        MapDisp.Height = EditArea.Height;
         ReloadDisp();
     }
     private async void LoadMap(object source, RoutedEventArgs e)
