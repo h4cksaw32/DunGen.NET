@@ -11,7 +11,7 @@ using DunGenLib;
 namespace DunGenApp
 {
     /// <summary>
-    /// A versoin of <see cref="Generator"/> that implements <see cref="INotifyPropertyChanged"/> to signal changes in each setting.
+    /// A version of <see cref="Generator"/> that implements <see cref="INotifyPropertyChanged"/> to signal changes in each setting.
     /// </summary>
     /// <remarks>
     /// Note that <see cref="Generator.GroundIDs"/> and <see cref="Generator.PoolIDs"/> are instead mirrored by <see cref="ObservableCollection{T}"/> lists.

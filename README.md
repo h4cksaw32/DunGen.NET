@@ -1,26 +1,15 @@
 # DunGen.NET
 
 ## About
-DunGen.NET is a dungeon generator library and app written using C# and Avalonia. It is meant for game developers that need some maps for their games. The library allows the options of having maps generated directly in projects.
+DunGen.NET is a dungeon map generator library and app written using C# and Avalonia. It is meant for game developers that need some maps for their games. The library allows the options of having maps generated directly in projects.
 
 ## App
 The app contains a GUI for generating maps, as well as adjusting individual tiles and visualizing with textures.
 ### How to use
 1) In the releases tab, download the folder WITHOUT "library" in its name.
 2) Run "DunGenApp.exe" from the folder.
-### Generator Options
-There are many options to tweak the generation of the map, including individual settings for each tile type.  
-After adjusting the settings, press "Generate" at the bottom to generate the map, and "Edit map" to open the map editor.  
-The top menu has options for saving and loading settings, resetting to default, and opening the texture selector.
-### Texture Select
-This window allows you to select textures for each tile type to be displayed in the map editor.
-### Map Editor
-The top menu has options for saving and loading maps, as well as clearing it entirely.  
-Below that is the tile selector, where you can choose which tile to place.  
-"View width" changes how many tiles are shown (horizontally and vertically) in the editing area below.  
-The editing area is where you can place tiles, simply by clicking on the desired tile.  
-To shift the editing area to a different part of the map, use the surrounding buttons.  
-A toggle is also available to view the layout of the entire map.
+### Content
+The app contains a map generator, a tile editor, and a texture manager.
 ### Files
 Generator settings are saved in a .json format, providing easy editing in a text editor.  
 For information on the file format of the map and textures, see [Library: File Format](#file-format).
@@ -30,13 +19,8 @@ The library contains classes that can be used to generate maps. Besides being us
 ### How to use
 1) In the releases tab, download the folder with "library" in its name.
 2) Within the folder, use "DunGenLib.dll" as a reference in your project.
-### Map
-The map is represented by an array of bytes, where each byte represents a tile and its ID.  
-It has various methods for resizing, getting and setting tiles, inserting tiles, placing rectangles, etc.
-### Generator
-This generator mainly uses room placement. It generates rooms, paths, and bodies of liquid with many settings that can be tweaked.
-### Textures
-There is a "bonus" class that maps tiles IDs to bitmaps. It is meant for use in other projects to facilitate the allocation of textures.
+### About
+This library contains a generator that uses a room-placement algorithm to create maps.
 ### File format
 The map file contains the following:
 1) Width (2 bytes, little endian)
@@ -47,5 +31,14 @@ The texture manager writes each image as a .bmp file, located in the same folder
 Each image is named "##.bmp", where "##" is the tile ID in hexadecimal (lowercase).
 
 ## Contributing
+Developers are welcome to develop their own features if I don't update the project for a long time.
 ### Branches
+- `main`: THe development branch, where frameworks for new features are added.
+- `release`: The release branch, where only code for released features are kept.
 ### Recommended tools
+- .NET 9.0 SDK or later
+- Visual Studio 2022 or later
+    - Avalonia extension installed
+### Issues & Requests
+Bug reports and suggestions are greatly appreciated, and are highly encouraged to be submitted to the issues tab.  
+If you fix a bug or add a new feature to your fork and want to see it in the main project, you want to see in the main project, feel free to make a pull request.
