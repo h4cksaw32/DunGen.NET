@@ -1,3 +1,0 @@
-EXTRA STUFF IN THIS BRANCH:
-1) Configuration for player sprites to be used in a playtesting window (not implemented)
-2) A playtesting button that currently just prints the map in text form into a textbox.
