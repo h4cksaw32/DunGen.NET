@@ -28,6 +28,8 @@ public partial class MapEditor : Window
         textures = t;
         EditArea = new();
         PosMarker = new Avalonia.Controls.Shapes.Rectangle { Fill = new SolidColorBrush(Avalonia.Media.Color.FromRgb(255, 0, 0)), Opacity = 0.5 };
+        if (map.Width < 32) DispSize = (byte)map.Width;
+        if (map.Height < 32 && map.Height < DispSize) DispSize = (byte)map.Height;
         InitializeComponent();
         //Populate selection bar
         TileSelect.Height = textures.TileSize;
